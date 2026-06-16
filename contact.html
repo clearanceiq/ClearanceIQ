@@ -22,15 +22,57 @@
     <input name="topic" placeholder="Topic, e.g. HTS / bond / hold" />
     <textarea name="message" placeholder="Describe your issue" required></textarea>
     <button type="submit" class="cta">Send enquiry</button>
-    <p id="status"></p>
+    <p id="status" style="margin:0; font-size:13px; color:var(--muted);"></p>
   </form>
+
+  <div id="fallback" style="display:none; margin-top:18px;">
+    <p>Your email app didn’t open. Copy the text below and send it manually to <a href="mailto:clearanceiq@proton.me">clearanceiq@proton.me</a>.</p>
+    <textarea id="fallbackText" readonly style="width:100%; min-height:140px; background:rgba(15,23,42,0.7); color:var(--text); border:1px solid rgba(148,163,184,0.12); border-radius:8px; padding:12px;"></textarea>
+    <button type="button" class="cta secondary" id="copyBtn" style="margin-top:10px;">Copy to clipboard</button>
+    <p id="copyStatus" style="margin-top:8px; font-size:13px; color:var(--muted);"></p>
+  </div>
 </main>
 <script>
 (() => {
   const form = document.getElementById('enquiry')
   const status = document.getElementById('status')
+  const fallback = document.getElementById('fallback')
+  const fallbackText = document.getElementById('fallbackText')
+  const copyBtn = document.getElementById('copyBtn')
+  const copyStatus = document.getElementById('copyStatus')
+  const startedAt = Date.now()
+
+  const buildBody = () => {
+    const data = Object.fromEntries(new FormData(form).entries())
+    return [
+      'Name: ' + (data.name || ''),
+      'Email: ' + (data.email || ''),
+      'Topic: ' + (data.topic || ''),
+      'Message: ' + (data.message || '')
+    ].join('\n')
+  }
+
   form.addEventListener('submit', () => {
     status.textContent = 'Opening your email app…'
+
+    setTimeout(() => {
+      const elapsed = Date.now() - startedAt
+      if (elapsed < 800) return
+      fallback.style.display = 'block'
+      fallbackText.value = buildBody()
+      status.textContent = 'Use the fallback box below to send your enquiry.'
+    }, 1000)
+  })
+
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(fallbackText.value)
+      copyStatus.textContent = 'Copied. Now paste it into your email to clearanceiq@proton.me.'
+    } catch {
+      fallbackText.select()
+      document.execCommand('copy')
+      copyStatus.textContent = 'Copied. Now paste it into your email to clearanceiq@proton.me.'
+    }
   })
 })()
 </script>
