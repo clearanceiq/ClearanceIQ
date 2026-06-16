@@ -1,3 +1,8 @@
 [build]
   publish = "."
-  # No build command needed for plain HTML
+
+[[redirects]]
+  from = "/blog/day-1"
+  to = "/blog/day-1.html"
+  status = 200
+  force = true
