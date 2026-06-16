@@ -1,0 +1,6 @@
+User-Agent: *
+Allow: /
+Disallow: /interactive-playbook.html
+
+Sitemap: https://clearanceiq.netlify.app/sitemap.xml
+Host: clearanceiq.netlify.app
