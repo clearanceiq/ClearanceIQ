@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ClearanceIQ — US Import Customs Clearance Playbook</title>
-<meta name="description" content="Stop letting preventable customs mistakes bleed your import margins. Read the Day 1 breakdown of the 11 most common errors that cost new importers thousands.">
 <style>
     :root {
         --bg: #0b0f19;
@@ -14,7 +13,7 @@
         --accent: #f59e0b;
         --accent-2: #10b981;
         --danger: #ef4444;
-        --max: 720px;
+        --max: 860px;
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
@@ -43,14 +42,6 @@
     h1 { font-size: clamp(28px, 4vw+10, 44px); line-height: 1.15; margin: 18px 0 10px; }
     h2 { font-size: 18px; color: #f8fafc; margin: 18px 0 8px; }
     .lead { color: #cbd5e1; font-size: 18px; }
-    .price {
-        display: flex;
-        align-items: baseline;
-        gap: 12px;
-        margin: 18px 0 6px;
-    }
-    .price .now { font-size: 42px; font-weight: 800; color: var(--accent); }
-    .price .was { color: var(--muted); text-decoration: line-through; }
     .cta {
         display: inline-flex;
         align-items: center;
@@ -80,109 +71,127 @@
     }
     ul.clean { padding-left: 18px; }
     ul.clean li { margin: 8px 0; }
-    .guarantee {
-        display: flex; gap: 14px; align-items: flex-start;
-        background: rgba(16,185,129,0.08);
-        border: 1px solid rgba(16,185,129,0.25);
-        color: #86efac; padding: 14px; border-radius: 12px; margin-top: 18px;
-    }
     .disclaimer {
         color: var(--muted); font-size: 12px; margin-top: 26px;
         border-top: 1px solid rgba(148,163,184,0.15); padding-top: 14px;
     }
-    .kpis { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-top: 16px; }
-    .kpi { background: rgba(15,23,42,0.7); border: 1px solid rgba(148,163,184,0.12); padding: 14px; border-radius: 12px; }
-    .kpi b { display: block; color: var(--accent-2); font-size: 22px; }
     nav { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
     nav a { font-size: 13px; color: var(--muted); }
-    .pain { background: rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); color:#fecaca; padding:16px; border-radius:12px; margin-top:18px; }
+    .pain {
+        background: rgba(239,68,68,0.08);
+        border:1px solid rgba(239,68,68,0.25);
+        color:#fecaca;
+        padding:16px;
+        border-radius:12px;
+        margin-top:18px;
+    }
     .pain h2 { margin-top:0; color:#fecaca; }
-    .cta-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
-    @media (max-width: 520px) { .kpis { grid-template-columns: 1fr; } }
+    .form-row { display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+    .form-row input, .form-row textarea {
+        background: rgba(15,23,42,0.7);
+        border: 1px solid rgba(148,163,184,0.12);
+        color: var(--text);
+        border-radius: 8px;
+        padding: 12px 14px;
+        font-size: 15px;
+        font-family: inherit;
+        outline: none;
+    }
+    .form-row input:focus, .form-row textarea:focus {
+        border-color: rgba(245,158,11,0.5);
+    }
+    .form-row textarea { min-height: 120px; resize: vertical; }
+    @media (max-width: 520px) {
+        .kpis { grid-template-columns: 1fr; }
+    }
 </style>
 </head>
 <body>
-    <main class="container">
-        <div style="text-align:center; margin-top:6px;">
-            <span class="badge">US Import Customs Blog</span>
-            <div class="lead" style="margin-top:10px;">Practical import clearance guidance for new importers and Amazon FBA sellers.</div>
-        </div>
+<main class="container">
+    <div style="text-align:center; margin-top:6px;">
+        <span class="badge">US Import Customs Blog</span>
+        <div class="lead" style="margin-top:10px;">Practical import clearance guidance for new importers and Amazon FBA sellers.</div>
+    </div>
 
-        <div class="pain">
-            <h2>Customs mistakes don’t just delay cargo — they cost thousands</h2>
-            <p>Wrong classification, bad invoice data, and skipped bonds turn a normal shipment into a surprise penalty. That happens more often than it should.</p>
-            <div class="cta-row">
-                <a class="cta" href="blog/day-1.html" target="_blank" rel="noopener">Read Day 1: 11 Import Customs Mistakes</a>
-                <a class="cta secondary" href="blog/day-1.html" target="_blank" rel="noopener">Read the full guide</a>
+    <div class="pain">
+        <h2>Customs mistakes don’t just delay cargo — they cost thousands</h2>
+        <p>Wrong classification, bad invoice data, and skipped bonds turn a normal shipment into a surprise penalty. That happens more often than it should.</p>
+    </div>
+
+    <div class="box" style="margin-top:26px;">
+        <h2>Have a specific customs issue?</h2>
+        <p>Tell me what’s blocking you. I’ll reply with a practical next step.</p>
+        <form method="POST" action="mailto:clearanceiq@proton.me" enctype="text/plain" id="enquiry">
+            <div class="form-row">
+                <input name="name" placeholder="Your name" required />
+                <input name="email" type="email" placeholder="Your email" />
+                <input name="topic" placeholder="Topic, e.g. HTS / bond / hold" />
+                <textarea name="message" placeholder="Describe your issue" required></textarea>
+                <button type="submit" class="cta">Send enquiry</button>
+                <p id="status" style="margin:0; font-size:13px; color:var(--muted);"></p>
             </div>
-        </div>
+        </form>
+    </div>
 
-        <div style="text-align:center; margin-top:22px;">
-            <span class="badge">Pocket Guide • PDF + Word • Instant Download</span>
-            <p style="color:#cbd5e1; margin-top:10px;">ClearanceIQ</p>
-        </div>
+    <div style="text-align:center; margin-top:22px;">
+        <span class="badge">Pocket Guide • PDF + Word • Instant Download</span>
+        <p style="color:#cbd5e1; margin-top:10px;">ClearanceIQ</p>
+    </div>
 
-        <div class="box">
-            <h2>Stop repeating the same entry failures</h2>
-            <p>The ClearanceIQ Playbook gives you a repeatable first-entry system: HTS checks, commercial invoice verification, bond setup, and release tracking.</p>
-        </div>
+    <div class="box">
+        <h2>Stop repeating the same entry failures</h2>
+        <p>The ClearanceIQ Playbook gives you a repeatable first-entry system: HTS checks, commercial invoice verification, bond setup, and release tracking.</p>
+    </div>
 
-        <div class="box" id="whats-inside">
-            <h2>What’s inside</h2>
-            <ul class="clean">
-                <li><b>11-section pocket guide</b> — HTS, commercial invoice, bond, entry, bonded trucking, AD/CVD, de minimis, CTPAT basics, common holds</li>
-                <li><b>3 decision trees</b> — pre-shipment, post-arrival, and HTS classification shortcuts</li>
-                <li><b>Editable Word + PDF</b> — fill in your own shipment data and reuse forever</li>
-                <li><b>6 ready-to-use templates</b> — commercial invoice checklist, HTS classification worksheet, import bond request, CBP entry review, bonded trucking handoff, de minimis eligibility check</li>
-                <li><b>Submission timeline</b> — exactly what to file and when, in plain English</li>
-                <li><b>Gumroad-ready filenames</b> — drop-in conventions for instant delivery</li>
-                <li><b>Interactive digital companion</b> — browser-based tracker with progress saving (bonus with purchase)</li>
-            </ul>
-        </div>
+    <div class="box" id="whats-inside">
+        <h2>What’s inside</h2>
+        <ul class="clean">
+            <li><b>11-section pocket guide</b> — HTS, commercial invoice, bond, entry, bonded trucking, AD/CVD, de minimis, CTPAT basics, common holds</li>
+            <li><b>3 decision trees</b> — pre-shipment, post-arrival, and HTS classification shortcuts</li>
+            <li><b>Editable Word + PDF</b> — fill in your own shipment data and reuse forever</li>
+            <li><b>6 ready-to-use templates</b> — commercial invoice checklist, HTS classification worksheet, import bond request, CBP entry review, bonded trucking handoff, de minimis eligibility check</li>
+            <li><b>Submission timeline</b> — exactly what to file and when, in plain English</li>
+            <li><b>Gumroad-ready filenames</b> — drop-in conventions for instant delivery</li>
+            <li><b>Interactive digital companion</b> — browser-based tracker with progress saving (bonus with purchase)</li>
+        </ul>
+    </div>
 
-        <div class="box">
-            <h2>Who this is for</h2>
-            <ul class="clean">
-                <li>New importers doing their first CBP entry</li>
-                <li>Amazon FBA sellers importing from China, Vietnam, or Mexico</li>
-                <li>Small-scale importers tired of surprise duties and delays</li>
-                <li>Anyone who’s ever had a shipment held for “further examination”</li>
-            </ul>
-        </div>
+    <div class="box">
+        <h2>Who this is for</h2>
+        <ul class="clean">
+            <li>New importers doing their first CBP entry</li>
+            <li>Amazon FBA sellers importing from China, Vietnam, or Mexico</li>
+            <li>Small-scale importers tired of surprise duties and delays</li>
+            <li>Anyone who’s ever had a shipment held for “further examination”</li>
+        </ul>
+    </div>
 
-        <div class="box">
-            <h2>What it’s not</h2>
-            <ul class="clean">
-                <li>Not legal advice — consult a licensed customs broker for your specific case</li>
-                <li>Not a government form — don’t file this at CBP</li>
-                <li>Not a subscription — pay once, keep forever</li>
-            </ul>
-        </div>
+    <div class="box">
+        <h2>What it’s not</h2>
+        <ul class="clean">
+            <li>Not legal advice — consult a licensed customs broker for your specific case</li>
+            <li>Not a government form — don’t file this at CBP</li>
+            <li>Not a subscription — pay once, keep forever</li>
+        </ul>
+    </div>
 
-        <div class="kpis">
-            <div class="kpi"><b>$19.99</b>One-time price</div>
-            <div class="kpi"><b>PDF + Word</b>Editable files</div>
-            <div class="kpi"><b>Instant</b>Download after purchase</div>
-            <div class="kpi"><b>30-day</b>Money-back guarantee</div>
-        </div>
+    <div style="text-align:center; margin-top: 26px;">
+        <a class="cta secondary" href="blog/day-1.html" target="_blank" rel="noopener">Read the guide first</a>
+        <span style="color:#94a3b8; font-size:13px;"> or </span>
+        <a class="cta" href="https://gumroad.com/l/srqfa" target="_blank" rel="noopener">Buy Now — $19.99</a>
+    </div>
 
-        <div style="text-align:center; margin-top: 26px;">
-            <a class="cta secondary" href="blog/day-1.html" target="_blank" rel="noopener">Read the guide first</a>
-            <span style="color:#94a3b8; font-size:13px;"> or </span>
-            <a class="cta" href="https://gumroad.com/l/srqfa" target="_blank" rel="noopener">Buy Now — $19.99</a>
-        </div>
+    <p class="disclaimer">
+        Disclaimer: This product is an independent educational guide and is not affiliated with U.S. Customs and Border Protection (CBP), U.S. Department of Homeland Security, or any government agency. It does not constitute legal, customs broker, or compliance advice. Always consult a licensed customs broker or attorney for your specific import transactions.
+    </p>
 
-        <p class="disclaimer">
-            Disclaimer: This product is an independent educational guide and is not affiliated with U.S. Customs and Border Protection (CBP), U.S. Department of Homeland Security, or any government agency. It does not constitute legal, customs broker, or compliance advice. Always consult a licensed customs broker or attorney for your specific import transactions.
-        </p>
-
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="blog/day-1.html">Day 1 Blog</a>
-            <a href="#whats-inside">What’s Inside</a>
-            <a href="contact.html">Contact</a>
-            <a href="refund.html">Refund Policy</a>
-        </nav>
-    </main>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="blog/day-1.html">Day 1 Blog</a>
+        <a href="#whats-inside">What’s Inside</a>
+        <a href="contact.html">Contact</a>
+        <a href="refund.html">Refund Policy</a>
+    </nav>
+</main>
 </body>
 </html>
