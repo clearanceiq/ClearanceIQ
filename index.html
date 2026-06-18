@@ -150,24 +150,24 @@
         </ul>
     </div>
 
+    <div class="box" style="margin-top:22px;">
+        <h2>Get the free import clearance checklist</h2>
+        <p>Drop your email and I’ll send the same first-entry checklist I use before every shipment.</p>
+        <form class="form-row" id="leadForm">
+            <input name="email" type="email" placeholder="you@example.com" required />
+            <button type="submit" class="cta">Send me the checklist</button>
+        </form>
+    </div>
+
     <div class="pain">
         <h2>Customs mistakes don’t just delay cargo — they cost thousands</h2>
         <p>Wrong classification, bad invoice data, and skipped bonds turn a normal shipment into a surprise penalty. That happens more often than it should.</p>
     </div>
 
     <div class="box" style="margin-top:22px;">
-        <h2>Get the free import clearance checklist</h2>
-        <p>Drop your email and I’ll send the same first-entry checklist I use before every shipment.</p>
-        <form class="form-row" method="POST" action="mailto:clearanceiq@proton.me" enctype="text/plain" id="lead">
-            <input name="email" type="email" placeholder="you@example.com" required />
-            <button type="submit" class="cta">Send me the checklist</button>
-        </form>
-    </div>
-
-    <div class="box" style="margin-top:22px;">
         <h2>Have a specific customs issue?</h2>
         <p>Tell me what’s blocking you. I’ll reply with a practical next step.</p>
-        <form method="POST" action="mailto:clearanceiq@proton.me" enctype="text/plain" id="enquiry">
+        <form method="POST" id="enquiryForm">
             <div class="form-row">
                 <input name="name" placeholder="Your name" required />
                 <input name="email" type="email" placeholder="Your email" />
@@ -180,10 +180,44 @@
     </div>
 
     <div style="text-align:center; margin-top: 26px;">
-        <a class="cta secondary" href="blog/day-1.html" target="_blank" rel="noopener">Read the guide first</a>
+        <a class="cta secondary" href="/blog/day-1.html" target="_blank" rel="noopener">Read the guide first</a>
         <span style="color:#94a3b8; font-size:13px;"> or </span>
         <a class="cta" href="https://gumroad.com/l/srqfa" target="_blank" rel="noopener">Buy Now — $19.99</a>
     </div>
+
+    <script>
+      async function submitLead(source) {
+        const res = await fetch('/api/lead', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ source, email: source === 'lead' ? document.querySelector('#leadForm [name=email]').value : undefined, name: document.querySelector('#enquiryForm [name=name]').value, email: document.querySelector('#enquiryForm [name=email]').value, topic: document.querySelector('#enquiryForm [name=topic]').value, message: document.querySelector('#enquiryForm [name=message]').value })
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'failed');
+        return data.lead;
+      }
+
+      document.getElementById('leadForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          await submitLead('lead');
+          alert('Checklist request received.');
+        } catch (err) {
+          alert(err.message);
+        }
+      });
+
+      document.getElementById('enquiryForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          await submitLead('enquiry');
+          const status = document.getElementById('status');
+          status.textContent = 'Enquiry sent.';
+        } catch (err) {
+          document.getElementById('status').textContent = err.message;
+        }
+      });
+    </script>
 
     <p class="disclaimer">
         Disclaimer: This product is an independent educational guide and is not affiliated with U.S. Customs and Border Protection (CBP), U.S. Department of Homeland Security, or any government agency. It does not constitute legal, customs broker, or compliance advice. Always consult a licensed customs broker or attorney for your specific import transactions.
