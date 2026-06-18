@@ -157,6 +157,7 @@
             <input name="email" type="email" placeholder="you@example.com" required />
             <input type="hidden" name="_subject" value="New Checklist Request — ClearanceIQ" />
             <input type="hidden" name="_captcha" value="false" />
+            <input type="hidden" name="_next" value="https://clearanceiq.pages.dev/" />
             <button type="submit" class="cta">Send me the checklist</button>
         </form>
     </div>
@@ -203,5 +204,12 @@
         <a href="refund.html">Refund Policy</a>
     </nav>
 </main>
+<script>
+  if ('sendBeacon' in navigator) {
+    var ref = document.referrer || '';
+    var url = '/api/track?path=' + encodeURIComponent(location.pathname + location.search) + '&ref=' + encodeURIComponent(ref);
+    navigator.sendBeacon(url);
+  }
+</script>
 </body>
 </html>
