@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://clearanceiq.a-najmiayub.workers.dev/</loc>
+    <loc>https://clearanceiq.pages.dev/</loc>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://clearanceiq.a-najmiayub.workers.dev/whats-inside.html</loc>
+    <loc>https://clearanceiq.pages.dev/whats-inside.html</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://clearanceiq.a-najmiayub.workers.dev/refund.html</loc>
+    <loc>https://clearanceiq.pages.dev/refund.html</loc>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://clearanceiq.a-najmiayub.workers.dev/contact.html</loc>
+    <loc>https://clearanceiq.pages.dev/contact.html</loc>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://clearanceiq.a-najmiayub.workers.dev/interactive-playbook.html</loc>
+    <loc>https://clearanceiq.pages.dev/interactive-playbook.html</loc>
     <priority>0.7</priority>
   </url>
 </urlset>

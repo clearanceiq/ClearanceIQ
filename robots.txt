@@ -2,5 +2,5 @@ User-Agent: *
 Allow: /
 Disallow: /interactive-playbook.html
 
-Sitemap: https://clearanceiq.a-najmiayub.workers.dev/sitemap.xml
-Host: clearanceiq.netlify.app
+Sitemap: https://clearanceiq.pages.dev/sitemap.xml
+Host: clearanceiq.pages.dev
