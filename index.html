@@ -153,8 +153,10 @@
     <div class="box" style="margin-top:22px;">
         <h2>Get the free import clearance checklist</h2>
         <p>Drop your email and I’ll send the same first-entry checklist I use before every shipment.</p>
-        <form class="form-row" id="leadForm">
+        <form class="form-row" id="leadForm" action="https://formsubmit.co/clearanceiq@proton.me" method="POST">
             <input name="email" type="email" placeholder="you@example.com" required />
+            <input type="hidden" name="_subject" value="New Checklist Request — ClearanceIQ" />
+            <input type="hidden" name="_captcha" value="false" />
             <button type="submit" class="cta">Send me the checklist</button>
         </form>
     </div>
@@ -167,12 +169,14 @@
     <div class="box" style="margin-top:22px;">
         <h2>Have a specific customs issue?</h2>
         <p>Tell me what’s blocking you. I’ll reply with a practical next step.</p>
-        <form method="POST" id="enquiryForm">
+        <form method="POST" id="enquiryForm" action="https://formsubmit.co/clearanceiq@proton.me">
             <div class="form-row">
                 <input name="name" placeholder="Your name" required />
-                <input name="email" type="email" placeholder="Your email" />
+                <input name="email" type="email" placeholder="Your email" required />
                 <input name="topic" placeholder="Topic, e.g. HTS / bond / hold" />
                 <textarea name="message" placeholder="Describe your issue" required></textarea>
+                <input type="hidden" name="_subject" value="New Enquiry — ClearanceIQ" />
+                <input type="hidden" name="_captcha" value="false" />
                 <button type="submit" class="cta">Send enquiry</button>
                 <p id="status" style="margin:0; font-size:13px; color:var(--muted);"></p>
             </div>
@@ -186,35 +190,61 @@
     </div>
 
     <script>
+      function getFormData(form) {
+        const entries = {};
+        for (const [key, value] of new FormData(form).entries()) {
+          entries[key] = value;
+        }
+        return entries;
+      }
+
       async function submitLead(source) {
+        const form = source === 'lead' ? document.getElementById('leadForm') : document.getElementById('enquiryForm');
+        const payload = { source, ...getFormData(form) };
+
         const res = await fetch('/api/lead', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ source, email: source === 'lead' ? document.querySelector('#leadForm [name=email]').value : undefined, name: document.querySelector('#enquiryForm [name=name]').value, email: document.querySelector('#enquiryForm [name=email]').value, topic: document.querySelector('#enquiryForm [name=topic]').value, message: document.querySelector('#enquiryForm [name=message]').value })
+          body: JSON.stringify(payload),
+          mode: 'same-origin',
         });
-        const data = await res.json();
-        if (!data.ok) throw new Error(data.error || 'failed');
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data?.error || 'Submission failed');
         return data.lead;
       }
 
       document.getElementById('leadForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const emailInput = document.querySelector('#leadForm [name="email"]');
+        const email = (emailInput.value || '').trim();
+        if (!email || !email.includes('@')) {
+          alert('valid email required');
+          emailInput.focus();
+          return;
+        }
         try {
           await submitLead('lead');
-          alert('Checklist request received.');
+          alert('Checklist request received. If you don’t see it in a few minutes, email clearanceiq@proton.me directly.');
         } catch (err) {
-          alert(err.message);
+          alert(err.message || 'Submission failed. Email us at clearanceiq@proton.me');
         }
       });
 
       document.getElementById('enquiryForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const emailInput = document.querySelector('#enquiryForm [name="email"]');
+        const email = (emailInput.value || '').trim();
+        if (!email || !email.includes('@')) {
+          document.getElementById('status').textContent = 'valid email required';
+          emailInput.focus();
+          return;
+        }
         try {
           await submitLead('enquiry');
-          const status = document.getElementById('status');
-          status.textContent = 'Enquiry sent.';
+          document.getElementById('status').textContent = 'Enquiry sent. If no reply within 24h, email clearanceiq@proton.me directly.';
         } catch (err) {
-          document.getElementById('status').textContent = err.message;
+          document.getElementById('status').textContent = err.message || 'Submission failed. Email us directly.';
         }
       });
     </script>
