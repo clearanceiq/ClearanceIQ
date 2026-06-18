@@ -1,8 +1,0 @@
-[build]
-  publish = "."
-
-[[redirects]]
-  from = "/blog/day-1"
-  to = "/blog/day-1.html"
-  status = 200
-  force = true

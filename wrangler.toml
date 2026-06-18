@@ -1,0 +1,8 @@
+
+[build]
+  command = ""
+  publish = "."
+
+[site]
+  # No build step needed for static HTML
+
