@@ -10,9 +10,14 @@ export async function onRequestGet(context) {
     ua: context.request.headers.get("user-agent") || "",
   };
 
+  // Log structured event; write to KV if bound
   if (context.env && context.env.ANALYTICS) {
     const key = event.ts.slice(0, 10) + "|" + event.id;
-    await context.env.ANALYTICS.put(key, JSON.stringify(event));
+    try {
+      await context.env.ANALYTICS.put(key, JSON.stringify(event));
+    } catch {
+      // no-op if KV is not bound
+    }
   }
 
   return new Response(null, {
