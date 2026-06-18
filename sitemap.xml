@@ -36,4 +36,16 @@
     <loc>https://clearanceiq.pages.dev/tools/supplier-checklist.html</loc>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://clearanceiq.pages.dev/tools/duty-calculator.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://clearanceiq.pages.dev/tools/cbp-hold-decoder.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://clearanceiq.pages.dev/tools/bond-estimator.html</loc>
+    <priority>0.7</priority>
+  </url>
 </urlset>
