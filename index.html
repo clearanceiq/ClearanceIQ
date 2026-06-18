@@ -189,65 +189,7 @@
         <a class="cta" href="https://gumroad.com/l/srqfa" target="_blank" rel="noopener">Buy Now — $19.99</a>
     </div>
 
-    <script>
-      function getFormData(form) {
-        const entries = {};
-        for (const [key, value] of new FormData(form).entries()) {
-          entries[key] = value;
-        }
-        return entries;
-      }
 
-      async function submitLead(source) {
-        const form = source === 'lead' ? document.getElementById('leadForm') : document.getElementById('enquiryForm');
-        const payload = { source, ...getFormData(form) };
-
-        const res = await fetch('/api/lead', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify(payload),
-          mode: 'same-origin',
-        });
-
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.ok) throw new Error(data?.error || 'Submission failed');
-        return data.lead;
-      }
-
-      document.getElementById('leadForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const emailInput = document.querySelector('#leadForm [name="email"]');
-        const email = (emailInput.value || '').trim();
-        if (!email || !email.includes('@')) {
-          alert('valid email required');
-          emailInput.focus();
-          return;
-        }
-        try {
-          await submitLead('lead');
-          alert('Checklist request received. If you don’t see it in a few minutes, email clearanceiq@proton.me directly.');
-        } catch (err) {
-          alert(err.message || 'Submission failed. Email us at clearanceiq@proton.me');
-        }
-      });
-
-      document.getElementById('enquiryForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const emailInput = document.querySelector('#enquiryForm [name="email"]');
-        const email = (emailInput.value || '').trim();
-        if (!email || !email.includes('@')) {
-          document.getElementById('status').textContent = 'valid email required';
-          emailInput.focus();
-          return;
-        }
-        try {
-          await submitLead('enquiry');
-          document.getElementById('status').textContent = 'Enquiry sent. If no reply within 24h, email clearanceiq@proton.me directly.';
-        } catch (err) {
-          document.getElementById('status').textContent = err.message || 'Submission failed. Email us directly.';
-        }
-      });
-    </script>
 
     <p class="disclaimer">
         Disclaimer: This product is an independent educational guide and is not affiliated with U.S. Customs and Border Protection (CBP), U.S. Department of Homeland Security, or any government agency. It does not constitute legal, customs broker, or compliance advice. Always consult a licensed customs broker or attorney for your specific import transactions.

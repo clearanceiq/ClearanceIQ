@@ -50,7 +50,7 @@ export async function onRequestPost(context) {
     }
   }
 
-  return new Response(JSON.stringify({ ok: true, lead }), {
+  return new Response(JSON.stringify({ ok: true, lead, status: "captured" }), {
     headers: { "content-type": "application/json" },
   });
 }
