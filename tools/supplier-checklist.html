@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearanceIQ — Supplier Invoice Checklist</title>
+<meta name="description" content="Generate a print-ready supplier invoice checklist for US import shipments. Reduce customs holds and invoice errors.">
+<link rel="canonical" href="https://clearanceiq.pages.dev/tools/supplier-checklist.html">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "ClearanceIQ Supplier Invoice Checklist",
+  "url": "https://clearanceiq.pages.dev/tools/supplier-checklist.html",
+  "description": "Generate a supplier invoice checklist for US import shipments.",
+  "applicationCategory": "BusinessApplication"
+}
+</script>
+</head>
+<body>
+<main class="container" style="max-width: 860px;">
+  <a href="/"><span class="badge">ClearanceIQ</span></a>
+  <h1 style="margin-top:18px;">Supplier Invoice Checklist Generator</h1>
+  <p class="lead" style="margin-top:8px;">Answer a few questions about your shipment and get a print-ready checklist you can send straight to your supplier.</p>
+
+  <form id="form" onsubmit="return false;" style="margin-top:22px;">
+    <div class="box" style="display:grid; gap:12px;">
+      <div>
+        <label style="font-size:12px; color:#cbd5e1;">Product description short</label>
+        <input id="product" type="text" placeholder="e.g. Plastic kitchenware with metal clasp" style="width:100%; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:12px 14px; border-radius:10px; font-size:15px;">
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+        <div>
+          <label style="font-size:12px; color:#cbd5e1;">Country of origin</label>
+          <input id="origin" type="text" placeholder="e.g. China" style="width:100%; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:12px 14px; border-radius:10px; font-size:15px;">
+        </div>
+        <div>
+          <label style="font-size:12px; color:#cbd5e1;">Incoterms</label>
+          <input id="incoterms" type="text" placeholder="e.g. FOB Shanghai" style="width:100%; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:12px 14px; border-radius:10px; font-size:15px;">
+        </div>
+      </div>
+      <button class="cta" onclick="generate()">Generate checklist</button>
+    </div>
+  </form>
+
+  <div id="checklist" class="box" style="display:none; margin-top:22px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+      <h2 style="margin:0;">Your checklist</h2>
+      <button class="cta secondary" onclick="window.print()">Print / Save PDF</button>
+    </div>
+    <ul class="clean" id="checklist_items" style="margin-top:12px;"></ul>
+    <p style="font-size:12px; color:#94a3b8; margin-top:12px;">Send this to your supplier before the next shipment. A complete invoice is the fastest way to avoid CBP holds.</p>
+  </div>
+</main>
+
+<script>
+function generate() {
+  const product = document.getElementById('product').value.trim() || '_____';
+  const origin = document.getElementById('origin').value.trim() || '_____';
+  const incoterms = document.getElementById('incoterms').value.trim() || '_____';
+  const items = [
+    `Seller name + full address`,
+    `Buyer / ship-to US address`,
+    `Detailed description: ${product}`,
+    `Quantity, unit price, total value in USD`,
+    `Currency clearly shown (USD)`,
+    `Country of origin: ${origin}`,
+    `Incoterms: ${incoterms}`,
+    `Invoice number and date`,
+    `Payment terms`,
+    `HS code and duty note (if known)`
+  ];
+
+  const list = document.getElementById('checklist_items');
+  list.innerHTML = items.map(i => `<li>${i}</li>`).join('');
+  document.getElementById('checklist').style.display = 'block';
+  document.getElementById('checklist').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
