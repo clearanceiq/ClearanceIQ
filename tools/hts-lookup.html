@@ -85,29 +85,30 @@ function runLookup() {
 
   if (!q) { status.textContent = "Enter a code or keyword."; return; }
 
-  const match = DATA.find(r => {
-    const hay = `${r.code} ${r.desc}`.toLowerCase();
-    return hay.includes(q) || r.code.replace(/\./g,"").includes(q.replace(/\./g,""));
-  });
-
-  if (!match) {
-    out.style.display = "none";
-    status.textContent = "No local match. For official rates, use USITC HTS Search or a licensed broker.";
-    logEvent({ type: 'hts_no_match', q });
-    return;
-  }
-
-  document.getElementById("result_title").textContent = `${match.code} — ${match.desc}`;
-  document.getElementById("result_body").innerHTML = `
-    <p><b>Indicative duty:</b> ${match.duty}</p>
-    <p><b>AD/CVD watch:</b> ${match.adcvd === "none" ? "None on record" : "Flagged"}</p>
-    <p style="margin-top:10px;">${ADCVD_NOTES[match.adcvd] || ""}</p>
-    <p style="margin-top:10px; font-size:12px; color:#94a3b8;">Planning reference only. Not a ruling. Verify with CBP or a licensed broker.</p>
-  `;
-
-  out.style.display = "block";
-  status.textContent = "";
-  logEvent({ type: 'hts_hit', code: match.code, q });
+  fetch('/api/v1/hts?q=' + encodeURIComponent(q), { headers: { accept: 'application/json' } })
+    .then(r => r.json())
+    .then(data => {
+      if (!data || !data.ok) {
+        out.style.display = "none";
+        status.textContent = "No local match. For official rates, use USITC HTS Search or a licensed broker.";
+        logEvent({ type: 'hts_no_match', q });
+        return;
+      }
+      document.getElementById("result_title").textContent = `${data.code} — ${data.description}`;
+      document.getElementById("result_body").innerHTML = `
+        <p><b>Indicative duty:</b> ${(data.dutyRate * 100).toFixed(1)}%</p>
+        <p><b>AD/CVD watch:</b> ${data.adcvd === "none" ? "None on record" : "Flagged"}</p>
+        <p style="margin-top:10px;">${data.note || ""}</p>
+        <p style="margin-top:10px; font-size:12px; color:#94a3b8;">Planning reference only. Not a ruling. Verify with CBP or a licensed broker.</p>
+      `;
+      out.style.display = "block";
+      status.textContent = "";
+      logEvent({ type: 'hts_hit', code: data.code, q });
+    })
+    .catch(err => {
+      out.style.display = "none";
+      console.error('[hts-lookup]', err);
+    });
 }
 </script>
 </body>
