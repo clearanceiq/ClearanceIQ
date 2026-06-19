@@ -120,7 +120,8 @@
     @media (max-width: 520px) {
         .kpis { grid-template-columns: 1fr; }
     }
-</style>
+<link rel="stylesheet" href="style.css" />
+<script defer src="site-inject.js"></script>
 </head>
 <body>
 <main class="container">
@@ -236,10 +237,8 @@
     </nav>
 </main>
 <script>
-  if ('sendBeacon' in navigator) {
-    var ref = document.referrer || '';
-    var url = '/api/track?path=' + encodeURIComponent(location.pathname + location.search) + '&ref=' + encodeURIComponent(ref);
-    navigator.sendBeacon(url);
+  if (window.CIQ && typeof window.CIQ.logEvent === 'function') {
+    window.CIQ.logEvent({ type: 'page_view', page: location.pathname });
   }
 </script>
 </body>
