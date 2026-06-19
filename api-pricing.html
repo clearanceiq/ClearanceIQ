@@ -17,16 +17,17 @@ header,main,footer{padding:24px 16px}
 h1{font-size:clamp(28px,4vw+10,44px);line-height:1.15;margin:18px 0 10px}
 h2{font-size:20px;color:#f8fafc;margin:20px 0 8px}
 .lead{color:#cbd5e1;font-size:18px}
-.cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#0b0f19;padding:14px 22px;border-radius:10px;font-weight:700;font-size:16px;border:0;cursor:pointer;margin-top:16px}
+.cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#0b0f19;padding:14px 22px;border-radius:10px;font-weight:700;font-size:16px;border:0;cursor:pointer;margin-top:16px;text-decoration:none}
 .cta.secondary{background:transparent;color:var(--accent);border:1px solid rgba(245,158,11,0.4)}
 .box{background:var(--surface);border:1px solid rgba(148,163,184,0.12);border-radius:14px;padding:18px;margin-top:16px}
 .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}
 .kpi{background:rgba(15,23,42,0.7);border:1px solid rgba(148,163,184,0.12);padding:14px;border-radius:12px}
 .kpi b{display:block;color:var(--accent-2);font-size:22px}
+.feature{display:flex;gap:10px;align-items:flex-start;margin-top:8px;color:#cbd5e1;font-size:14px}
+.feature span{color:var(--accent-2);font-weight:700;flex-shrink:0}
+.pro-box{background:linear-gradient(135deg,#1a2332,#111827);border:1px solid rgba(245,158,11,0.25);box-shadow:0 0 32px rgba(245,158,11,0.08)}
 nav{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px}
-nav a{font-size:13px;color:var(--muted)}
-.endpoint{background:rgba(15,23,42,0.7);border:1px solid rgba(148,163,184,0.12);padding:14px;border-radius:12px;margin-top:10px}
-.endpoint code{color:#fbbf24;font-size:14px}
+nav a{font-size:13px;color:var(--muted);text-decoration:none}
 .disclaimer{color:var(--muted);font-size:12px;margin-top:22px;border-top:1px solid rgba(148,163,184,0.15);padding-top:14px}
 @media (max-width:520px){.kpis{grid-template-columns:1fr}}
 </style>
@@ -46,19 +47,17 @@ nav a{font-size:13px;color:var(--muted)}
       <div style="color:var(--muted); font-size:14px; margin-top:4px;">Light use and evaluation.</div>
       <a class="cta secondary" href="/tools/hts-lookup.html" style="margin-top:12px;">Start free</a>
     </div>
-    <div class="kpi">
+    <div class="kpi pro-box">
       <b>Pro</b>
       <div>$49/month · unlimited</div>
       <div style="color:var(--muted); font-size:14px; margin-top:4px;">For live integrations and volume.</div>
-      <a class="cta" href="mailto:clearanceiq@proton.me?subject=Pro%20API%20access" style="margin-top:12px;">Get access</a>
+      <a class="cta" href="mailto:clearanceiq@proton.me?subject=Pro%20API%20access" style="margin-top:12px; width:100%;">Get unlimited access</a>
+      <div style="margin-top:12px;">
+        <div class="feature"><span>✓</span><span>Unlimited HTS, duty, and bond calls</span></div>
+        <div class="feature"><span>✓</span><span>Volume credentials delivered within one business day</span></div>
+        <div class="feature"><span>✓</span><span>Built for integrations, not manual lookup</span></div>
+      </div>
     </div>
-  </div>
-
-  <div class="box" style="margin-top:26px;">
-    <h2>Endpoints</h2>
-    <div class="endpoint"><code>GET /api/v1/hts?q=6110.11</code><div style="color:var(--muted); font-size:14px; margin-top:6px;">HTS chapter lookup with duty-rate preview and AD/CVD risk flags.</div></div>
-    <div class="endpoint"><code>GET /api/v1/duty-calc?value=10000&freight=1200&hts=6110.11</code><div style="color:var(--muted); font-size:14px; margin-top:6px;">Landed-cost estimate including duty, MPF, HMF, and Section 301 surcharge where applicable.</div></div>
-    <div class="endpoint"><code>GET /api/v1/bond?type=single&value=50000&risk=1.2</code><div style="color:var(--muted); font-size:14px; margin-top:6px;">Single-transaction or continuous bond premium range based on shipment value and risk class.</div></div>
   </div>
 
   <div class="box">
