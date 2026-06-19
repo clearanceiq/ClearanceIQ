@@ -10,17 +10,19 @@ function cors(headers = {}) {
 }
 
 async function logUsage(tier, endpoint, context, result) {
-  const ipRaw = (context.request.headers.get('CF-Connecting-IP') || 'unknown').replace(/[^a-zA-Z0-9:._-]/g, '_');
-  const anonIp = ipRaw.length >= 5 ? ipRaw.slice(0, 3) + '***' + ipRaw.slice(-3) : '***';
+  const rawIp = (context.request.headers.get('CF-Connecting-IP') || 'unknown').replace(/[^a-zA-Z0-9:._-]/g, '_');
+  const anonIp = rawIp.length >= 5 ? rawIp.slice(0, 3) + '***' + rawIp.slice(-3) : '***';
   const date = new Date().toISOString().slice(0, 10);
   const tag =
     tier === 'signed'
       ? (context.request.headers.get('X-API-Key') || 'unknown').replace(/[^a-zA-Z0-9:._-]/g, '_').slice(0, 16)
       : anonIp;
   const entry = JSON.stringify({ ts: new Date().toISOString(), tier, endpoint, ip: anonIp, result: result || 'ok' });
-  const key = `usage::${date}::${tier}::${tag}::${endpoint}::${Date.now()}`;
+  const key = `usage::${date}::${tier}::${tag}::${endpoint}`;
   if (context.env?.RATE_COUNTER) {
-    try { await context.env.RATE_COUNTER.put(key, entry); } catch { /* no-op */ }
+    try {
+      await context.env.RATE_COUNTER.put(key, entry, { expirationTtl: 72 * 60 * 60 });
+    } catch { /* no-op */ }
   }
 }
 
@@ -69,6 +71,7 @@ export async function onRequestGet(context) {
             'x-rate-limit-remaining': String(limit.remaining),
             'x-rate-limit-limit': String(limit.limit),
             'x-rate-limit-tier': tier,
+            'x-rate-limit-reset': String(limit.resetUnix),
           }),
           status: 400,
         }
@@ -99,6 +102,7 @@ export async function onRequestGet(context) {
           'x-rate-limit-remaining': String(limit.remaining),
           'x-rate-limit-limit': String(limit.limit),
           'x-rate-limit-tier': tier,
+          'x-rate-limit-reset': String(limit.resetUnix),
         }),
       }
     );

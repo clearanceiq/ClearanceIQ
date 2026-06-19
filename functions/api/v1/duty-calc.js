@@ -17,17 +17,11 @@ async function logUsage(tier, endpoint, context, result) {
     tier === 'signed'
       ? (context.request.headers.get('X-API-Key') || 'unknown').replace(/[^a-zA-Z0-9:._-]/g, '_').slice(0, 16)
       : anonIp;
-
-  const logValue = JSON.stringify({ ts: new Date().toISOString(), tier, endpoint, ip: anonIp, result: result || 'ok' });
-  const logKey = `usage_log::${date}::${tier}::${tag}::${endpoint}::${Date.now()}`;
-  const countKey = `usage::${date}::${tier}::${tag}::${endpoint}`;
-
+  const entry = JSON.stringify({ ts: new Date().toISOString(), tier, endpoint, ip: anonIp, result: result || 'ok' });
+  const key = `usage::${date}::${tier}::${tag}::${endpoint}`;
   if (context.env?.RATE_COUNTER) {
     try {
-      await context.env.RATE_COUNTER.put(logKey, logValue);
-      const raw = await context.env.RATE_COUNTER.get(countKey);
-      const n = parseInt(raw || '0', 10) + 1;
-      await context.env.RATE_COUNTER.put(countKey, String(n), { expirationTtl: 72 * 60 * 60 });
+      await context.env.RATE_COUNTER.put(key, entry, { expirationTtl: 72 * 60 * 60 });
     } catch { /* no-op */ }
   }
 }
