@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Internal Monitoring</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --panel: rgba(255, 255, 255, 0.04);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #e6e9f0;
+      --secondary: #9ba3b2;
+      --accent: #f59e0b;
+      --green: #22c55e;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: radial-gradient(ellipse at top, #111827, #0b0f19);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 20px;
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.08), transparent);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      backdrop-filter: blur(6px);
+      margin-bottom: 24px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand .logo {
+      width: 40px; height: 40px;
+      background: conic-gradient(from 0deg, var(--accent), #ff8c00, var(--accent));
+      border-radius: 12px;
+      display: inline-grid;
+      place-items: center;
+      font-weight: 800;
+      color: #0b0f19;
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.35);
+    }
+    h1 { margin: 0; font-size: 20px; letter-spacing: .3px; }
+    .sub { color: var(--secondary); font-size: 12px; }
+    a.link {
+      color: var(--accent);
+      text-decoration: none;
+      padding: 8px 12px;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 8px;
+    }
+    .grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(12, 1fr);
+    }
+    .card {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)) padding-box,
+        linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.04)) border-box;
+      border: 1px solid transparent;
+      border-radius: 16px;
+      backdrop-filter: blur(6px);
+      padding: 18px 20px;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 50%), rgba(245, 158, 11, 0.22), transparent 40%);
+      opacity: 0;
+      transition: opacity .3s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .card:hover::before { opacity: 1; }
+    .card > * { position: relative; z-index: 1; }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .title-row h2 {
+      margin: 0;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--secondary);
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: var(--secondary);
+    }
+    .pill .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .dot.green { background: var(--green); }
+    .dot.amber { background: var(--accent); }
+    .dot.red { background: var(--red); }
+    .kpi {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .kpi .big {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-top: 10px;
+      background: linear-gradient(180deg, #fff, rgba(255,255,255,0.8));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .progress {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      margin-top: 14px;
+      overflow: hidden;
+    }
+    .progress .bar {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #ff8c00);
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+    }
+    ul.clean { padding: 0; margin: 0; list-style: none; }
+    ul.clean + .empty { color: var(--secondary); font-size: 13px; }
+    li.row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    li.row:last-child { border-bottom: none; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 13px; }
+    .badge {
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+    .badge.ok { background: rgba(34, 197, 94, 0.12); border-color: rgba(34,197,94,0.28); color: #86efac; }
+    .badge.warn { background: rgba(245, 158, 11, 0.12); border-color: rgba(245,158,11,0.28); color: #fcd34d; }
+    .badge.err { background: rgba(239, 68, 68, 0.12); border-color: rgba(239,68,68,0.28); color: #fca5a5; }
+    .bar-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 4px;
+    }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 140px 1fr 90px;
+      gap: 14px;
+      align-items: center;
+    }
+    .bar-value { text-align: right; }
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.14) 50%, rgba(255,255,255,0.06) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 10px;
+      height: 14px;
+    }
+    @keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
+    .error-state {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--red);
+    }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    @media (max-width: 980px) {
+      .span-4, .span-6, .span-8 { grid-column: span 12; }
+      .bar-row { grid-template-columns: 1fr; gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">T</div>
+        <div>
+          <div class="sub">INTERNAL · RESTRICTED</div>
+          <h1>Monitoring Dashboard</h1>
+        </div>
+      </div>
+      <div class="toolbar">
+        <span class="pill"><span class="dot green"></span><span id="uptime">Live</span></span>
+        <a class="link" href="/">← Back to site</a>
+      </div>
+    </header>
+
+    <section class="grid">
+      <!-- KPI cards -->
+      <div class="card span-4">
+        <div class="title-row">
+          <h2>Requests today</h2>
+          <span class="pill"><span class="dot amber"></span>Today</span>
+        </div>
+        <div class="kpi">
+          <div>
+            <div id="today-total" class="big">—</div>
+          </div>
+          <div id="today-trend" style="grid-column: span 3;"></div>
+        </div>
+        <div class="progress"><div id="today-progress" class="bar" style="width:0%"></div></div>
+        <div class="sub" id="today-sub">Loading…</div>
+      </div>
+
+      <div class="card span-4">
+        <div class="title-row">
+          <h2>Keys</h2>
+          <span class="pill"><span class="dot green"></span>Total</span>
+        </div>
+        <div class="kpi">
+          <div>
+            <div id="keys-total" class="big">—</div>
+          </div>
+        </div>
+        <div class="sub" id="keys-sub">Loading…</div>
+      </div>
+
+      <div class="card span-4">
+        <div class="title-row">
+          <h2>Errors today</h2>
+          <span class="pill"><span class="dot red"></span>Alerts</span>
+        </div>
+        <div class="kpi">
+          <div>
+            <div id="errors-total" class="big">—</div>
+          </div>
+        </div>
+        <div class="sub" id="errors-sub">Loading…</div>
+      </div>
+
+      <!-- Tier breakdown -->
+      <div class="card span-6">
+        <div class="title-row">
+          <h2>Requests by tier</h2>
+          <span class="pill" id="tier-time">Updated —</span>
+        </div>
+        <div id="tier-chart" class="bar-wrap">
+          <div class="skeleton" style="width:100%"></div>
+          <div class="skeleton" style="width:100%"></div>
+          <div class="skeleton" style="width:100%"></div>
+        </div>
+      </div>
+
+      <!-- Top 10 keys -->
+      <div class="card span-6">
+        <div class="title-row">
+          <h2>Top keys by usage</h2>
+          <span class="pill">Top 10</span>
+        </div>
+        <ul id="top-keys" class="clean">
+          <li class="row"><span class="mono">…</span><span class="mono">—</span><span class="mono">—</span></li>
+        </ul>
+      </div>
+
+      <!-- Recently issued keys -->
+      <div class="card span-12">
+        <div class="title-row">
+          <h2>Recently issued keys</h2>
+          <span class="pill" id="recent-time">Updated —</span>
+        </div>
+        <table style="width:100%; border-collapse: collapse">
+          <thead>
+            <tr class="sub">
+              <th style="text-align:left; padding: 6px 0">Key prefix</th>
+              <th style="text-align:left; padding: 6px 0">Tier</th>
+              <th style="text-align:left; padding: 6px 0">Issued at</th>
+              <th style="text-align:left; padding: 6px 0">Created by</th>
+              <th style="text-align:right; padding: 6px 0">Status</th>
+            </tr>
+          </thead>
+          <tbody id="recent-keys">
+            <tr><td colspan="5" class="sub">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+      const dash = document.querySelector('.card');
+
+      // Hover glow follows cursor inside each card
+      document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('mousemove', e => {
+          const r = card.getBoundingClientRect();
+          card.style.setProperty('--mx', `${e.clientX - r.left}px`);
+          card.style.setProperty('--my', `${e.clientY - r.top}px`);
+        });
+      });
+
+      const fmt = (n) => Number(n).toLocaleString();
+      const fmtTime = (iso) => {
+        if (!iso) return '—';
+        const d = new Date(iso);
+        return d.toLocaleString();
+      };
+
+      function setText(id, v) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = v;
+      }
+
+      function renderProgress(pct) {
+        const bar = document.getElementById('today-progress');
+        if (!bar) return;
+        bar.style.width = Math.max(0, Math.min(100, pct)) + '%';
+      }
+
+      function renderTiers(data) {
+        const wrap = document.getElementById('tier-chart');
+        if (!wrap) return;
+        if (!data || !data.breakdown || !Array.isArray(Object.values(data.breakdown))) {
+          wrap.innerHTML = '<div class="sub">No tier data available.</div>';
+          return;
+        }
+        const rows = Object.entries(data.breakdown).sort((a, b) => (b[1] ?? 0) - (a[1] ?? 0));
+        const max = Math.max(...rows.map(([,v]) => (v ?? 0)), 1);
+        setText('tier-time', 'Updated ' + (new Date().toLocaleTimeString()));
+        wrap.innerHTML = rows.map(([tier, count]) => {
+          const pct = Math.round(((count ?? 0) / max) * 100);
+          return `
+            <div class="bar-row">
+              <div class="mono">${escapeHtml(tier)}</div>
+              <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
+              <div class="bar-value mono">${fmt(count)}</div>
+            </div>`;
+        }).join('');
+      }
+
+      function renderTopKeys(items) {
+        const el = document.getElementById('top-keys');
+        if (!el) return;
+        if (!Array.isArray(items) || items.length === 0) {
+          el.innerHTML = '<li class="row"><span class="sub">No key usage data.</span></li>';
+          return;
+        }
+        el.innerHTML = items.slice(0, 10).map((k, i) => `
+          <li class="row">
+            <span class="mono">#${i+1} ${escapeHtml(k.prefix || k.key || String(k.id ?? ''))}</span>
+            <span class="mono">${fmt(k.requests ?? k.count ?? k.usage ?? 0)} req</span>
+            <span class="mono" style="color:var(--secondary)">${escapeHtml(k.tier || 'free')}</span>
+          </li>`).join('');
+      }
+
+      function esc(s, fallback = '—') {
+        if (s == null) return fallback;
+        return escapeHtml(String(s));
+      }
+
+      function renderRecentKeys(items) {
+        const tbody = document.getElementById('recent-keys');
+        if (!tbody) return;
+        setText('recent-time', 'Updated ' + (new Date().toLocaleTimeString()));
+        if (!Array.isArray(items) || items.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="sub">No recently issued keys.</td></tr>';
+          return;
+        }
+        const statusClass = (s) => {
+          const v = (s || '').toString().toLowerCase();
+          if (['active', 'ok', 'enabled', 'valid'].includes(v)) return 'ok';
+          if (['revoked', 'disabled', 'banned', 'error'].includes(v)) return 'err';
+          return 'warn';
+        };
+        tbody.innerHTML = items.map(k => `
+          <tr>
+            <td class="mono">${esc((k.prefix || k.key || k.id || '').toString().slice(0, 16), '—')}</td>
+            <td class="mono">${esc(k.tier, '—')}</td>
+            <td class="mono">${fmtTime(k.issued_at || k.created_at)}</td>
+            <td class="mono">${esc(k.created_by || k.owner || 'system')}</td>
+            <td style="text-align:right"><span class="badge ${statusClass(k.status)}">${esc(k.status, 'unknown')}</span></td>
+          </tr>`).join('');
+      }
+
+      function escapeHtml(x) {
+        return String(x)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      async function fetchJSON(url) {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('HTTP ' + res.status + ' for ' + url);
+        const ct = res.headers.get('content-type') || 'text/plain';
+        let text = await res.text();
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          throw new Error('Invalid JSON from ' + url + ': ' + e.message);
+        }
+      }
+
+      async function load() {
+        try {
+          const [usage, admin] = await Promise.all([
+            fetchJSON('/api/usage/status'),
+            fetchJSON('/api/admin')
+          ]);
+          const todayTotal =
+            usage?.today?.total ??
+            usage?.requests_today ??
+            usage?.today?.requests ??
+            usage?.today?.count ??
+            0;
+
+          setText('today-total', fmt(todayTotal));
+          const cap = usage?.today?.quota ?? usage?.dailyLimit ?? 1000;
+          const pct = (todayTotal / Math.max(cap, 1)) * 100;
+          renderProgress(pct);
+          setText('today-sub', `Today vs quota of ${fmt(cap)}`);
+          document.getElementById('today-trend').textContent = '';
+
+          const tierTotal = Object.values(usage?.today?.breakdown || usage?.breakdown || {}).reduce((a,b)=>a+(Number(b)||0), 0);
+          renderTiers({
+            breakdown: usage?.today?.breakdown || usage?.breakdown
+          });
+
+          const totalKeys =
+            admin?.keys?.total ??
+            admin?.totalKeys ??
+            admin?.keys?.length ??
+            admin?.keys_count ??
+            admin?.keyCount ??
+            0;
+          setText('keys-total', fmt(totalKeys));
+          setText('keys-sub', 'Total API keys registered');
+
+          const errorsToday =
+            usage?.today?.errors ??
+            usage?.errors_today ??
+            usage?.today?.failed ??
+            usage?.today?.error_requests ??
+            0;
+          setText('errors-total', fmt(errorsToday));
+          setText('errors-sub', errorsToday === 0 ? 'No errors' : `${fmt(errorsToday)} requests returned errors`);
+
+          renderTopKeys(
+            Array.isArray(admin?.topKeys) ? admin.topKeys
+              : Array.isArray(admin?.keys_by_usage) ? admin.keys_by_usage
+              : Array.isArray(admin?.top_keys) ? admin.top_keys
+              : Array.isArray(admin?.usageTop) ? admin.usageTop
+              : Array.isArray(admin?.stats?.topKeys) ? admin.stats.topKeys
+              : []
+          );
+
+          const recent =
+            admin?.recentKeys ??
+            admin?.keys?.recent ??
+            admin?.recent ??
+            admin?.recentlyIssuedKeys ??
+            admin?.stats?.recentKeys ??
+            [];
+          renderRecentKeys(Array.isArray(recent) ? recent : []);
+
+        } catch (e) {
+          console.error(e);
+          ['today-total','keys-total','errors-total'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+              el.textContent = '—';
+              el.style.background = 'none';
+              el.style.color = '#ef4444';
+            }
+          });
+          wrapWholeError('dashboard-load');
+        }
+      }
+
+      function wrapWholeError(id) {
+        const container = document.querySelector('.container');
+        if (!container || container.dataset.errored) return;
+        container.dataset.errored = 'true';
+        const banner = document.createElement('div');
+        banner.className = 'error-state';
+        banner.setAttribute('role', 'alert');
+        banner.style.cssText = 'position:fixed;inset:auto;left:0;right:0;top:0;padding:10px 16px;background:#450a0a;color:#fca5a5;border-bottom:1px solid #7f1d1d;z-index:50';
+        banner.textContent = 'Failed to load dashboard data. Check /api/usage/status and /api/admin.';
+        document.body.appendChild(banner);
+      }
+
+      load();
+      setInterval(load, 15000);
+    })();
+  </script>
+</body>
+</html>
