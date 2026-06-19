@@ -12,7 +12,7 @@ function cors(headers = {}) {
 export async function onRequestGet(context) {
   try {
     const { key, cap, tier } = resolveRateLimitContext(context, { anonymousCap: 5, signedCap: 100 });
-    const limit = consumeLimit(key, cap);
+    const limit = consumeLimit(key, cap, context.env);
 
     if (limit.limited) {
       return new Response(
@@ -32,6 +32,7 @@ export async function onRequestGet(context) {
             'x-rate-limit-remaining': '0',
             'x-rate-limit-limit': String(limit.limit),
             'x-rate-limit-tier': tier,
+            'x-rate-limit-reset': String(limit.resetUnix),
           }),
           status: 429,
         }
@@ -87,9 +88,10 @@ export async function onRequestGet(context) {
       }),
       {
         headers: cors({
-          'x-rate-limit-remaining': String(limit.remaining - 1),
+          'x-rate-limit-remaining': String(limit.remaining),
           'x-rate-limit-limit': String(limit.limit),
           'x-rate-limit-tier': tier,
+          'x-rate-limit-reset': String(limit.resetUnix),
         }),
       }
     );
