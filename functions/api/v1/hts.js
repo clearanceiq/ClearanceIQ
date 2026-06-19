@@ -9,12 +9,36 @@ function cors(headers = {}) {
   };
 }
 
+async function logUsage(tier, endpoint, context, result) {
+  const rawIp = (context.request.headers.get('CF-Connecting-IP') || 'unknown').replace(/[^a-zA-Z0-9:._-]/g, '_');
+  const anonIp = rawIp.length >= 5 ? rawIp.slice(0, 3) + '***' + rawIp.slice(-3) : '***';
+  const date = new Date().toISOString().slice(0, 10);
+  const tag =
+    tier === 'signed'
+      ? (context.request.headers.get('X-API-Key') || 'unknown').replace(/[^a-zA-Z0-9:._-]/g, '_').slice(0, 16)
+      : anonIp;
+
+  const logValue = JSON.stringify({ ts: new Date().toISOString(), tier, endpoint, ip: anonIp, result: result || 'ok' });
+  const logKey = `usage_log::${date}::${tier}::${tag}::${endpoint}::${Date.now()}`;
+  const countKey = `usage::${date}::${tier}::${tag}::${endpoint}`;
+
+  if (context.env?.RATE_COUNTER) {
+    try {
+      await context.env.RATE_COUNTER.put(logKey, logValue);
+      const raw = await context.env.RATE_COUNTER.get(countKey);
+      const n = parseInt(raw || '0', 10) + 1;
+      await context.env.RATE_COUNTER.put(countKey, String(n), { expirationTtl: 72 * 60 * 60 });
+    } catch { /* no-op */ }
+  }
+}
+
 export async function onRequestGet(context) {
   try {
     const { key, cap, tier } = resolveRateLimitContext(context, { anonymousCap: 5, signedCap: 100 });
     const limit = consumeLimit(key, cap, context.env);
 
     if (limit.limited) {
+      await logUsage(tier, 'v1/hts', context, 'rate_limit');
       return new Response(
         JSON.stringify({
           ok: false,
@@ -42,6 +66,7 @@ export async function onRequestGet(context) {
     const url = new URL(context.request.url);
     const q = (url.searchParams.get('q') || '').trim().toLowerCase();
     if (!q) {
+      await logUsage(tier, 'v1/hts', context, 'error');
       return new Response(
         JSON.stringify({ ok: false, error: 'q required' }),
         {
@@ -79,6 +104,7 @@ export async function onRequestGet(context) {
     });
 
     if (!match) {
+      await logUsage(tier, 'v1/hts', context, 'error');
       return new Response(
         JSON.stringify({ ok: false, error: 'no_match' }),
         {
@@ -92,6 +118,7 @@ export async function onRequestGet(context) {
       );
     }
 
+    await logUsage(tier, 'v1/hts', context, 'ok');
     return new Response(
       JSON.stringify({
         ok: true,
@@ -111,6 +138,7 @@ export async function onRequestGet(context) {
       }
     );
   } catch (err) {
+    await logUsage('unknown', 'v1/hts', context, 'error');
     return new Response(JSON.stringify({ ok: false, error: 'invalid_query' }), { headers: cors(), status: 400 });
   }
 }
