@@ -55,6 +55,33 @@ nav a{font-size:13px;color:var(--muted);text-decoration:none}
         <button class="cta secondary" type="submit">Get my free API key</button>
       </form>
       <div id="signup-status"></div>
+      <div class="box" style="margin-top:14px; border-color:rgba(245,158,11,0.3);">
+        <h2 style="margin-top:0; font-size:18px;">Give Pro to a friend</h2>
+        <p style="margin:6px 0; color:var(--muted); font-size:14px;">Know someone who needs customs data? Give them a free month of Pro.</p>
+        
+        <div id="referral-generate-section" style="margin-top:12px; display:none;">
+          <p style="font-size:13px; color:var(--muted);">Have a free API key?</p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; align-items:center;">
+            <input type="email" id="referral-recipient" placeholder="Friend's email" style="flex:1; min-width:180px; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:10px 12px; border-radius:10px; font-size:14px;">
+            <button class="cta secondary" id="generate-referral-btn" type="button" style="font-size:13px; padding:10px 14px;">Generate code</button>
+          </div>
+          <div id="referral-msg" style="margin-top:6px; font-size:13px; color:var(--muted);"></div>
+          <div id="referral-code-display" style="margin-top:10px; display:none;">
+            <div style="font-size:12px; color:var(--muted); margin-bottom:4px;">Referral code for <span id="recipient-name"></span>:</div>
+            <div class="key-block" id="generated-code"></div>
+            <div style="font-size:12px; color:var(--muted); margin-top:6px;">Send this code — they get one free month of Pro.</div>
+          </div>
+        </div>
+        
+        <hr style="border:none; border-top:1px solid rgba(148,163,184,0.15); margin:14px 0;">
+        
+        <p style="font-size:13px; color:var(--muted);">Have a referral code?</p>
+        <form id="apply-code-form" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;">
+          <input name="code" type="text" placeholder="Enter referral code" style="flex:1; min-width:180px; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:10px 12px; border-radius:10px; font-size:14px;" required>
+          <button class="cta secondary" type="submit" style="font-size:13px; padding:10px 14px;">Redeem</button>
+        </form>
+        <div id="apply-status" style="margin-top:8px; font-size:13px; color:var(--muted);"></div>
+      </div>
     </div>
     <div class="kpi pro-box">
       <b>Pro</b>
@@ -125,6 +152,113 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
     status.style.color = '#f59e0b';
   }
 });
+
+(function () {
+  function getKey() {
+    return (localStorage.getItem('clearanceiq_key') || '').trim();
+  }
+
+  function initReferralUI() {
+    const genSection = document.getElementById('referral-generate-section');
+    if (!genSection) return;
+    const key = getKey();
+    if (key) {
+      genSection.style.display = 'block';
+    }
+  }
+
+  function initGenerate() {
+    const btn = document.getElementById('generate-referral-btn');
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+      const recipient = (document.getElementById('referral-recipient').value || '').trim();
+      const msgEl = document.getElementById('referral-msg');
+      const display = document.getElementById('referral-code-display');
+      const codeEl = document.getElementById('generated-code');
+      const nameEl = document.getElementById('recipient-name');
+      if (!recipient.includes('@')) {
+        msgEl.textContent = 'Enter a valid email for the recipient.';
+        msgEl.style.color = '#f59e0b';
+        return;
+      }
+      const key = getKey();
+      if (!key) {
+        msgEl.textContent = 'Please sign up for a free key first.';
+        msgEl.style.color = '#f59e0b';
+        return;
+      }
+      msgEl.textContent = 'Generating code...';
+      msgEl.style.color = '#94a3b8';
+      try {
+        const res = await fetch('/api/referrals/generate', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ api_key: key, recipient_email: recipient }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          msgEl.textContent = 'Error: ' + (data.error || 'Server error');
+          msgEl.style.color = '#f59e0b';
+          return;
+        }
+        nameEl.textContent = recipient;
+        codeEl.textContent = data.code;
+        display.style.display = 'block';
+        msgEl.textContent = '';
+      } catch (err) {
+        msgEl.textContent = 'Network error — try again.';
+        msgEl.style.color = '#f59e0b';
+      }
+    });
+  }
+
+  function initApply() {
+    const form = document.getElementById('apply-code-form');
+    if (!form) return;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = document.getElementById('apply-status');
+      const code = (new FormData(e.target).get('code') || '').trim();
+      const key = getKey();
+      if (!code) {
+        status.textContent = 'Enter a referral code.';
+        status.style.color = '#f59e0b';
+        return;
+      }
+      status.textContent = 'Redeeming...';
+      status.style.color = '#94a3b8';
+      try {
+        const body = key ? JSON.stringify({ code, api_key: key }) : JSON.stringify({ code });
+        const res = await fetch('/api/referrals/redeem', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body,
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          status.textContent = 'Error: ' + (data.error || 'Server error');
+          status.style.color = '#f59e0b';
+          return;
+        }
+        status.textContent = 'Referral redeemed. Enjoy your free month of Pro!';
+        status.style.color = '#10b981';
+        if (data.expires_at) {
+          status.textContent += ' Expires ' + data.expires_at + '.';
+        }
+        if (key) localStorage.setItem('clearanceiq_referral_redeemed', 'true');
+      } catch (err) {
+        status.textContent = 'Network error — try again.';
+        status.style.color = '#f59e0b';
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initReferralUI();
+    initGenerate();
+    initApply();
+  });
+})();
 </script>
 </body>
 </html>
