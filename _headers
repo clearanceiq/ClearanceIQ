@@ -1,2 +1,8 @@
 /*
   Cache-Control: no-cache
+
+/tools/*
+  Cache-Control: no-cache
+
+/blog/*
+  Cache-Control: no-cache
