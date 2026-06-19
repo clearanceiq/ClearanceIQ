@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Access — ClearanceIQ</title>
+<meta name="description" content="Free and Pro API plans for US import customs data — HTS lookup, duty calculation, and bond estimation.">
+<link rel="canonical" href="https://clearanceiq.pages.dev/api-pricing.html">
+<style>
+:root{--bg:#0b0f19;--surface:#111827;--muted:#94a3b8;--text:#e2e8f0;--accent:#f59e0b;--accent-2:#10b981;--max:920px}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
+header,main,footer{padding:24px 16px}
+.container{max-width:var(--max);margin:0 auto}
+.badge{display:inline-block;background:rgba(245,158,11,0.15);color:var(--accent);border:1px solid rgba(245,158,11,0.3);padding:6px 12px;border-radius:999px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;font-weight:600}
+h1{font-size:clamp(28px,4vw+10,44px);line-height:1.15;margin:18px 0 10px}
+h2{font-size:20px;color:#f8fafc;margin:20px 0 8px}
+.lead{color:#cbd5e1;font-size:18px}
+.cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#0b0f19;padding:14px 22px;border-radius:10px;font-weight:700;font-size:16px;border:0;cursor:pointer;margin-top:16px}
+.cta.secondary{background:transparent;color:var(--accent);border:1px solid rgba(245,158,11,0.4)}
+.box{background:var(--surface);border:1px solid rgba(148,163,184,0.12);border-radius:14px;padding:18px;margin-top:16px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}
+.kpi{background:rgba(15,23,42,0.7);border:1px solid rgba(148,163,184,0.12);padding:14px;border-radius:12px}
+.kpi b{display:block;color:var(--accent-2);font-size:22px}
+nav{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+nav a{font-size:13px;color:var(--muted)}
+.endpoint{background:rgba(15,23,42,0.7);border:1px solid rgba(148,163,184,0.12);padding:14px;border-radius:12px;margin-top:10px}
+.endpoint code{color:#fbbf24;font-size:14px}
+.disclaimer{color:var(--muted);font-size:12px;margin-top:22px;border-top:1px solid rgba(148,163,184,0.15);padding-top:14px}
+@media (max-width:520px){.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="container">
+  <div style="text-align:center; margin-top:6px;">
+    <span class="badge">ClearanceIQ API</span>
+    <h1>Import customs data, on demand</h1>
+    <div class="lead" style="margin-top:10px;">HTS lookup, duty calculation, and bond estimation — free to start, Pro when you need scale.</div>
+  </div>
+
+  <div class="kpis" style="margin-top:26px;">
+    <div class="kpi">
+      <b>Free</b>
+      <div>100 requests/day</div>
+      <div style="color:var(--muted); font-size:14px; margin-top:4px;">Perfect for testing and side projects.</div>
+      <a class="cta secondary" href="/tools/hts-lookup.html" style="margin-top:12px;">Start free</a>
+    </div>
+    <div class="kpi">
+      <b>Pro</b>
+      <div>$49/month · unlimited</div>
+      <div style="color:var(--muted); font-size:14px; margin-top:4px;">For live integrations and volume.</div>
+      <a class="cta" href="mailto:clearanceiq@proton.me?subject=Pro%20API%20access" style="margin-top:12px;">Get access</a>
+    </div>
+  </div>
+
+  <div class="box" style="margin-top:26px;">
+    <h2>Endpoints</h2>
+    <div class="endpoint"><code>GET /api/v1/hts?q=6110.11</code><div style="color:var(--muted); font-size:14px; margin-top:6px;">HTS chapter lookup with duty-rate preview and AD/CVD risk flags.</div></div>
+    <div class="endpoint"><code>GET /api/v1/duty-calc?value=10000&freight=1200&hts=6110.11</code><div style="color:var(--muted); font-size:14px; margin-top:6px;">Landed-cost estimate including duty, MPF, HMF, and Section 301 surcharge where applicable.</div></div>
+    <div class="endpoint"><code>GET /api/v1/bond?type=single&value=50000&risk=1.2</code><div style="color:var(--muted); font-size:14px; margin-top:6px;">Single-transaction or continuous bond premium range based on shipment value and risk class.</div></div>
+  </div>
+
+  <div class="box">
+    <h2>How to request Pro access</h2>
+    <ol class="clean" style="padding-left:18px; margin-top:8px;">
+      <li>Email <code>clearanceiq@proton.me</code> with subject <b>Pro API access</b></li>
+      <li>Include your use case and expected monthly request volume</li>
+      <li>Receive API credentials within one business day</li>
+    </ol>
+  </div>
+
+  <div style="text-align:center; margin-top: 26px;">
+    <a class="cta secondary" href="/">Back to home</a>
+  </div>
+
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/tools/hts-lookup.html">HTS Lookup</a>
+    <a href="/tools/duty-calculator.html">Duty Calculator</a>
+    <a href="/tools/bond-estimator.html">Bond Estimator</a>
+    <a href="/whats-inside.html">Playbook</a>
+  </nav>
+
+  <p class="disclaimer">API data is for estimation and planning, not legal clearance decisions. Always verify duties with a licensed customs broker before filing entry.</p>
+</main>
+<script>
+if (window.CIQ && typeof window.CIQ.logEvent === 'function') {
+  window.CIQ.logEvent({ type: 'page_view', page: location.pathname });
+}
+</script>
+</body>
+</html>
