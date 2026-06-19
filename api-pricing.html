@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>API Access — ClearanceIQ</title>
-<meta name="description" content="Free and Pro API plans for US import customs data — HTS lookup, duty calculation, and bond estimation.">
+<meta name="description" content="Free and paid API access for US import customs data — HTS lookup, duty calculation, and bond estimation.">
 <link rel="canonical" href="https://clearanceiq.pages.dev/api-pricing.html">
 <style>
 :root{--bg:#0b0f19;--surface:#111827;--muted:#94a3b8;--text:#e2e8f0;--accent:#f59e0b;--accent-2:#10b981;--max:920px}
@@ -26,9 +26,14 @@ h2{font-size:20px;color:#f8fafc;margin:20px 0 8px}
 .feature{display:flex;gap:10px;align-items:flex-start;margin-top:8px;color:#cbd5e1;font-size:14px}
 .feature span{color:var(--accent-2);font-weight:700;flex-shrink:0}
 .pro-box{background:linear-gradient(135deg,#1a2332,#111827);border:1px solid rgba(245,158,11,0.25);box-shadow:0 0 32px rgba(245,158,11,0.08)}
+.coming-soon{display:inline-flex;align-items:center;gap:6px;background:rgba(148,163,184,0.12);color:var(--muted);border:1px solid rgba(148,163,184,0.2);padding:8px 14px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-top:10px}
+.signup-form{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.signup-form input{flex:1;min-width:220px;background:#0b0f19;border:1px solid rgba(148,163,184,0.2);color:#e2e8f0;padding:12px 14px;border-radius:10px;font-size:15px}
 nav{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px}
 nav a{font-size:13px;color:var(--muted);text-decoration:none}
 .disclaimer{color:var(--muted);font-size:12px;margin-top:22px;border-top:1px solid rgba(148,163,184,0.15);padding-top:14px}
+.key-block{background:rgba(15,23,42,0.7);border:1px solid rgba(148,163,184,0.12);padding:14px;border-radius:12px;margin-top:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:14px;color:#fbbf24;word-break:break-all}
+#signup-status{margin-top:10px;font-size:13px;color:var(--muted)}
 @media (max-width:520px){.kpis{grid-template-columns:1fr}}
 </style>
 </head>
@@ -37,35 +42,39 @@ nav a{font-size:13px;color:var(--muted);text-decoration:none}
   <div style="text-align:center; margin-top:6px;">
     <span class="badge">ClearanceIQ API</span>
     <h1>Import customs data, on demand</h1>
-    <div class="lead" style="margin-top:10px;">HTS lookup, duty calculation, and bond estimation — free to start, Pro when you need scale.</div>
+    <div class="lead" style="margin-top:10px;">Free to start, Pro coming soon for unlimited access.</div>
   </div>
 
   <div class="kpis" style="margin-top:26px;">
     <div class="kpi">
       <b>Free</b>
-      <div>10 requests/day</div>
-      <div style="color:var(--muted); font-size:14px; margin-top:4px;">Light use and evaluation.</div>
-      <a class="cta secondary" href="/tools/hts-lookup.html" style="margin-top:12px;">Start free</a>
+      <div>Anonymous: 5/day · Signed up: 100/day</div>
+      <div style="color:var(--muted); font-size:14px; margin-top:4px;">Sign up takes 10 seconds. No credit card.</div>
+      <form id="signupForm" class="signup-form" style="margin-top:12px;">
+        <input name="email" type="email" placeholder="you@company.com" required />
+        <button class="cta secondary" type="submit">Get my free API key</button>
+      </form>
+      <div id="signup-status"></div>
     </div>
     <div class="kpi pro-box">
       <b>Pro</b>
-      <div>$49/month · unlimited</div>
-      <div style="color:var(--muted); font-size:14px; margin-top:4px;">For live integrations and volume.</div>
-      <a class="cta" href="mailto:clearanceiq@proton.me?subject=Pro%20API%20access" style="margin-top:12px; width:100%;">Get unlimited access</a>
+      <div>$49/month · unlimited · support included</div>
+      <div style="color:var(--muted); font-size:14px; margin-top:4px;">Built for live integrations and volume.</div>
+      <div class="coming-soon">Coming soon</div>
       <div style="margin-top:12px;">
-        <div class="feature"><span>✓</span><span>Unlimited HTS, duty, and bond calls</span></div>
-        <div class="feature"><span>✓</span><span>Volume credentials delivered within one business day</span></div>
-        <div class="feature"><span>✓</span><span>Built for integrations, not manual lookup</span></div>
+        <div class="feature"><span>✓</span><span>Unlimited API calls</span></div>
+        <div class="feature"><span>✓</span><span>Priority response</span></div>
+        <div class="feature"><span>✓</span><span>Ready for production use</span></div>
       </div>
     </div>
   </div>
 
   <div class="box">
-    <h2>How to request Pro access</h2>
+    <h2>Request Pro access</h2>
     <ol class="clean" style="padding-left:18px; margin-top:8px;">
       <li>Email <code>clearanceiq@proton.me</code> with subject <b>Pro API access</b></li>
-      <li>Include your use case and expected monthly request volume</li>
-      <li>Receive API credentials within one business day</li>
+      <li>Include your use case, expected monthly request volume, and tools/language</li>
+      <li>Receive your Pro credentials within one business day</li>
     </ol>
   </div>
 
@@ -84,9 +93,38 @@ nav a{font-size:13px;color:var(--muted);text-decoration:none}
   <p class="disclaimer">API data is for estimation and planning, not legal clearance decisions. Always verify duties with a licensed customs broker before filing entry.</p>
 </main>
 <script>
-if (window.CIQ && typeof window.CIQ.logEvent === 'function') {
-  window.CIQ.logEvent({ type: 'page_view', page: location.pathname });
-}
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const status = document.getElementById('signup-status');
+  const email = (new FormData(e.target).get('email') || '').trim();
+  if (!email || !email.includes('@')) {
+    status.textContent = 'Enter a valid email.';
+    status.style.color = '#f59e0b';
+    return;
+  }
+  status.textContent = 'Claiming your key...';
+  status.style.color = '#94a3b8';
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) {
+      status.textContent = 'Error: ' + (data.error || 'Server error');
+      status.style.color = '#f59e0b';
+      return;
+    }
+    status.innerHTML =
+      '<div style="margin-top:8px; color:#e2e8f0;">Your free API key:</div>' +
+      '<div class="key-block">' + data.key + '</div>' +
+      '<div style="margin-top:8px; color:#94a3b8;">Use as header: <code>X-API-Key: ' + data.key + '</code><br>Free limit: ' + (data.limits?.daily || 100) + ' requests/day.</div>';
+  } catch (err) {
+    status.textContent = 'Network error — try again.';
+    status.style.color = '#f59e0b';
+  }
+});
 </script>
 </body>
 </html>
