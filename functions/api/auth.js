@@ -14,11 +14,7 @@ async function parseBody(request) {
     for (const [k, v] of form.entries()) out[k] = v;
     return out;
   }
-  try {
-    return await request.json();
-  } catch {
-    return {};
-  }
+  try { return await request.json(); } catch { return {}; }
 }
 
 function issueFreeKey(email) {
@@ -40,10 +36,10 @@ export async function onRequestGet(context) {
 }
 
 export async function onRequestPost(context) {
-  const url = new URL(context.request.url);
   const body = await parseBody(context.request);
-  const email = String(body.email || '').trim().toLowerCase();
-  if (!email || !email.includes('@')) {
+  const email = String(body.email || '').trim();
+  const emailLower = email.toLowerCase();
+  if (!emailLower || !emailLower.includes('@')) {
     return new Response(
       JSON.stringify({ ok: false, error: 'valid email required' }),
       { headers: corsHeaders, status: 400 }
@@ -53,7 +49,7 @@ export async function onRequestPost(context) {
   let record;
   if (context.env && context.env.API_KEYS) {
     try {
-      const existing = await context.env.API_KEYS.get('email::' + email);
+      const existing = await context.env.API_KEYS.get('email::' + emailLower);
       if (existing) {
         record = JSON.parse(existing);
         if (record && record.key) {
@@ -69,21 +65,17 @@ export async function onRequestPost(context) {
           );
         }
       }
-    } catch (e) {
-      // best-effort: fall through to ephemeral key below
-    }
+    } catch (e) { /* best-effort */ }
   }
 
-  if (!record) record = issueFreeKey(email);
-  record.email = email;
+  if (!record) record = issueFreeKey(emailLower);
+  record.email = emailLower;
 
   if (context.env && context.env.API_KEYS) {
     try {
-      await context.env.API_KEYS.put('email::' + email, JSON.stringify(record));
+      await context.env.API_KEYS.put('email::' + emailLower, JSON.stringify(record));
       await context.env.API_KEYS.put('key::' + record.key, JSON.stringify(record));
-    } catch (e) {
-      // Persistence is best-effort on Pages; key still issued above.
-    }
+    } catch (e) { /* Persistence is best-effort on Pages; key still issued above. */ }
   }
 
   return new Response(

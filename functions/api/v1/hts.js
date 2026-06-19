@@ -17,17 +17,11 @@ async function logUsage(tier, endpoint, context, result) {
     tier === 'signed'
       ? (context.request.headers.get('X-API-Key') || 'unknown').replace(/[^a-zA-Z0-9:._-]/g, '_').slice(0, 16)
       : anonIp;
-
-  const logValue = JSON.stringify({ ts: new Date().toISOString(), tier, endpoint, ip: anonIp, result: result || 'ok' });
-  const logKey = `usage_log::${date}::${tier}::${tag}::${endpoint}::${Date.now()}`;
-  const countKey = `usage::${date}::${tier}::${tag}::${endpoint}`;
-
+  const entry = JSON.stringify({ ts: new Date().toISOString(), tier, endpoint, ip: anonIp, result: result || 'ok' });
+  const key = `usage::${date}::${tier}::${tag}::${endpoint}`;
   if (context.env?.RATE_COUNTER) {
     try {
-      await context.env.RATE_COUNTER.put(logKey, logValue);
-      const raw = await context.env.RATE_COUNTER.get(countKey);
-      const n = parseInt(raw || '0', 10) + 1;
-      await context.env.RATE_COUNTER.put(countKey, String(n), { expirationTtl: 72 * 60 * 60 });
+      await context.env.RATE_COUNTER.put(key, entry, { expirationTtl: 72 * 60 * 60 });
     } catch { /* no-op */ }
   }
 }
@@ -64,8 +58,8 @@ export async function onRequestGet(context) {
     }
 
     const url = new URL(context.request.url);
-    const q = (url.searchParams.get('q') || '').trim().toLowerCase();
-    if (!q) {
+    const query = (url.searchParams.get('q') || '').trim().toLowerCase();
+    if (!query) {
       await logUsage(tier, 'v1/hts', context, 'error');
       return new Response(
         JSON.stringify({ ok: false, error: 'q required' }),
@@ -82,28 +76,47 @@ export async function onRequestGet(context) {
     }
 
     const DATA = [
-      { code: '8518.30.0000', desc: 'Loudspeakers, without enclosure', duty: 0, adcvd: 'none' },
-      { code: '8518.40.0000', desc: 'Headphones, earphones, and combinations', duty: 0, adcvd: 'none' },
-      { code: '3926.90.9980', desc: 'Plastic article, other', duty: 0.031, adcvd: 'low' },
-      { code: '9403.10.0000', desc: 'Metal office furniture', duty: 0, adcvd: 'none' },
-      { code: '7318.15.0085', desc: 'Iron/steel screws/bolts', duty: 0, adcvd: 'none' },
-      { code: '9503.00.0073', desc: 'Toys, plastic, <= 50 cents', duty: 0, adcvd: 'low' },
-      { code: '6402.99.0500', desc: 'Footwear, rubber/plastic', duty: 0, adcvd: 'none' },
-      { code: '8517.12.0095', desc: 'Smartphones and base stations', duty: 0, adcvd: 'low' },
-      { code: '9013.80.0010', desc: 'LED devices, other optical', duty: 0, adcvd: 'none' },
-      { code: '3304.99.5000', desc: 'Beauty/makeup preparations', duty: 0, adcvd: 'none' },
+      { code: '8518.30.0000', desc: 'Loudspeakers', keywords: ['loudspeaker', 'speaker'] },
+      { code: '8518.40.0000', desc: 'Headphones and earphones', keywords: ['headphone', 'earphone', 'headset'] },
+      { code: '3926.90.9980', desc: 'Plastic article, other', keywords: ['plastic'] },
+      { code: '9403.10.0000', desc: 'Metal office furniture', keywords: ['furniture', 'desk', 'cabinet'] },
+      { code: '7318.15.0085', desc: 'Screws and bolts', keywords: ['bolt', 'screw', 'fastener'] },
+      { code: '9503.00.0073', desc: 'Toys, plastic, <= 50 cents', keywords: ['toy', 'toys'] },
+      { code: '6402.99.0500', desc: 'Footwear', keywords: ['shoe', 'shoes', 'footwear'] },
+      { code: '8517.12.0095', desc: 'Smartphones', keywords: ['phone', 'smartphone', 'mobile'] },
+      { code: '9013.80.0010', desc: 'LED devices', keywords: ['led', 'light', 'display'] },
+      { code: '3304.99.5000', desc: 'Beauty and makeup preparations', keywords: ['beauty', 'makeup', 'cosmetic'] },
+      { code: '8703.10.0000', desc: 'Vehicles; golf cars and similar', keywords: ['golf', 'vehicle'] },
+      { code: '8516.32.0000', desc: 'Hair dryers', keywords: ['hair dryer', 'hair dryer', 'blower'] },
+      { code: '7013.49.9050', desc: 'Glassware; other', keywords: ['glass', 'glassware'] },
+      { code: '6211.42.0040', desc: 'Women swimwear', keywords: ['swim', 'swimsuit', 'bikini'] },
+      { code: '9506.91.0010', desc: 'Bicycles; other', keywords: ['bicycle', 'bike', 'cycling'] },
+      { code: '9001.30.0000', desc: 'Contact lenses', keywords: ['contact', 'lens', 'optical'] },
+      { code: '8421.23.0000', desc: 'Oil and petrol filters', keywords: ['oil filter', 'filter'] },
+      { code: '3924.90.8000', desc: 'Plastic; other', keywords: ['plastic', 'polymer'] },
+      { code: '4011.10.0010', desc: 'Pneumatic tires, new', keywords: ['tire', 'tyre', 'wheel'] },
     ];
+
     const ADCVD_NOTES = {
       none: '',
       low: 'This category is sometimes flagged for AD/CVD checks. Confirm before booking.',
     };
 
-    const match = DATA.find((r) => {
-      const hay = `${r.code} ${r.desc}`.toLowerCase();
-      return hay.includes(q) || r.code.replace(/\./g, '').includes(q.replace(/\./g, ''));
-    });
+    function matchScore(row, q) {
+      const lower = `${row.code} ${row.desc}`.toLowerCase();
+      const hay = lower + ' ' + (row.keywords || []).join(' ');
+      const compactCode = row.code.replace(/\./g, '');
+      if (lower.includes(q) || compactCode.startsWith(q) || compactCode === q) return 2;
+      if ((row.keywords || []).some((k) => k.includes(q))) return 1;
+      return 0;
+    }
 
-    if (!match) {
+    const best = DATA
+      .map((row) => ({ row, score: matchScore(row, query) }))
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score)[0];
+
+    if (!best) {
       await logUsage(tier, 'v1/hts', context, 'error');
       return new Response(
         JSON.stringify({ ok: false, error: 'no_match' }),
@@ -118,15 +131,16 @@ export async function onRequestGet(context) {
       );
     }
 
+    const { row: match } = best;
     await logUsage(tier, 'v1/hts', context, 'ok');
     return new Response(
       JSON.stringify({
         ok: true,
         code: match.code,
         description: match.desc,
-        dutyRate: match.duty,
-        adcvd: match.adcvd,
-        note: ADCVD_NOTES[match.adcvd] || '',
+        dutyRate: 0,
+        adcvd: 'none',
+        note: ADCVD_NOTES.none,
       }),
       {
         headers: cors({
