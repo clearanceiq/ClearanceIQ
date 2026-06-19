@@ -50,6 +50,12 @@
 </main>
 
 <script>
+function logEvent(payload) {
+  if (!navigator.sendBeacon) return;
+  const body = JSON.stringify({ ...payload, ts: Date.now(), path: location.pathname });
+  navigator.sendBeacon('/api/telemetry', body);
+}
+
 const HOLDS = [
   {
     keywords: ["commercial exam","manifest","documentation"],
@@ -92,21 +98,19 @@ function decode() {
   const q = document.getElementById('q').value.trim().toLowerCase();
   const out = document.getElementById('result');
   const status = document.getElementById('status');
-
-  if (!q) { status.textContent = "Type a hold keyword or message."; return; }
-
+  if (!q) { status.textContent = 'Type a hold keyword or message.'; return; }
   const match = HOLDS.find(h => h.keywords.some(k => q.includes(k)));
-
   if (!match) {
-    out.style.display = "none";
-    status.textContent = "No direct local match. Ask your broker which PGA or program is blocking release.";
+    out.style.display = 'none';
+    status.textContent = 'No direct local match. Ask your broker which PGA or program is blocking release.';
+    logEvent({ type: 'cbp_no_match', q });
     return;
   }
-
   document.getElementById('result_title').textContent = match.title;
   document.getElementById('result_body').innerHTML = match.body;
-  out.style.display = "block";
-  status.textContent = "";
+  out.style.display = 'block';
+  status.textContent = '';
+  logEvent({ type: 'cbp_hit', title: match.title, q });
 }
 </script>
 </body>

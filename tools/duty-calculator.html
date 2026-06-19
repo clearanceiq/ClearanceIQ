@@ -71,6 +71,12 @@
 </main>
 
 <script>
+function logEvent(payload) {
+  if (!navigator.sendBeacon) return;
+  const body = JSON.stringify({ ...payload, ts: Date.now(), path: location.pathname });
+  navigator.sendBeacon('/api/telemetry', body);
+}
+
 function calculate() {
   const value = parseFloat(document.getElementById('value').value || '0');
   const freight = parseFloat(document.getElementById('freight').value || '0');
@@ -107,6 +113,7 @@ function calculate() {
   document.getElementById('result_body').innerHTML = html;
   document.getElementById('result').style.display = 'block';
   document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+  logEvent({ type: 'duty_calc', hts, generalRate, duty, section301, landed });
 }
 
 function fmt(n) { return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }

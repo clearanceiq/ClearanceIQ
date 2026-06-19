@@ -55,6 +55,12 @@
 </main>
 
 <script>
+function logEvent(payload) {
+  if (!navigator.sendBeacon) return;
+  const body = JSON.stringify({ ...payload, ts: Date.now(), path: location.pathname });
+  navigator.sendBeacon('/api/telemetry', body);
+}
+
 function generate() {
   const product = document.getElementById('product').value.trim() || '_____';
   const origin = document.getElementById('origin').value.trim() || '_____';
@@ -76,6 +82,7 @@ function generate() {
   list.innerHTML = items.map(i => `<li>${i}</li>`).join('');
   document.getElementById('checklist').style.display = 'block';
   document.getElementById('checklist').scrollIntoView({ behavior: 'smooth' });
+  logEvent({ type: 'checklist_generate', product: !!product, origin: !!origin, incoterms: !!incoterms });
 }
 </script>
 </body>
