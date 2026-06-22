@@ -1,5 +1,5 @@
 // Admin API for key management.
-// Guarded by x-admin-key header against ADMIN_KEY env var or hardcoded fallback.
+// Guarded by x-admin-key header against ADMIN_KEY env var.
 // Actions: list, revoke, update tier, reset daily usage, create/replace key.
 
 const corsHeaders = {
@@ -22,7 +22,7 @@ function getAdminKey(env) {
     } catch { /* fall through */ }
   }
   if (env && env.ADMIN_KEY) return String(env.ADMIN_KEY);
-  return 'ciq_admin_2026';
+  return '';
 }
 
 function json(data, status = 200) {
