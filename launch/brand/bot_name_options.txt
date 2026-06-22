@@ -1,32 +1,21 @@
-BOT NAME OPTIONS
-================
+# Bot Name Options
 
-1. tycoonbot (9 chars)
-   Why: Direct brand nod. Immediately signals the Tycoon ecosystem and purpose. Easy to say, easy to type.
+Selected: **KasiSetelbot** (@KasiSetelbot)
 
-2. privagent (9 chars)
-   Why: Privacy + agent. Clearly communicates trust-first automation. Sticks in memory after one hear.
+Other candidates considered:
+1. Opsi (@opsibot) - professional, short
+2. Kawal (@kawalbot) - BM for "control/manage"
+3. Mbah (@mbahbot) - Javanese "wise elder"
+4. Tuah (@tuahbot) - Hang Tuah reference
+5. Jom (@jombot) - "come on" in BM
+6. Lepak (@lepakbot) - youth culture "hang out"
+7. Gile (@gilebot) - slang "crazy/powerful"
+8. Klik (@klikbot) - "click", action-oriented
+9. Ruang (@ruangbot) - "space/room", privacy vibe
+10. Bicara (@bicarabot) - "speak/discuss", MY+ID shared
 
-3. taskmate (8 chars)
-   Why: Warm, short, and friendly. Implies a helper by your side rather than a cold tool. Works well in voice and text.
-
-4. agentflow (9 chars)
-   Why: Smooth workflow automation feel. Assures users the bot will make processes flow instead of block them.
-
-5. smartops (8 chars)
-   Why: Professional yet approachable. “Ops” signals operations handling; “smart” subconsciously promises results.
-
-6. privassist (10 chars)
-   Why: Explicit privacy assistant. Calms skeptical users before they even start. Clear value in every syllable.
-
-7. smartbuddy (10 chars)
-   Why: Highly relatable. Lowers intimidation for non-tech SME owners. Encourages long-term, conversational use.
-
-8. taskhive (8 chars)
-   Why: Productivity + activity. Bee/hive imagery suggests organized output and collective task management.
-
-9. opsscout (8 chars)
-   Why: Scout-like vigilance. Perfect for deep audit, compliance, or data-checking workflows.
-
-10. workmate (8 chars)
-    Why: Simple collateral. Feels like an office companion, not a distant SaaS bot. Easy to recommend verbally.
+Why KasiSetelbot won:
+- Indonesian slang energy: "kasi" (give) + "setel" (set/gear up)
+- Sounds like "let's get it ready"
+- 10 characters, memorable, has "bot" suffix for clarity
+- Youthful, playful, local
