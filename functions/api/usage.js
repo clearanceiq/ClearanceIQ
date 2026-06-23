@@ -11,6 +11,13 @@ export async function onRequestGet(context) {
     new Response(JSON.stringify({ ok: false, error: message }), { headers: corsHeaders, status });
 
   if (url.pathname === '/api/usage/status') {
+    const apiKey = (url.searchParams.get('key') || '').trim();
+    if (!apiKey) return err('Missing required query parameter: key', 400);
+    if (!context.env?.API_KEYS) return err('API_KEYS binding not available', 500);
+
+    const raw = await context.env.API_KEYS.get('key::' + apiKey);
+    if (!raw) return err('unauthorized', 401);
+
     try {
       const summary = await aggregateDailyUsage(context);
       return ok(summary);

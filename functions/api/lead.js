@@ -31,6 +31,28 @@ export async function onRequestPost(context) {
     });
   }
 
+  // Simple IP-based rate limiting for lead endpoint
+  const ip = (context.request.headers.get('CF-Connecting-IP') || 'unknown').replace(/[^a-zA-Z0-9:._-]/g, '_');
+  const today = new Date().toISOString().slice(0, 10);
+  const rateKey = `lead_rate::${today}::${ip}`;
+  const rateLimit = 5; // max 5 leads per day per IP
+
+  if (context.env?.RATE_COUNTER) {
+    try {
+      const existing = await context.env.RATE_COUNTER.get(rateKey);
+      const count = existing ? parseInt(existing, 10) : 0;
+      if (count >= rateLimit) {
+        return new Response(JSON.stringify({ ok: false, error: 'rate_limit', message: 'Too many submissions. Try again tomorrow.' }), {
+          status: 429,
+          headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearanceiq.pages.dev" },
+        });
+      }
+      await context.env.RATE_COUNTER.put(rateKey, String(count + 1), { expirationTtl: 24 * 60 * 60 });
+    } catch (e) {
+      // rate limiting is best-effort
+    }
+  }
+
   const lead = {
     id: crypto.randomUUID(),
     receivedAt: new Date().toISOString(),
