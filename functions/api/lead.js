@@ -1,6 +1,6 @@
 export async function onRequestGet(context) {
   return new Response(JSON.stringify({ ok: true, service: "lead", method: "GET" }), {
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearanceiq.pages.dev" },
   });
 }
 
@@ -27,7 +27,7 @@ export async function onRequestPost(context) {
   if (!email || !email.includes("@")) {
     return new Response(JSON.stringify({ ok: false, error: "valid email required" }), {
       status: 400,
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearanceiq.pages.dev" },
     });
   }
 
@@ -51,6 +51,6 @@ export async function onRequestPost(context) {
   }
 
   return new Response(JSON.stringify({ ok: true, lead, status: "captured" }), {
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearanceiq.pages.dev" },
   });
 }

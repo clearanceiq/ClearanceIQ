@@ -3,7 +3,7 @@ import { consumeLimit, resolveRateLimitContext } from '../../rate-limit.js';
 function cors(headers = {}) {
   return {
     'content-type': 'application/json',
-    'access-control-allow-origin': '*',
+    'access-control-allow-origin': 'https://clearanceiq.pages.dev',
     'access-control-allow-headers': 'content-type, x-api-key',
     ...headers,
   };

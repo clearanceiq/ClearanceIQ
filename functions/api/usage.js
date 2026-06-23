@@ -1,6 +1,6 @@
 const corsHeaders = {
   'content-type': 'application/json',
-  'access-control-allow-origin': '*',
+  'access-control-allow-origin': 'https://clearanceiq.pages.dev',
   'access-control-allow-headers': 'content-type, x-api-key',
 };
 
@@ -33,7 +33,7 @@ export async function onRequestGet(context) {
 export const OPTIONS = async () =>
   new Response(null, {
     headers: {
-      'access-control-allow-origin': '*',
+      'access-control-allow-origin': 'https://clearanceiq.pages.dev',
       'access-control-allow-headers': 'content-type, x-api-key',
       'access-control-allow-methods': 'GET, OPTIONS',
     },
