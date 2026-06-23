@@ -17,7 +17,7 @@ import {
 
 const corsHeaders = {
   'content-type': 'application/json',
-  'access-control-allow-origin': '*',
+  'access-control-allow-origin': 'https://clearanceiq.pages.dev',
   'access-control-allow-headers': 'content-type, x-api-key',
 };
 

@@ -76,3 +76,12 @@ export async function onRequestPost(context) {
     headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearanceiq.pages.dev" },
   });
 }
+
+export const OPTIONS = async () => new Response(null, {
+  headers: {
+    "access-control-allow-origin": "https://clearanceiq.pages.dev",
+    "access-control-allow-methods": "GET, POST, OPTIONS",
+    "access-control-allow-headers": "content-type",
+  },
+  status: 204,
+});
