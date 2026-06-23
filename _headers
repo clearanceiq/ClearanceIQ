@@ -1,6 +1,11 @@
 /*
   Cache-Control: no-cache
 
+/api/*
+  Access-Control-Allow-Origin: https://clearanceiq.pages.dev
+  Access-Control-Allow-Methods: GET, POST, OPTIONS
+  Access-Control-Allow-Headers: content-type, x-api-key
+
 /tools/*
   Cache-Control: no-cache
 
