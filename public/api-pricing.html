@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Access — ClearanceIQ</title>
+<meta name="description" content="Free and paid API access for US import customs data — HTS lookup, duty calculation, and bond estimation.">
+<link rel="canonical" href="https://clearanceiq.pages.dev/api-pricing.html">
+<style>
+:root{--bg:#0b0f19;--surface:#111827;--muted:#94a3b8;--text:#e2e8f0;--accent:#f59e0b;--accent-2:#10b981;--max:920px}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
+header,main,footer{padding:24px 16px}
+.container{max-width:var(--max);margin:0 auto}
+.badge{display:inline-block;background:rgba(245,158,11,0.15);color:var(--accent);border:1px solid rgba(245,158,11,0.3);padding:6px 12px;border-radius:999px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;font-weight:600}
+h1{font-size:clamp(28px,4vw+10,44px);line-height:1.15;margin:18px 0 10px}
+h2{font-size:20px;color:#f8fafc;margin:20px 0 8px}
+.lead{color:#cbd5e1;font-size:18px}
+.cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#0b0f19;padding:14px 22px;border-radius:10px;font-weight:700;font-size:16px;border:0;cursor:pointer;margin-top:16px;text-decoration:none}
+.cta.secondary{background:transparent;color:var(--accent);border:1px solid rgba(245,158,11,0.4)}
+.box{background:var(--surface);border:1px solid rgba(148,163,184,0.12);border-radius:14px;padding:18px;margin-top:16px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}
+.kpi{background:rgba(15,23,42,0.7);border:1px solid rgba(148,163,184,0.12);padding:14px;border-radius:12px}
+.kpi b{display:block;color:var(--accent-2);font-size:22px}
+.feature{display:flex;gap:10px;align-items:flex-start;margin-top:8px;color:#cbd5e1;font-size:14px}
+.feature span{color:var(--accent-2);font-weight:700;flex-shrink:0}
+.pro-box{background:linear-gradient(135deg,#1a2332,#111827);border:1px solid rgba(245,158,11,0.25);box-shadow:0 0 32px rgba(245,158,11,0.08)}
+.coming-soon{display:inline-flex;align-items:center;gap:6px;background:rgba(148,163,184,0.12);color:var(--muted);border:1px solid rgba(148,163,184,0.2);padding:8px 14px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-top:10px}
+.signup-form{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.signup-form input{flex:1;min-width:220px;background:#0b0f19;border:1px solid rgba(148,163,184,0.2);color:#e2e8f0;padding:12px 14px;border-radius:10px;font-size:15px}
+nav{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+nav a{font-size:13px;color:var(--muted);text-decoration:none}
+.disclaimer{color:var(--muted);font-size:12px;margin-top:22px;border-top:1px solid rgba(148,163,184,0.15);padding-top:14px}
+.key-block{background:rgba(15,23,42,0.7);border:1px solid rgba(148,163,184,0.12);padding:14px;border-radius:12px;margin-top:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:14px;color:#fbbf24;word-break:break-all}
+#signup-status{margin-top:10px;font-size:13px;color:var(--muted)}
+@media (max-width:520px){.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="container">
+  <div style="text-align:center; margin-top:6px;">
+    <span class="badge">ClearanceIQ API</span>
+    <h1>Import customs data, on demand</h1>
+    <div class="lead" style="margin-top:10px;">Free to start, Pro coming soon for unlimited access.</div>
+  </div>
+
+  <div class="kpis" style="margin-top:26px;">
+    <div class="kpi">
+      <b>Free</b>
+      <div>Anonymous: 5/day · Signed up: 100/day</div>
+      <div style="color:var(--muted); font-size:14px; margin-top:4px;">Sign up takes 10 seconds. No credit card.</div>
+      <form id="signupForm" class="signup-form" style="margin-top:12px;">
+        <input name="email" type="email" placeholder="you@company.com" required />
+        <button class="cta secondary" type="submit">Get my free API key</button>
+      </form>
+      <div id="signup-status"></div>
+      <div class="box" style="margin-top:14px; border-color:rgba(245,158,11,0.3);">
+        <h2 style="margin-top:0; font-size:18px;">Give Pro to a friend</h2>
+        <p style="margin:6px 0; color:var(--muted); font-size:14px;">Know someone who needs customs data? Give them a free month of Pro.</p>
+        
+        <div id="referral-generate-section" style="margin-top:12px; display:none;">
+          <p style="font-size:13px; color:var(--muted);">Have a free API key?</p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; align-items:center;">
+            <input type="email" id="referral-recipient" placeholder="Friend's email" style="flex:1; min-width:180px; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:10px 12px; border-radius:10px; font-size:14px;">
+            <button class="cta secondary" id="generate-referral-btn" type="button" style="font-size:13px; padding:10px 14px;">Generate code</button>
+          </div>
+          <div id="referral-msg" style="margin-top:6px; font-size:13px; color:var(--muted);"></div>
+          <div id="referral-code-display" style="margin-top:10px; display:none;">
+            <div style="font-size:12px; color:var(--muted); margin-bottom:4px;">Referral code for <span id="recipient-name"></span>:</div>
+            <div class="key-block" id="generated-code"></div>
+            <div style="font-size:12px; color:var(--muted); margin-top:6px;">Send this code — they get one free month of Pro.</div>
+          </div>
+        </div>
+        
+        <hr style="border:none; border-top:1px solid rgba(148,163,184,0.15); margin:14px 0;">
+        
+        <p style="font-size:13px; color:var(--muted);">Have a referral code?</p>
+        <form id="apply-code-form" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;">
+          <input name="code" type="text" placeholder="Enter referral code" style="flex:1; min-width:180px; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:10px 12px; border-radius:10px; font-size:14px;" required>
+          <button class="cta secondary" type="submit" style="font-size:13px; padding:10px 14px;">Redeem</button>
+        </form>
+        <div id="apply-status" style="margin-top:8px; font-size:13px; color:var(--muted);"></div>
+      </div>
+    </div>
+    <div class="kpi pro-box">
+      <b>Pro</b>
+      <div>$49/month · unlimited · support included</div>
+      <div style="color:var(--muted); font-size:14px; margin-top:4px;">Built for live integrations and volume.</div>
+      <div class="coming-soon">Coming soon</div>
+      <div style="margin-top:12px;">
+        <div class="feature"><span>✓</span><span>Unlimited API calls</span></div>
+        <div class="feature"><span>✓</span><span>Priority response</span></div>
+        <div class="feature"><span>✓</span><span>Ready for production use</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>Request Pro access</h2>
+    <ol class="clean" style="padding-left:18px; margin-top:8px;">
+      <li>Email <code>clearanceiq@proton.me</code> with subject <b>Pro API access</b></li>
+      <li>Include your use case, expected monthly request volume, and tools/language</li>
+      <li>Receive your Pro credentials within one business day</li>
+    </ol>
+  </div>
+
+  <div style="text-align:center; margin-top: 26px;">
+    <a class="cta secondary" href="/">Back to home</a>
+  </div>
+
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/tools/hts-lookup.html">HTS Lookup</a>
+    <a href="/tools/duty-calculator.html">Duty Calculator</a>
+    <a href="/tools/bond-estimator.html">Bond Estimator</a>
+    <a href="/whats-inside.html">Playbook</a>
+  </nav>
+
+  <p class="disclaimer">API data is for estimation and planning, not legal clearance decisions. Always verify duties with a licensed customs broker before filing entry.</p>
+</main>
+<script>
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const status = document.getElementById('signup-status');
+  const email = (new FormData(e.target).get('email') || '').trim();
+  if (!email || !email.includes('@')) {
+    status.textContent = 'Enter a valid email.';
+    status.style.color = '#f59e0b';
+    return;
+  }
+  status.textContent = 'Claiming your key...';
+  status.style.color = '#94a3b8';
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) {
+      status.textContent = 'Error: ' + (data.error || 'Server error');
+      status.style.color = '#f59e0b';
+      return;
+    }
+    status.innerHTML =
+      '<div style="margin-top:8px; color:#e2e8f0;">Your free API key:</div>' +
+      '<div class="key-block">' + data.key + '</div>' +
+      '<div style="margin-top:8px; color:#94a3b8;">Use as header: <code>X-API-Key: ' + data.key + '</code><br>Free limit: ' + (data.limits?.daily || 100) + ' requests/day.</div>';
+  } catch (err) {
+    status.textContent = 'Network error — try again.';
+    status.style.color = '#f59e0b';
+  }
+});
+
+(function () {
+  function getKey() {
+    return (localStorage.getItem('clearanceiq_key') || '').trim();
+  }
+
+  function initReferralUI() {
+    const genSection = document.getElementById('referral-generate-section');
+    if (!genSection) return;
+    const key = getKey();
+    if (key) {
+      genSection.style.display = 'block';
+    }
+  }
+
+  function initGenerate() {
+    const btn = document.getElementById('generate-referral-btn');
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+      const recipient = (document.getElementById('referral-recipient').value || '').trim();
+      const msgEl = document.getElementById('referral-msg');
+      const display = document.getElementById('referral-code-display');
+      const codeEl = document.getElementById('generated-code');
+      const nameEl = document.getElementById('recipient-name');
+      if (!recipient.includes('@')) {
+        msgEl.textContent = 'Enter a valid email for the recipient.';
+        msgEl.style.color = '#f59e0b';
+        return;
+      }
+      const key = getKey();
+      if (!key) {
+        msgEl.textContent = 'Please sign up for a free key first.';
+        msgEl.style.color = '#f59e0b';
+        return;
+      }
+      msgEl.textContent = 'Generating code...';
+      msgEl.style.color = '#94a3b8';
+      try {
+        const res = await fetch('/api/referrals/generate', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ api_key: key, recipient_email: recipient }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          msgEl.textContent = 'Error: ' + (data.error || 'Server error');
+          msgEl.style.color = '#f59e0b';
+          return;
+        }
+        nameEl.textContent = recipient;
+        codeEl.textContent = data.code;
+        display.style.display = 'block';
+        msgEl.textContent = '';
+      } catch (err) {
+        msgEl.textContent = 'Network error — try again.';
+        msgEl.style.color = '#f59e0b';
+      }
+    });
+  }
+
+  function initApply() {
+    const form = document.getElementById('apply-code-form');
+    if (!form) return;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = document.getElementById('apply-status');
+      const code = (new FormData(e.target).get('code') || '').trim();
+      const key = getKey();
+      if (!code) {
+        status.textContent = 'Enter a referral code.';
+        status.style.color = '#f59e0b';
+        return;
+      }
+      status.textContent = 'Redeeming...';
+      status.style.color = '#94a3b8';
+      try {
+        const body = key ? JSON.stringify({ code, api_key: key }) : JSON.stringify({ code });
+        const res = await fetch('/api/referrals/redeem', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body,
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          status.textContent = 'Error: ' + (data.error || 'Server error');
+          status.style.color = '#f59e0b';
+          return;
+        }
+        status.textContent = 'Referral redeemed. Enjoy your free month of Pro!';
+        status.style.color = '#10b981';
+        if (data.expires_at) {
+          status.textContent += ' Expires ' + data.expires_at + '.';
+        }
+        if (key) localStorage.setItem('clearanceiq_referral_redeemed', 'true');
+      } catch (err) {
+        status.textContent = 'Network error — try again.';
+        status.style.color = '#f59e0b';
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initReferralUI();
+    initGenerate();
+    initApply();
+  });
+})();
+</script>
+</body>
+</html>

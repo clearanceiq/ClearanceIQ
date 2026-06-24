@@ -1,0 +1,127 @@
+{
+  "info": {
+    "name": "ClearanceIQ API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "API collection for ClearanceIQ"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://clearanceiq.pages.dev",
+      "type": "string"
+    },
+    {
+      "key": "X-API-Key",
+      "value": "YOUR_API_KEY_HERE",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "auth signup",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{X-API-Key}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth"]
+        }
+      }
+    },
+    {
+      "name": "HTS Search",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{X-API-Key}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/hts?q=8518.30",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "hts"],
+          "query": [
+            {
+              "key": "q",
+              "value": "8518.30"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Duty Calculation",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{X-API-Key}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/duty-calc?value=10000&freight=1200&hts=3926",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "duty-calc"],
+          "query": [
+            {
+              "key": "value",
+              "value": "10000"
+            },
+            {
+              "key": "freight",
+              "value": "1200"
+            },
+            {
+              "key": "hts",
+              "value": "3926"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Bond Quote",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{X-API-Key}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/bond?type=single&value=50000&risk=1.2",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "bond"],
+          "query": [
+            {
+              "key": "type",
+              "value": "single"
+            },
+            {
+              "key": "value",
+              "value": "50000"
+            },
+            {
+              "key": "risk",
+              "value": "1.2"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

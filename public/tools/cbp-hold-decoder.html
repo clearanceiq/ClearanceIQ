@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearanceIQ — CBP Hold Decoder</title>
+<meta name="description" content="CBP hold types explained in plain English. Understand exams, pagó means, and next steps for your shipment.">
+<link rel="canonical" href="https://clearanceiq.pages.dev/tools/cbp-hold-decoder.html">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "ClearanceIQ CBP Hold Decoder",
+  "url": "https://clearanceiq.pages.dev/tools/cbp-hold-decoder.html",
+  "description": "CBP hold types explained in plain English with next steps."
+}
+</script>
+</head>
+<body>
+<main class="container" style="max-width: 860px;">
+  <a href="/"><span class="badge">ClearanceIQ</span></a>
+  <h1 style="margin-top:18px;">CBP Hold Decoder</h1>
+  <p class="lead" style="margin-top:8px;">Pick the hold message or type you’ve been given and get a plain-English what’s-next.</p>
+
+  <div class="box" style="margin-top:22px;">
+    <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:8px;">Search hold type or keyword</label>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <input id="q" type="text" placeholder="e.g. commercial exam, PGA, hold for manifest review" style="flex:1; min-width:220px; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:12px 14px; border-radius:10px; font-size:15px;">
+      <button class="cta" onclick="decode()">Decode</button>
+    </div>
+    <p id="status" style="margin:10px 0 0; font-size:13px; color:#94a3b8;"></p>
+  </div>
+
+  <div id="result" class="box" style="display:none; margin-top:22px;">
+    <h2 id="result_title" style="margin-top:0;"></h2>
+    <div id="result_body" style="color:#cbd5e1;"></div>
+  </div>
+
+  <div class="box" style="margin-top:22px;">
+    <h2 style="margin-top:0;">Common holds</h2>
+    <ul class="clean">
+      <li><b>Sampling / statistical exam</b> — CBP is checking classification accuracy; usually no action needed unless asked for samples or invoices.</li>
+      <li><b>Commercial exam / manifest review</b> — documents under review; expect 1–5 days for routine, longer for PGA holds (FDA, CPSC, USDA).</li>
+      <li><b>PGA hold (partner government agency)</b> — FDA, CPSC, APHIS, etc. You may need prior notice, certificates, or sample testing.</li>
+      <li><b>Bond/entry security not met</b> — bond invalid, insufficient, or IOR mismatch; contact broker immediately.</li>
+      <li><b>Intellectual property rights (IPR)</b> — possible trademark/copyright flag; do not move or destroy goods without CBP direction.</li>
+    </ul>
+  </div>
+</main>
+
+<script>
+function logEvent(payload) {
+  if (!navigator.sendBeacon) return;
+  const body = JSON.stringify({ ...payload, ts: Date.now(), path: location.pathname });
+  navigator.sendBeacon('/api/telemetry', body);
+}
+
+const HOLDS = [
+  {
+    keywords: ["commercial exam","manifest","documentation"],
+    title: "Commercial exam / manifest review",
+    body: `<p><b>What it means:</b> CBP is reviewing entry documents, manifest, and possibly invoice consistency.</p>
+    <p><b>Typical timeline:</b> 1–5 days; longer if Partner Government Agency review is needed.</p>
+    <p><b>What to do:</b> Confirm all invoices, packing lists, and HTS codes match the entry summary. If CBP requests additional documents, respond via your broker within the stated deadline.</p>`
+  },
+  {
+    keywords: ["pga","fda","cpsc","usda","prior notice","sample"],
+    title: "Partner Government Agency (PGA) hold",
+    body: `<p><b>What it means:</b> FDA, CPSC, USDA, or another agency is clearing your product before release.</p>
+    <p><b>Typical timeline:</b> 3–14+ days depending on agency, product type, and completeness of submitted data.</p>
+    <p><b>What to do:</b> Ask your broker which PGA is involved and what they need. Prior notices, certificates of origin, lab reports, and labels are common requirements.</p>`
+  },
+  {
+    keywords: ["bond","security","ior","importer"],
+    title: "Bond / IOR hold",
+    body: `<p><b>What it means:</b> CBP found an issue with your bond, importer of record, or entry security data.</p>
+    <p><b>Typical timeline:</b> Can be days if paperwork is corrected quickly.</p>
+    <p><b>What to do:</b> Contact your broker or surety provider now. Common fixes: update IOR address, post additional bond, or clarify entity mismatch.</p>`
+  },
+  {
+    keywords: ["ipr","intellectual","trademark","counterfeit","brand"],
+    title: "Intellectual property rights (IPR) hold",
+    body: `<p><b>What it means:</b> CBP suspects trademark, copyright, or design-right conflict.</p>
+    <p><b>Typical timeline:</b> Can stretch to weeks while rights-holder responds.</p>
+    <p><b>What to do:</b> Do not move, sell, or destroy the goods without CBP written direction. Gather proof of authenticity (invoice with OEM, authorization letter).</p>`
+  },
+  {
+    keywords: ["quota","textile","visa","government","defense"],
+    title: "Quota / special program hold",
+    body: `<p><b>What it means:</b> The shipment is tied to a quota system, visa requirement, or restricted-party rule.</p>
+    <p><b>Typical timeline:</b> Varies; quota-based shipments may need rebooking.</p>
+    <p><b>What to do:</b> Confirm quota availability and visa status before arrival. If missed, expect rebooking fees.</p>`
+  }
+];
+
+function decode() {
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const out = document.getElementById('result');
+  const status = document.getElementById('status');
+  if (!q) { status.textContent = 'Type a hold keyword or message.'; return; }
+  const match = HOLDS.find(h => h.keywords.some(k => q.includes(k)));
+  if (!match) {
+    out.style.display = 'none';
+    status.textContent = 'No direct local match. Ask your broker which PGA or program is blocking release.';
+    logEvent({ type: 'cbp_no_match', q });
+    return;
+  }
+  document.getElementById('result_title').textContent = match.title;
+  document.getElementById('result_body').innerHTML = match.body;
+  out.style.display = 'block';
+  status.textContent = '';
+  logEvent({ type: 'cbp_hit', title: match.title, q });
+}
+</script>
+</body>
+</html>

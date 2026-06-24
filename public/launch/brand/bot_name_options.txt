@@ -1,0 +1,21 @@
+# Bot Name Options
+
+Selected: **KasiSetelbot** (@KasiSetelbot)
+
+Other candidates considered:
+1. Opsi (@opsibot) - professional, short
+2. Kawal (@kawalbot) - BM for "control/manage"
+3. Mbah (@mbahbot) - Javanese "wise elder"
+4. Tuah (@tuahbot) - Hang Tuah reference
+5. Jom (@jombot) - "come on" in BM
+6. Lepak (@lepakbot) - youth culture "hang out"
+7. Gile (@gilebot) - slang "crazy/powerful"
+8. Klik (@klikbot) - "click", action-oriented
+9. Ruang (@ruangbot) - "space/room", privacy vibe
+10. Bicara (@bicarabot) - "speak/discuss", MY+ID shared
+
+Why KasiSetelbot won:
+- Indonesian slang energy: "kasi" (give) + "setel" (set/gear up)
+- Sounds like "let's get it ready"
+- 10 characters, memorable, has "bot" suffix for clarity
+- Youthful, playful, local

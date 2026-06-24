@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Developers — ClearanceIQ</title>
+<meta name="description" content="ClearanceIQ developer quickstart, API docs, rate limits, error codes, and interactive playground.">
+<style>
+:root {
+  --bg: #0b0f19;
+  --surface: #111827;
+  --muted: #94a3b8;
+  --text: #e2e8f0;
+  --accent: #f59e0b;
+  --accent-2: #10b981;
+  --max: 900px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: #93c5fd; text-decoration: none; }
+header,
+main,
+footer { padding: 24px 16px; }
+.container { max-width: var(--max); margin: 0 auto; }
+
+.badge {
+  display: inline-block;
+  background: rgba(245, 158, 11, .15);
+  color: var(--accent);
+  border: 1px solid rgba(245, 158, 11, .3);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+h1 {
+  font-size: clamp(24px, 3.2vw + 10, 38px);
+  line-height: 1.2;
+  margin: 16px 0 10px;
+}
+h2 {
+  font-size: 20px;
+  color: #f8fafc;
+  margin: 20px 0 8px;
+}
+h3 {
+  font-size: 18px;
+  color: #f8fafc;
+  margin: 16px 0 8px;
+}
+.lead { color: #cbd5e1; font-size: 18px; }
+
+.box {
+  background: var(--surface);
+  border: 1px solid rgba(148, 163, 184, .12);
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 16px;
+}
+
+pre {
+  background: #0b1220;
+  border: 1px solid rgba(148, 163, 184, .15);
+  border-radius: 10px;
+  padding: 14px;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #e2e8f0;
+}
+code {
+  font-family: inherit;
+}
+:not(pre) > code {
+  background: rgba(148,163,184,.12);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 14px;
+}
+th,
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(148, 163, 184, .15);
+  text-align: left;
+}
+th {
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg,#f59e0b,#fbbf24);
+  color: #0b0f19;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  border: 0;
+  cursor: pointer;
+  margin-top: 14px;
+}
+.cta.secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid rgba(245, 158, 11, .4);
+}
+
+.label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin: 12px 0 6px;
+}
+.input,
+.textarea {
+  width: 100%;
+  background: #0b1220;
+  border: 1px solid rgba(148, 163, 184, .2);
+  color: var(--text);
+  padding: 11px 12px;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+}
+.textarea {
+  min-height: 140px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.status.ok { color: var(--accent-2); }
+.status.err { color: #f87171; }
+
+.disclaimer {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 22px;
+  border-top: 1px solid rgba(148, 163, 184, .15);
+  padding-top: 14px;
+}
+nav {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+nav a {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+ul.clean { padding-left: 18px; }
+ul.clean li { margin: 8px 0; }
+
+@media (max-width: 720px) {
+  .playground-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<main class="container">
+  <div style="text-align:center; margin-top:6px;">
+    <a href="/" aria-label="ClearanceIQ">
+      <svg viewBox="0 0 520 80" xmlns="http://www.w3.org/2000/svg" style="max-width:min(520px,92vw);height:auto;display:block;margin:0 auto 10px;">
+        <defs>
+          <linearGradient id="ciq" x1="0" x2="1" y1="0" y2="1">
+            <stop stop-color="#f59e0b"/>
+            <stop offset="1" stop-color="#fbbf24"/>
+          </linearGradient>
+        </defs>
+        <text x="50%" y="54" text-anchor="middle" font-family="system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-weight="800" font-size="52" fill="url(#ciq)">ClearanceIQ</text>
+      </svg>
+    </a>
+    <span class="badge">Developer Quickstart</span>
+    <h1 class="lead" style="margin-top:10px;">HTS lookups and duty estimates, two requests away.</h1>
+    <div class="lead" style="margin-top:10px;">Sign up for a free API key, then call <code>/api/v1/hts</code> in minutes.</div>
+  </div>
+
+  <!-- Quickstart -->
+  <div class="box" style="margin-top:22px;">
+    <h2>Quickstart</h2>
+    <ol class="clean">
+      <li>Create your free API key.</li>
+      <li>Call the API.</li>
+    </ol>
+
+    <h3>1. Create a key</h3>
+    <pre><code>curl -s -X POST https://clearanceiq.pages.dev/api/auth \
+  -H "content-type: application/json" \
+  -d '{"email": "you@company.com"}'</code></pre>
+    <p class="lead" style="font-size:15px; margin-top:10px;">Returns <code>key</code>, <code>tier</code>, and usage instructions.</p>
+
+    <h3 style="margin-top:14px;">2. Call the HTS endpoint</h3>
+    <pre><code>curl -s "https://clearanceiq.pages.dev/api/v1/hts?q=smartphone" \
+  -H "x-api-key: ciq_XXXXXXXXXXXXXXXXXXXXXXXX"</code></pre>
+
+    <h3 style="margin-top:14px;">3. Example response</h3>
+    <pre><code>{
+  "ok": true,
+  "code": "8517.12.0095",
+  "description": "Smartphones and base stations",
+  "dutyRate": 0,
+  "adcvd": "low",
+  "note": "This category is sometimes flagged for AD/CVD checks. Confirm before booking."
+}</code></pre>
+  </div>
+
+  <!-- Playground -->
+  <div class="box" style="margin-top:22px;">
+    <h2>API Playground</h2>
+    <div class="lead" style="font-size:15px;">Try the live endpoint without leaving this page.</div>
+
+    <div class="playground-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
+      <div>
+        <label class="label" for="q">Query</label>
+        <input id="q" class="input" placeholder="e.g. smartphone, headphones, steel" autocomplete="off"/>
+
+        <label class="label" for="apiKey">API key (optional)</label>
+        <input id="apiKey" class="input" placeholder="Leave blank for anonymous access" autocomplete="off"/>
+
+        <button id="run" class="cta" style="width:100%;margin-top:14px;">Run request</button>
+
+        <div id="status" class="status" role="status" aria-live="polite">Ready.</div>
+      </div>
+
+      <div>
+        <div class="label">Response</div>
+        <textarea id="output" class="textarea" readonly placeholder='{"ok": true, "code": "...", "description": "...", "dutyRate": 0, "adcvd": "none", "note": ""}'></textarea>
+      </div>
+    </div>
+
+    <p style="color:var(--muted);font-size:12px;margin-top:10px;">
+      Uses <code>/api/v1/hts</code>. CORS is enabled for browser requests.
+    </p>
+  </div>
+
+  <!-- Auth -->
+  <div class="box" style="margin-top:22px;">
+    <h2>Authentication</h2>
+    <p class="lead" style="font-size:15px;">Obtain a key with <code>POST /api/auth</code>. Include it on subsequent calls as <code>X-API-Key</code>.</p>
+
+    <h3>Auth endpoint</h3>
+    <pre><code>POST /api/auth
+Content-Type: application/json
+
+{
+  "email": "you@company.com"
+}</code></pre>
+
+    <h3 style="margin-top:12px;">Success response</h3>
+    <pre><code>{
+  "ok": true,
+  "key": "ciq_...",
+  "tier": "free",
+  "limits": { "daily": 100 },
+  "usage": "Include header: X-API-Key: ciq_...",
+  "endpoints": ["/api/v1/hts", "/api/v1/duty-calc", "/api/v1/bond"],
+  "support": "support@clearanceiq.pages.dev"
+}</code></pre>
+  </div>
+
+  <!-- Rate limits -->
+  <div class="box" style="margin-top:22px;">
+    <h2>Rate Limits</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Plan</th>
+          <th>Requests</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Anonymous</td>
+          <td>5 per day</td>
+          <td>No API key required</td>
+        </tr>
+        <tr>
+          <td>Free</td>
+          <td>100 per day</td>
+          <td>Requires <code>/api/auth</code> signup</td>
+        </tr>
+        <tr>
+          <td>Pro</td>
+          <td>Unlimited</td>
+          <td>By request — coming soon</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="color:var(--muted);font-size:14px;margin-top:10px;">Rate limit headers are returned on every request.</p>
+
+    <pre><code>X-Rate-Limit-Remaining: 7
+X-Rate-Limit-Limit: 100
+X-Rate-Limit-Tier: free
+X-Rate-Limit-Reset: 1700000000
+Retry-After: 86400</code></pre>
+  </div>
+
+  <!-- Endpoints -->
+  <div class="box" style="margin-top:22px;">
+    <h2>Endpoints</h2>
+
+    <h3>/api/v1/hts</h3>
+    <pre><code>GET /api/v1/hts?q=&lt;query&gt;
+X-API-Key: ciq_... (optional)</code></pre>
+    <p style="font-size:14px;color:#cbd5e1;">Search HTS codes and descriptions. Returns a single best match with duty rate and AD/CVD flag.</p>
+
+    <h3 style="margin-top:12px;">/api/v1/duty-calc</h3>
+    <pre><code>GET /api/v1/duty-calc?...</code></pre>
+    <p style="font-size:14px;color:#cbd5e1;">Duty estimate with landed cost inputs. Works returns JSON with estimates based on product and cost basis.</p>
+
+    <h3 style="margin-top:12px;">/api/v1/bond</h3>
+    <pre><code>GET /api/v1/bond?...</code></pre>
+    <p style="font-size:14px;color:#cbd5e1;">Bond estimator input flow. Accepts shipment value and bond type inputs.</p>
+  </div>
+
+  <!-- Errors -->
+  <div class="box" style="margin-top:22px;">
+    <h2>Error Codes</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>HTTP</th>
+          <th>Code</th>
+          <th>Meaning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>400</td>
+          <td><code>q required</code></td>
+          <td>Missing search query</td>
+        </tr>
+        <tr>
+          <td>400</td>
+          <td><code>invalid_query</code></td>
+          <td>Malformed request body or query</td>
+        </tr>
+        <tr>
+          <td>400</td>
+          <td><code>no_match</code></td>
+          <td>No HTS match found</td>
+        </tr>
+        <tr>
+          <td>401</td>
+          <td><code>unauthorized</code></td>
+          <td>Missing or invalid API key (if required)</td>
+        </tr>
+        <tr>
+          <td>404</td>
+          <td><code>not_found</code></td>
+          <td>Unknown endpoint</td>
+        </tr>
+        <tr>
+          <td>429</td>
+          <td><code>rate_limit</code></td>
+          <td>Daily limit reached</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="color:var(--muted);font-size:14px;margin-top:10px;">Bodies use <code>application/json</code>. Preflight <code>OPTIONS</code> returns <code>204</code>.</p>
+  </div>
+
+  <!-- Support -->
+  <div class="box" style="margin-top:22px;">
+    <h2>Support</h2>
+    <p class="lead" style="font-size:15px;">Stuck or want Pro access? Email the team directly.</p>
+    <p style="font-size:15px;margin-top:8px;">
+      <a href="mailto:support@clearanceiq.pages.dev" style="color:#fbbf24;">support@clearanceiq.pages.dev</a>
+    </p>
+    <p style="color:var(--muted);font-size:14px;">For Pro requests, include your use case, expected volume, and tooling.</p>
+  </div>
+
+  <nav>
+    <a href="/">Home</a>
+    <a href="/tools/duty-calculator.html">Tools</a>
+    <a href="/blog/">Blog</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/api-pricing.html">API Access</a>
+  </nav>
+
+  <p class="disclaimer">
+    API data is for estimation and planning, not legal clearance decisions. Always verify duties with a licensed customs broker before filing entry.
+  </p>
+</main>
+
+<script>
+(function() {
+  const qInput = document.getElementById('q');
+  const keyInput = document.getElementById('apiKey');
+  const runBtn = document.getElementById('run');
+  const output = document.getElementById('output');
+  const status = document.getElementById('status');
+
+  function setStatus(text, kind) {
+    status.textContent = text || 'Ready.';
+    status.className = 'status' + (kind ? ' ' + kind : '');
+  }
+
+  async function doRun() {
+    setStatus('Running...', '');
+    output.value = '';
+    const q = (qInput.value || '').trim();
+    if (!q) {
+      setStatus('Enter a query first.', 'err');
+      return;
+    }
+    const params = new URLSearchParams({ q });
+    const headers = {};
+    const apiKey = (keyInput.value || '').trim();
+    if (apiKey) headers['x-api-key'] = apiKey;
+    runBtn.disabled = true;
+    try {
+      const res = await fetch('https://clearanceiq.pages.dev/api/v1/hts?' + params.toString(), {
+        method: 'GET',
+        headers,
+        mode: 'cors'
+      });
+      const text = await res.text();
+      try {
+        const json = JSON.parse(text);
+        output.value = JSON.stringify(json, null, 2);
+        if (!res.ok || (json && json.ok === false)) {
+          setStatus('Error: ' + (json.error || ('HTTP ' + res.status)), 'err');
+        } else {
+          setStatus('Success.', 'ok');
+        }
+      } catch (e) {
+        output.value = text;
+        setStatus('Non-JSON response (' + res.status + ')', 'err');
+      }
+    } catch (err) {
+      setStatus('Network error: ' + err.message, 'err');
+    } finally {
+      runBtn.disabled = false;
+    }
+  }
+
+  runBtn.addEventListener('click', doRun);
+  qInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doRun();
+  });
+})();
+</script>
+</body>
+</html>

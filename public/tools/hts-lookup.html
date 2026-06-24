@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearanceIQ — HTS Duty Lookup</title>
+<meta name="description" content="Look up US HTS codes, duty rates, and AD/CVD risk. Free HTS lookup for importers.">
+<link rel="canonical" href="https://clearanceiq.pages.dev/tools/hts-lookup.html">
+<link rel="stylesheet" href="/style.css">
+<meta property="og:title" content="ClearanceIQ HTS Duty Lookup">
+<meta property="og:description" content="Look up HTS codes, duty rates, and AD/CVD risk.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://clearanceiq.pages.dev/tools/hts-lookup.html">
+<meta property="og:site_name" content="ClearanceIQ">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "ClearanceIQ HTS Duty Lookup",
+  "url": "https://clearanceiq.pages.dev/tools/hts-lookup.html",
+  "applicationCategory": "BusinessApplication",
+  "description": "Look up US HTS codes, duty rates, and AD/CVD risk."
+}
+</script>
+</head>
+<body>
+<main class="container" style="max-width: 860px;">
+  <a href="/"><span class="badge">ClearanceIQ</span></a>
+  <h1 style="margin-top:18px;">HTS Duty Lookup</h1>
+  <p class="lead" style="margin-top:8px;">Search HTS codes, preview general duty rates, and flag AD/CVD risk.</p>
+
+  <div class="box" style="margin-top:22px;">
+    <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:8px;">Search HTS code or keyword</label>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <input id="q" type="text" placeholder="e.g. 8518.30.0000 or bluetooth headphones" style="flex:1; min-width:220px; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:12px 14px; border-radius:10px; font-size:15px;">
+      <button class="cta" onclick="runLookup()">Look up</button>
+    </div>
+    <p id="status" style="margin:10px 0 0; font-size:13px; color:#94a3b8;"></p>
+  </div>
+
+  <div id="result" class="box" style="display:none; margin-top:22px;">
+    <h2 id="result_title" style="margin-top:0;"></h2>
+    <div id="result_body" style="color:#cbd5e1;"></div>
+  </div>
+
+  <div class="box" style="margin-top:22px;">
+    <h2 style="margin-top:0;">How to use this</h2>
+    <ul class="clean">
+      <li>Type a full HTS code or a short product description.</li>
+      <li>We’ll match known categories and show a flag if that line is in an AD/CVD watch list.</li>
+      <li>This is for planning only — final classification belongs to a licensed broker.</li>
+    </ul>
+  </div>
+</main>
+
+<script>
+const DATA = [
+  { code: "8518.30.0000", desc: "Loudspeakers, without enclosure", duty: "Free", adcvd: "none" },
+  { code: "8518.40.0000", desc: "Headphones, earphones, and combinations", duty: "Free", adcvd: "none" },
+  { code: "3926.90.9980", desc: "Plastic article, other", duty: "3.1%", adcvd: "low" },
+  { code: "9403.10.0000", desc: "Metal office furniture", duty: "Free", adcvd: "none" },
+  { code: "7318.15.0085", desc: "Iron/steel screws/bolts", duty: "Free", adcvd: "none" },
+  { code: "9503.00.0073", desc: "Toys, plastic, <= 50 cents", duty: "Free", adcvd: "low" },
+  { code: "6402.99.0500", desc: "Footwear, rubber/plastic", duty: "Free", adcvd: "none" },
+  { code: "8517.12.0095", desc: "Smartphones and base stations", duty: "Free", adcvd: "low" },
+  { code: "9013.80.0010", desc: "LED devices, other optical", duty: "Free", adcvd: "none" },
+  { code: "3304.99.5000", desc: "Beauty/makeup preparations", duty: "Free", adcvd: "none" }
+];
+
+const ADCVD_NOTES = {
+  none: "",
+  low: "This category is sometimes flagged for AD/CVD checks. Confirm before booking."
+};
+
+function logEvent(payload) {
+  if (!navigator.sendBeacon) return;
+  const body = JSON.stringify({ ...payload, ts: Date.now(), path: location.pathname });
+  navigator.sendBeacon('/api/telemetry', body);
+}
+
+function runLookup() {
+  const q = document.getElementById("q").value.trim().toLowerCase();
+  const out = document.getElementById("result");
+  const status = document.getElementById("status");
+
+  if (!q) { status.textContent = "Enter a code or keyword."; return; }
+
+  fetch('/api/v1/hts?q=' + encodeURIComponent(q), { headers: { accept: 'application/json' } })
+    .then(r => r.json())
+    .then(data => {
+      if (!data || !data.ok) {
+        out.style.display = "none";
+        status.textContent = "No local match. For official rates, use USITC HTS Search or a licensed broker.";
+        logEvent({ type: 'hts_no_match', q });
+        return;
+      }
+      document.getElementById("result_title").textContent = `${data.code} — ${data.description}`;
+      document.getElementById("result_body").innerHTML = `
+        <p><b>Indicative duty:</b> ${(data.dutyRate * 100).toFixed(1)}%</p>
+        <p><b>AD/CVD watch:</b> ${data.adcvd === "none" ? "None on record" : "Flagged"}</p>
+        <p style="margin-top:10px;">${data.note || ""}</p>
+        <p style="margin-top:10px; font-size:12px; color:#94a3b8;">Planning reference only. Not a ruling. Verify with CBP or a licensed broker.</p>
+      `;
+      out.style.display = "block";
+      status.textContent = "";
+      logEvent({ type: 'hts_hit', code: data.code, q });
+    })
+    .catch(err => {
+      out.style.display = "none";
+      console.error('[hts-lookup]', err);
+    });
+}
+</script>
+</body>
+</html>
