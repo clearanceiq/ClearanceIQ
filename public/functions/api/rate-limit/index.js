@@ -1,6 +1,6 @@
 const inMemoryLimits = new Map();
 
-export function consumeLimit(key, dailyCap, env) {
+export async function consumeLimit(key, dailyCap, env) {
   let entry;
   const hasKV = env && env.RATE_COUNTER;
   const kvKey = `rate::${key}`;
@@ -66,7 +66,7 @@ export function getResetTimestamp() {
   return Math.floor(nextMidnight.getTime() / 1000);
 }
 
-export function resolveRateLimitContext(context, { anonymousCap = 5, signedCap = 100 } = {}) {
+export async function resolveRateLimitContext(context, { anonymousCap = 5, signedCap = 100 } = {}) {
   const date = new Date().toISOString().slice(0, 10);
   const ip =
     (context.request.headers.get('CF-Connecting-IP') || 'unknown').replace(/[^a-zA-Z0-9:._-]/g, '_') + '::' + date;
