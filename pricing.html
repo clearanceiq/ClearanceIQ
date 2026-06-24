@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing — ClearanceIQ</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --text: #e5e5e5;
+            --accent: #ffffff;
+            --muted: #a3a3a3;
+            --border: #262626;
+            --card: #141414;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .logo {
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: -0.02em;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            margin-left: 2rem;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--accent); }
+        .hero {
+            text-align: center;
+            padding: 5rem 2rem 3rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        .hero p {
+            color: var(--muted);
+            font-size: 1.125rem;
+        }
+        .badge {
+            display: inline-block;
+            background: #171717;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            margin-bottom: 1.5rem;
+        }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .card.popular {
+            border-color: #525252;
+            position: relative;
+        }
+        .popular-badge {
+            position: absolute;
+            top: -0.75rem;
+            right: 1.5rem;
+            background: var(--accent);
+            color: var(--bg);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+        }
+        .card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        .price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin: 1rem 0 0.25rem;
+            letter-spacing: -0.03em;
+        }
+        .price-note {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+        }
+        .features {
+            list-style: none;
+            margin: 1.5rem 0 2rem;
+            flex-grow: 1;
+        }
+        .features li {
+            font-size: 0.9rem;
+            color: var(--muted);
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .features li:last-child { border-bottom: none; }
+        .check { color: var(--accent); font-size: 0.8rem; }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 0.875rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+        }
+        .btn-primary:hover { background: #d4d4d4; }
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { border-color: var(--muted); }
+        .btn-ghost {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid transparent;
+        }
+        .btn-ghost:hover { color: var(--text); }
+        .faq {
+            max-width: 700px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+        .faq h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        details {
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+        }
+        summary {
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        summary::-webkit-details-marker { display: none; }
+        summary::after {
+            content: "+";
+            font-size: 1.25rem;
+            color: var(--muted);
+            font-weight: 400;
+        }
+        details[open] summary::after { content: "−"; }
+        .answer {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin-top: 0.75rem;
+            line-height: 1.7;
+        }
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 1.75rem; }
+            .pricing-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">ClearanceIQ</a>
+        <div class="nav-links">
+            <a href="index.html#tools">Tools</a>
+            <a href="index.html#about">About</a>
+            <a href="pricing.html">Pricing</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <span class="badge">Beta — All Tools Free</span>
+        <h1>Simple, transparent pricing</h1>
+        <p>Start free. Upgrade when you're ready. No hidden fees, no surprises.</p>
+        <p style="font-size:0.9rem;color:#a3a3a3;margin-top:0.5rem;">Free users see ads. Upgrade to Operator for an ad-free experience.</p>
+    </section>
+
+    <section style="max-width:1000px;margin:0 auto 2rem;padding:0 2rem;">
+        <div id="ad-slot-top" style="width:100%;min-height:90px;background:#141414;border:1px dashed #262626;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#525252;font-size:0.85rem;letter-spacing:0.05em;">
+            [ ADVERTISEMENT — Integration pending ]
+        </div>
+    </section>
+
+    <section class="pricing-grid">
+        <!-- Free -->
+        <div class="card">
+            <h3>Explorer</h3>
+            <div class="price">$0</div>
+            <div class="price-note">Free during beta</div>
+            <ul class="features">
+                <li><span class="check">✓</span> HTS Code Lookup</li>
+                <li><span class="check">✓</span> Duty Calculator</li>
+                <li><span class="check">✓</span> Compliance Checklist</li>
+                <li><span class="check">✓</span> Audit Report Generator</li>
+                <li><span class="check">✓</span> Compliance Chatbot</li>
+                <li><span class="check">✓</span> 5 tool uses/day (anonymous)</li>
+                <li><span class="check">✓</span> 100 tool uses/day (free with email)</li>
+                <li><span class="check">✓</span> All 5 tools included</li>
+                <li><span class="check">✓</span> Email support</li>
+            </ul>
+            <a href="index.html" class="btn btn-secondary">Get Started</a>
+        </div>
+
+        <!-- Pro -->
+        <div class="card popular">
+            <div class="popular-badge">Most Popular</div>
+            <h3>Operator</h3>
+            <div class="price">$49</div>
+            <div class="price-note">/month, coming soon</div>
+            <ul class="features">
+                <li><span class="check">✓</span> Everything in Explorer</li>
+                <li><span class="check">✓</span> Unlimited tool use</li>
+                <li><span class="check">✓</span> Batch HTS processing (CSV upload)</li>
+                <li><span class="check">✓</span> Country comparison (200+)</li>
+                <li><span class="check">✓</span> PDF document analysis</li>
+                <li><span class="check">✓</span> Saved classifications history</li>
+                <li><span class="check">✓</span> Priority support</li>
+                <li><span class="check">✓</span> API access (1,000 calls/mo)</li>
+            </ul>
+            <button class="btn btn-primary" disabled style="opacity:0.5;cursor:not-allowed;">Join Waitlist</button>
+        </div>
+
+        <!-- Enterprise -->
+        <div class="card">
+            <h3>Broker</h3>
+            <div class="price">Custom</div>
+            <div class="price-note">Contact us</div>
+            <ul class="features">
+                <li><span class="check">✓</span> Everything in Operator</li>
+                <li><span class="check">✓</span> Unlimited API access</li>
+                <li><span class="check">✓</span> White-label options</li>
+                <li><span class="check">✓</span> Dedicated account manager</li>
+                <li><span class="check">✓</span> Custom integrations (ERP/WMS)</li>
+                <li><span class="check">✓</span> SSO & team seats</li>
+                <li><span class="check">✓</span> On-premise deployment</li>
+                <li><span class="check">✓</span> SLA guarantee</li>
+            </ul>
+            <a href="mailto:clearanceiq@proton.me" class="btn btn-secondary">Contact Sales</a>
+        </div>
+    </section>
+
+    <section style="max-width:1000px;margin:0 auto 2rem;padding:0 2rem;">
+        <div id="ad-slot-pricing" style="width:100%;min-height:90px;background:#141414;border:1px dashed #262626;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#525252;font-size:0.85rem;letter-spacing:0.05em;">
+            [ ADVERTISEMENT — Integration pending ]
+        </div>
+    </section>
+
+    <section class="faq">
+        <h2>Frequently Asked Questions</h2>
+        <details>
+            <summary>Why are paid tiers “coming soon”?</summary>
+            <div class="answer">We’re in private beta with a small group of importers. Paid tiers will launch once we’ve validated the full feature set with real users. Join the waitlist to get early access and founding-member pricing.</div>
+        </details>
+        <details>
+            <summary>Can I use ClearanceIQ for free forever?</summary>
+            <div class="answer">Yes. Explorer is free during beta and will remain free for basic HTS lookups and duty calculations after launch. Paid tiers unlock advanced features like batch processing, document analysis, and API access.</div>
+        </details>
+        <details>
+            <summary>What payment methods will you accept?</summary>
+            <div class="answer">We accept all major credit cards via Stripe. For Enterprise customers, we also support invoicing and annual prepayment.</div>
+        </details>
+        <details>
+            <summary>Is my shipment data safe?</summary>
+            <div class="answer">We never train AI models on your proprietary data. All document uploads are processed securely and deleted after analysis unless you choose to save them. See our privacy policy for full details.</div>
+        </details>
+        <details>
+            <summary>Do you offer refunds?</summary>
+            <div class="answer">Yes — 30-day money-back guarantee on all paid plans. No questions asked.</div>
+        </details>
+    </section>
+
+    <footer>
+        <p>© 2026 ClearanceIQ. All rights reserved. · <a href="mailto:clearanceiq@proton.me" style="color:inherit;">clearanceiq@proton.me</a></p>
+    </footer>
+</body>
+</html>
