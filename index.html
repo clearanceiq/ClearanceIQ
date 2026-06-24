@@ -1,157 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ClearanceIQ — US Import Customs Clearance Playbook</title>
-<meta name="description" content="ClearanceIQ gives importers free tools for HTS lookup, duty estimating, CBP holds, supplier invoices, and bonds. Practical US import customs guidance without the fluff.">
-<link rel="canonical" href="https://clearanceiq.pages.dev/">
-<meta property="og:title" content="ClearanceIQ — US Import Customs Clearance Playbook">
-<meta property="og:description" content="Practical import clearance guidance for new importers and Amazon FBA sellers. Stop repeating the same entry failures.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://clearanceiq.pages.dev/">
-<meta property="og:site_name" content="ClearanceIQ">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "ClearanceIQ",
-  "url": "https://clearanceiq.pages.dev/",
-  "description": "US import customs playbook and first-entry system for importers and Amazon FBA sellers."
-}
-</script>
-<link rel="preload" as="style" href="style.css" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="style.css"></noscript>
-<script defer src="site-inject.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClearanceIQ — US Import Customs Tools</title>
+    <meta name="description" content="Free HTS lookup, duty calculator, CBP hold decoder, supplier checklist, and bond estimator for importers. No account required. 100 uses/day with email.">
+    <link rel="canonical" href="https://clearanceiq.pages.dev/">
+    <meta property="og:title" content="ClearanceIQ — US Import Customs Tools">
+    <meta property="og:description" content="HTS lookup, duty calculator, CBP hold decoder, supplier checklist, bond estimator. Free during beta.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://clearanceiq.pages.dev/">
+    <meta property="og:site_name" content="ClearanceIQ">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "ClearanceIQ",
+      "url": "https://clearanceiq.pages.dev/",
+      "description": "US import customs tools for HTS lookup, duty calculation, and compliance."
+    }
+    </script>
+    <link rel="preload" as="style" href="style.css" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="style.css"></noscript>
+    <script defer src="site-inject.js"></script>
+    <style>
+      /* Tool-focused overrides */
+      .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 18px; }
+      .tool-card { background: var(--surface, #141414); border: 1px solid var(--border, #262626); border-radius: 12px; padding: 22px; transition: border-color .2s, transform .2s; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 8px; }
+      .tool-card:hover { border-color: #525252; transform: translateY(-2px); }
+      .tool-card .icon { font-size: 28px; line-height: 1; }
+      .tool-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--accent, #fff); margin: 0; }
+      .tool-card p { font-size: 0.9rem; color: var(--muted, #a3a3a3); margin: 0; line-height: 1.5; }
+      .tool-card .cta { margin-top: auto; align-self: flex-start; font-size: 0.85rem; }
+      .usage-badge { display: inline-flex; align-items: center; gap: 8px; background: #171717; border: 1px solid var(--border, #262626); padding: 6px 12px; border-radius: 999px; font-size: 0.8rem; color: var(--muted, #a3a3a3); }
+      .usage-badge strong { color: var(--accent, #fff); }
+      .hero-tools { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 22px; }
+      @media (min-width: 720px) {
+        .hero-tools { grid-template-columns: 1.2fr .8fr; }
+      }
+      .ad-leaderboard { width: 100%; min-height: 90px; background: #141414; border: 1px dashed #262626; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #525252; font-size: 0.85rem; letter-spacing: 0.05em; margin: 18px 0; }
+      .ad-rect { width: 100%; min-height: 250px; background: #141414; border: 1px dashed #262626; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #525252; font-size: 0.85rem; letter-spacing: 0.05em; margin: 18px 0; }
+      .mini-form { display: flex; gap: 10px; flex-wrap: wrap; }
+      .mini-form input { flex: 1; min-width: 220px; background: #0a0a0a; border: 1px solid #262626; color: #e5e5e5; padding: 12px 14px; border-radius: 10px; font-size: 15px; }
+      .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 18px; }
+      .step { background: var(--surface, #141414); border: 1px solid var(--border, #262626); border-radius: 12px; padding: 18px; }
+      .step-num { font-size: 0.75rem; font-weight: 700; color: #525252; text-transform: uppercase; letter-spacing: 0.08em; }
+      .step h3 { font-size: 1rem; color: var(--accent, #fff); margin: 6px 0 4px; }
+      .step p { font-size: 0.9rem; color: var(--muted, #a3a3a3); margin: 0; }
+      .alert { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); color: #fbbf24; padding: 12px 14px; border-radius: 10px; font-size: 0.9rem; }
+      .nav-top { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border, #262626); position: sticky; top: 0; background: rgba(10,10,10,0.85); backdrop-filter: blur(8px); z-index: 50; }
+      .nav-top a { color: var(--muted, #a3a3a3); text-decoration: none; font-size: 0.9rem; }
+      .nav-top a:hover { color: var(--accent, #fff); }
+      .logo { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; color: var(--accent, #fff); text-decoration: none; }
+      .counters { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 14px; }
+      .counter { background: #0a0a0a; border: 1px solid #262626; border-radius: 10px; padding: 14px; text-align: center; }
+      .counter b { display: block; font-size: 1.4rem; color: var(--accent, #fff); }
+      .counter span { font-size: 0.8rem; color: var(--muted, #a3a3a3); }
+    </style>
 </head>
 <body>
-<main class="container">
-    <div style="text-align:center; margin-top:6px;">
-        <img src="/assets/clearanceiq-logo.png" alt="ClearanceIQ" style="max-width:100%; height:auto; width:min(520px, 92vw); display:block; margin:0 auto 10px;">
-        <span class="badge">US Import Customs Tools</span>
-        <h1 class="lead" style="margin-top:10px;">Stop getting stuck on paperwork, HTS codes, and surprise duties.</h1>
-        <div class="lead" style="margin-top:10px;">Free calculators and checklists for importers. No account required.</div>
+<main style="max-width: 1100px; margin: 0 auto; padding: 0 16px 40px;">
+
+    <!-- Top nav -->
+    <div class="nav-top">
+        <a href="index.html" class="logo">ClearanceIQ</a>
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+            <a href="#tools">Tools</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="contact.html">Contact</a>
+            <span class="usage-badge" id="usageBadge">Usage: <strong>—</strong></span>
+        </div>
     </div>
 
-    <div class="box" style="margin-top:26px;">
-        <h2>Tools that cut import admin in half</h2>
-        <ul class="clean">
-            <li><b><a href="/tools/hts-lookup.html">HTS Duty Lookup</a></b> — preview duty rates and AD/CVD risk</li>
-            <li><b><a href="/tools/duty-calculator.html">Duty Calculator</a></b> — estimate landed cost before you book</li>
-            <li><b><a href="/tools/cbp-hold-decoder.html">CBP Hold Decoder</a></b> — plain-English next steps when a shipment is stopped</li>
-            <li><b><a href="/tools/supplier-checklist.html">Supplier Invoice Checklist</a></b> — print-ready checklist to send to your supplier</li>
-            <li><b><a href="/tools/bond-estimator.html">Bond Estimator</a></b> — ballpark single or continuous bond premium</li>
-        <li><b><a href="/api-pricing.html">API Access</a></b> — integrate HTS lookup and duty calc into your workflow</li>
-        </ul>
-        <p style="margin-top:12px;"><a class="cta" href="pricing.html">View Pricing</a></p>
-    </div>
+    <!-- Hero -->
+    <section style="text-align:center; padding: 36px 0 18px;">
+        <span class="badge" style="display:inline-block;background:#171717;border:1px solid #262626;color:#a3a3a3;font-size:0.75rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:6px 12px;border-radius:999px;">Beta — Ad-supported free tier</span>
+        <h1 style="font-size:clamp(28px,4vw+10,42px);font-weight:800;color:#fff;margin:16px 0 10px;letter-spacing:-0.03em;line-height:1.2;">US import customs, simplified.</h1>
+        <p style="color:#a3a3a3;font-size:clamp(16px,2vw+8,20px);max-width:640px;margin:0 auto 18px;">Free tools for HTS lookup, duty estimating, holds, invoices, and bonds. No account required for basic use.</p>
 
-    <div id="ad-slot-tools" style="max-width:720px;margin:18px auto;padding:10px 14px;background:#141414;border:1px dashed #262626;border-radius:8px;text-align:center;color:#525252;font-size:0.85rem;letter-spacing:0.05em;">
+        <form class="mini-form" id="heroSignup" style="justify-content:center; max-width: 520px; margin: 0 auto;">
+            <input name="email" type="email" placeholder="you@company.com" required />
+            <button type="submit" class="cta secondary" style="background:#fff;color:#0a0a0a;border:1px solid #fff;">Get 100 free requests</button>
+        </form>
+        <p style="font-size:0.8rem;color:#525252;margin-top:8px;">5/day anonymous · 100/day with email · No credit card</p>
+        <div id="signupStatus" style="margin-top:8px;font-size:0.85rem;color:#a3a3a3;"></div>
+    </section>
+
+    <!-- Ad slot: leaderboard (top) -->
+    <div class="ad-leaderboard" id="ad-slot-hero">
         [ ADVERTISEMENT — Integration pending ]
     </div>
 
-    <div class="box" id="whats-inside">
-        <h2>If you want the full system</h2>
-        <p>The ClearanceIQ Playbook gives you a repeatable first-entry system: HTS checks, commercial invoice verification, bond setup, and release tracking.</p>
-        <ul class="clean">
-            <li><b>11-section pocket guide</b> — HTS, commercial invoice, bond, entry, bonded trucking, AD/CVD, de minimis, CTPAT basics, common holds</li>
-            <li><b>3 decision trees</b> — pre-shipment, post-arrival, and HTS classification shortcuts</li>
-            <li><b>Editable Word + PDF</b> — fill in your own shipment data and reuse forever</li>
-            <li><b>6 ready-to-use templates</b> — commercial invoice checklist, HTS classification worksheet, import bond request, CBP entry review, bonded trucking handoff, de minimis eligibility check</li>
-            <li><b>Submission timeline</b> — exactly what to file and when, in plain English</li>
-            <li><b>Interactive digital companion</b> — browser-based tracker with progress saving (bonus with purchase)</li>
-        </ul>
+    <!-- Usage dashboard -->
+    <section id="tools" style="margin-top: 8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <h2 style="font-size:1.25rem;font-weight:700;color:#fff;margin:0;">Tools</h2>
+            <span style="font-size:0.8rem;color:#525252;">Click any tool to open</span>
+        </div>
+
+        <div class="counters" id="usageCounters" style="display:none;">
+            <div class="counter"><b id="usedCount">—</b><span>Used today</span></div>
+            <div class="counter"><b id="remainingCount">—</b><span>Remaining</span></div>
+            <div class="counter"><b id="tierLabel">Free</b><span>Plan</span></div>
+        </div>
+
+        <div class="tool-grid">
+            <a class="tool-card" href="/tools/hts-lookup.html" data-tool="hts-lookup">
+                <div class="icon">🔍</div>
+                <h3>HTS Duty Lookup</h3>
+                <p>Preview duty rates and AD/CVD risk by product or code.</p>
+                <span class="cta secondary" style="align-self:flex-start;font-size:0.8rem;padding:6px 10px;border-radius:8px;">Open tool →</span>
+            </a>
+
+            <a class="tool-card" href="/tools/duty-calculator.html" data-tool="duty-calculator">
+                <div class="icon">🧮</div>
+                <h3>Duty Calculator</h3>
+                <p>Estimate landed cost before you book shipment.</p>
+                <span class="cta secondary" style="align-self:flex-start;font-size:0.8rem;padding:6px 10px;border-radius:8px;">Open tool →</span>
+            </a>
+
+            <a class="tool-card" href="/tools/cbp-hold-decoder.html" data-tool="cbp-hold-decoder">
+                <div class="icon">🚧</div>
+                <h3>CBP Hold Decoder</h3>
+                <p>Plain-English next steps when a shipment is stopped.</p>
+                <span class="cta secondary" style="align-self:flex-start;font-size:0.8rem;padding:6px 10px;border-radius:8px;">Open tool →</span>
+            </a>
+
+            <a class="tool-card" href="/tools/supplier-checklist.html" data-tool="supplier-checklist">
+                <div class="icon">📋</div>
+                <h3>Supplier Invoice Checklist</h3>
+                <p>Print-ready checklist to send to your supplier.</p>
+                <span class="cta secondary" style="align-self:flex-start;font-size:0.8rem;padding:6px 10px;border-radius:8px;">Open tool →</span>
+            </a>
+
+            <a class="tool-card" href="/tools/bond-estimator.html" data-tool="bond-estimator">
+                <div class="icon">🏦</div>
+                <h3>Bond Estimator</h3>
+                <p>Ballpark single or continuous bond premium.</p>
+                <span class="cta secondary" style="align-self:flex-start;font-size:0.8rem;padding:6px 10px;border-radius:8px;">Open tool →</span>
+            </a>
+
+            <a class="tool-card" href="/api-pricing.html" data-tool="api-access">
+                <div class="icon">⚡</div>
+                <h3>API Access</h3>
+                <p>Integrate HTS lookup and duty calc into your workflow.</p>
+                <span class="cta secondary" style="align-self:flex-start;font-size:0.8rem;padding:6px 10px;border-radius:8px;">Open →</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Ad slot: in-feed rectangle -->
+    <div class="ad-rect" id="ad-slot-tools">
+        [ ADVERTISEMENT — Integration pending ]
     </div>
 
-    <div class="box">
-        <h2>Who this is for</h2>
-        <ul class="clean">
-            <li>New importers doing their first CBP entry</li>
-            <li>Amazon FBA sellers importing from China, Vietnam, or Mexico</li>
-            <li>Small-scale importers tired of surprise duties and delays</li>
-            <li>Anyone who’s ever had a shipment held for “further examination”</li>
-        </ul>
-    </div>
-
-    <div class="box">
-        <h2>What it’s not</h2>
-        <ul class="clean">
-            <li>Not legal advice — consult a licensed customs broker for your specific case</li>
-            <li>Not a government form — don’t file this at CBP</li>
-            <li>Not a subscription — pay once, keep forever</li>
-        </ul>
-    </div>
-
-    <div class="box" style="margin-top:22px;">
-        <h2>Get the free import clearance checklist</h2>
-        <p>Drop your email and I’ll send the same first-entry checklist I use before every shipment.</p>
-        <form class="form-row" id="leadForm" action="https://formsubmit.co/clearanceiq@proton.me" method="POST">
-            <input name="email" type="email" placeholder="you@example.com" required />
-            <input type="hidden" name="_subject" value="New Checklist Request — ClearanceIQ" />
-            <input type="hidden" name="_captcha" value="false" />
-            <input type="hidden" name="_next" value="https://clearanceiq.pages.dev/" />
-            <button type="submit" class="cta">Send me the checklist</button>
-        </form>
-    </div>
-
-    <div class="pain">
-        <h2>Customs mistakes don’t just delay cargo — they cost thousands</h2>
-        <p>Wrong classification, bad invoice data, and skipped bonds turn a normal shipment into a surprise penalty. That happens more often than it should.</p>
-    </div>
-
-    <div class="box" style="margin-top:22px;">
-        <h2>Have a specific customs issue?</h2>
-        <p>Tell me what’s blocking you. I’ll reply with a practical next step.</p>
-        <form method="POST" id="enquiryForm" action="https://formsubmit.co/clearanceiq@proton.me">
-            <div class="form-row">
-                <input name="name" placeholder="Your name" required />
-                <input name="email" type="email" placeholder="Your email" required />
-                <input name="topic" placeholder="Topic, e.g. HTS / bond / hold" />
-                <textarea name="message" placeholder="Describe your issue" required></textarea>
-                <input type="hidden" name="_subject" value="New Enquiry — ClearanceIQ" />
-                <input type="hidden" name="_captcha" value="false" />
-                <button type="submit" class="cta">Send enquiry</button>
-                <p id="status" style="margin:0; font-size:13px; color:var(--muted);"></p>
+    <!-- How it works -->
+    <section style="margin-top: 6px;">
+        <h2 style="font-size:1.25rem;font-weight:700;color:#fff;">How it works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">Step 1</div>
+                <h3>Pick a tool</h3>
+                <p>Choose HTS lookup, duty calc, hold decoder, checklist, or bond estimator.</p>
             </div>
-        </form>
-    </div>
+            <div class="step">
+                <div class="step-num">Step 2</div>
+                <h3>Enter your shipment</h3>
+                <p>Paste product details, HTS code, or invoice data. We validate and calculate.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">Step 3</div>
+                <h3>Get results instantly</h3>
+                <p>Download reports, copy codes, or share with your broker.</p>
+            </div>
+        </div>
+    </section>
 
-    <div id="ad-slot-bottom" style="max-width:720px;margin:18px auto;padding:10px 14px;background:#141414;border:1px dashed #262626;border-radius:8px;text-align:center;color:#525252;font-size:0.85rem;letter-spacing:0.05em;">
-        [ ADVERTISEMENT — Integration pending ]
-    </div>
+    <!-- Feedback / accuracy training capture -->
+    <section style="margin-top: 22px;">
+        <div class="box" style="background:#141414;border:1px solid #262626;border-radius:12px;padding:18px;">
+            <h2 style="font-size:1.1rem;font-weight:700;color:#fff;margin:0 0 8px;">Was this tool accurate for your shipment?</h2>
+            <p style="color:#a3a3a3;font-size:0.95rem;margin:0 0 12px;">Your feedback trains the model to improve HTS classification accuracy.</p>
+            <form id="feedbackForm" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                <select name="tool" required style="background:#0a0a0a;border:1px solid #262626;color:#e5e5e5;padding:10px 12px;border-radius:10px;font-size:14px;">
+                    <option value="" disabled selected>Select tool</option>
+                    <option value="hts-lookup">HTS Lookup</option>
+                    <option value="duty-calculator">Duty Calculator</option>
+                    <option value="cbp-hold-decoder">CBP Hold Decoder</option>
+                    <option value="supplier-checklist">Supplier Checklist</option>
+                    <option value="bond-estimator">Bond Estimator</option>
+                </select>
+                <select name="accuracy" required style="background:#0a0a0a;border:1px solid #262626;color:#e5e5e5;padding:10px 12px;border-radius:10px;font-size:14px;">
+                    <option value="" disabled selected>Accuracy</option>
+                    <option value="exact">Exact</option>
+                    <option value="close">Close (minor variance)</option>
+                    <option value="wrong">Wrong</option>
+                    <option value="unsure">Unsure</option>
+                </select>
+                <input name="hts_code" placeholder="HTS code used (optional)" style="background:#0a0a0a;border:1px solid #262626;color:#e5e5e5;padding:10px 12px;border-radius:10px;font-size:14px;flex:1;min-width:180px;">
+                <button type="submit" class="cta secondary" style="background:#fff;color:#0a0a0a;border:1px solid #fff;">Submit feedback</button>
+            </form>
+            <p id="feedbackStatus" style="margin:8px 0 0;font-size:13px;color:var(--muted,#a3a3a3);"></p>
+        </div>
+    </section>
 
-    <div style="text-align:center; margin-top: 26px;">
-        <a class="cta secondary" href="/blog/day-1.html" target="_blank" rel="noopener">Read the guide first</a>
-        <span style="color:#94a3b8; font-size:13px;"> or </span>
-        <a class="cta" href="pricing.html">View Pricing</a>
-    </div>
+    <!-- Secondary CTA -->
+    <section style="text-align:center; margin-top: 22px;">
+        <a class="cta secondary" href="pricing.html">View pricing and paid plans</a>
+    </section>
 
-
-    <p class="disclaimer">
+    <!-- Disclaimer -->
+    <p class="disclaimer" style="color:#525252;font-size:12px;margin-top:22px;border-top:1px solid #262626;padding-top:14px;">
         Disclaimer: This product is an independent educational guide and is not affiliated with U.S. Customs and Border Protection (CBP), U.S. Department of Homeland Security, or any government agency. It does not constitute legal, customs broker, or compliance advice. Always consult a licensed customs broker or attorney for your specific import transactions.
     </p>
 
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="blog/day-1.html">Day 1 Blog</a>
-        <a href="/blog/">More Posts</a>
-        <a href="#whats-inside">What’s Inside</a>
-        <a href="tools/hts-lookup.html">HTS Lookup</a>
-        <a href="tools/supplier-checklist.html">Checklist Generator</a>
-        <a href="tools/duty-calculator.html">Duty Calculator</a>
-        <a href="tools/cbp-hold-decoder.html">CBP Hold Decoder</a>
-        <a href="tools/bond-estimator.html">Bond Estimator</a>
-        <a href="contact.html">Contact</a>
-        <a href="pricing.html">Pricing</a>
-        <a href="refund.html">Refund Policy</a>
+    <!-- Footer nav -->
+    <nav style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:14px;">
+        <a href="index.html" style="color:#525252;font-size:0.85rem;text-decoration:none;">Home</a>
+        <a href="blog/day-1.html" target="_blank" rel="noopener" style="color:#525252;font-size:0.85rem;text-decoration:none;">Day 1 Blog</a>
+        <a href="/blog/" style="color:#525252;font-size:0.85rem;text-decoration:none;">More Posts</a>
+        <a href="tools/hts-lookup.html" style="color:#525252;font-size:0.85rem;text-decoration:none;">HTS Lookup</a>
+        <a href="contact.html" style="color:#525252;font-size:0.85rem;text-decoration:none;">Contact</a>
+        <a href="pricing.html" style="color:#525252;font-size:0.85rem;text-decoration:none;">Pricing</a>
+        <a href="refund.html" style="color:#525252;font-size:0.85rem;text-decoration:none;">Refund Policy</a>
     </nav>
 </main>
+
 <script>
   if (window.CIQ && typeof window.CIQ.logEvent === 'function') {
     window.CIQ.logEvent({ type: 'page_view', page: location.pathname });
+
+    // Tool click tracking for training data
+    document.querySelectorAll('.tool-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        window.CIQ.logEvent({ type: 'tool_open', tool: card.getAttribute('data-tool') || 'unknown' });
+      });
+    });
+
+    // Feedback form tracking
+    var feedbackForm = document.getElementById('feedbackForm');
+    if (feedbackForm) {
+      feedbackForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var fd = new FormData(feedbackForm);
+        var payload = {
+          type: 'accuracy_feedback',
+          tool: fd.get('tool'),
+          accuracy: fd.get('accuracy'),
+          hts_code: fd.get('hts_code') || null,
+          email: window.__CIQ_EMAIL__ || null
+        };
+        window.CIQ.logEvent(payload);
+        var status = document.getElementById('feedbackStatus');
+        if (status) status.textContent = 'Thanks — feedback recorded for training.';
+        feedbackForm.reset();
+      });
+    }
   }
 </script>
-<div id="deploy-probe" style="margin-top:20px;padding:10px 14px;background:#0f172a;border:1px solid #334155;border-radius:10px;font-size:12px;color:#94a3b8;">Deploy probe: 2026-06-24T06:25:00Z commit 602dbc1</div>
-<script src="/chat-widget/widget.js"></script>
 </body>
 </html>

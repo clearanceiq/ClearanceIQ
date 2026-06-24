@@ -88,13 +88,99 @@
 (function () {
   if (window.__CIQ_TELEMETRY_INIT__) return;
   window.__CIQ_TELEMETRY_INIT__ = true;
+
   function logEvent(payload) {
     if (!navigator.sendBeacon) return;
-    navigator.sendBeacon('/api/telemetry', JSON.stringify(Object.assign({}, payload, { ts: Date.now(), path: location.pathname })));
+    try {
+      navigator.sendBeacon('/api/telemetry', JSON.stringify(Object.assign({}, payload, { ts: Date.now(), path: location.pathname })));
+    } catch (e) { /* noop */ }
   }
+
   window.CIQ = window.CIQ || {};
   window.CIQ.logEvent = logEvent;
+
   try {
     sessionStorage.setItem('ciq_telem_v', '1');
-  } catch {}
+  } catch { }
+
+  // Expose email for inline training-data hooks
+  try {
+    var storedEmail = localStorage.getItem('ciq_email');
+    if (storedEmail) window.__CIQ_EMAIL__ = storedEmail;
+  } catch { }
+
+  // Auto-update usage badge from API key if present
+  function updateUsageBadge() {
+    var apiKey = localStorage.getItem('ciq_api_key');
+    var badge = document.getElementById('usageBadge');
+    var counters = document.getElementById('usageCounters');
+    if (!apiKey || !badge) return;
+
+    fetch('/api/usage', {
+      headers: { 'X-API-Key': apiKey },
+      credentials: 'same-origin'
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      if (!data || !data.ok) return;
+      var remaining = Math.max(0, (data.limit || 100) - (data.used || 0));
+      var tier = data.tier === 'free' ? 'Free' : (data.tier || 'Free');
+      badge.innerHTML = 'Usage: <strong>' + remaining + ' left</strong> · ' + tier;
+      if (counters) {
+        counters.style.display = 'grid';
+        var used = document.getElementById('usedCount');
+        var rem = document.getElementById('remainingCount');
+        var tierEl = document.getElementById('tierLabel');
+        if (used) used.textContent = data.used || 0;
+        if (rem) rem.textContent = remaining;
+        if (tierEl) tierEl.textContent = tier;
+      }
+    })
+    .catch(function(){ /* noop */ });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateUsageBadge);
+  } else {
+    updateUsageBadge();
+  }
+})();
+
+// Hero signup: auto-issue key + training capture
+(function () {
+  var form = document.getElementById('heroSignup');
+  var status = document.getElementById('signupStatus');
+  if (!form) return;
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (status) status.textContent = 'Issuing key…';
+    var fd = new FormData(form);
+    var email = String(fd.get('email') || '').trim();
+    if (!email) { if (status) status.textContent = 'Email required.'; return; }
+
+    fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: email }),
+      credentials: 'same-origin'
+    })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      if (data && data.key) {
+        try { localStorage.setItem('ciq_api_key', data.key); } catch {}
+        try { localStorage.setItem('ciq_email', email); } catch {}
+        if (window.__CIQ_EMAIL__) window.__CIQ_EMAIL__ = email;
+        if (status) status.textContent = 'Key issued. Your limit: ' + (data.tier === 'free' ? '100/day' : 'unlimited') + '.';
+        if (window.CIQ && typeof window.CIQ.logEvent === 'function') {
+          window.CIQ.logEvent({ type: 'signup', email: email, tier: data.tier || 'free' });
+        }
+      } else {
+        if (status) status.textContent = (data && data.message) ? data.message : 'Signup failed. Try again.';
+      }
+    })
+    .catch(function () {
+      if (status) status.textContent = 'Network error. Try again.';
+    });
+  });
 })();
