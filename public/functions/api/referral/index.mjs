@@ -121,7 +121,7 @@ export async function onRequestPost(context) {
       try {
         record = JSON.parse(raw);
       } catch {
-        return json({ ok: false, error: 'invalid code record', applied: false }, 500 });
+        return json({ ok: false, error: 'invalid code record', applied: false }, 500);
       }
 
       if (record.uses >= record.maxUses) {
