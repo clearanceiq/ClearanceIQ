@@ -13,7 +13,7 @@ import {
   loadRedemptionsForReferrer,
   updateRedemptionsIndex,
   kvPut,
-} from './_referral-lib.js';
+} from './_referral-lib/index.js';
 
 const corsHeaders = {
   'content-type': 'application/json',
