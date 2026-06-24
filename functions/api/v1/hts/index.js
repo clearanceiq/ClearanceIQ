@@ -1,4 +1,4 @@
-import { consumeLimit, resolveRateLimitContext } from '../rate-limit.js';
+import { consumeLimit, resolveRateLimitContext } from '../rate-limit/index.js';
 
 function cors(headers = {}) {
   return {

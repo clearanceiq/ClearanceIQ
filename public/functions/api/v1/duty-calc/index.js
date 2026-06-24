@@ -1,4 +1,4 @@
-import { consumeLimit, resolveRateLimitContext } from '../../rate-limit.js';
+import { consumeLimit, resolveRateLimitContext } from '../rate-limit/index.js';
 
 function cors(headers = {}) {
   return {
@@ -32,7 +32,7 @@ export async function onRequestGet(context) {
     const limit = consumeLimit(key, cap, context.env);
 
     if (limit.limited) {
-      await logUsage(tier, 'v1/bond', context, 'rate_limit');
+      await logUsage(tier, 'v1/duty-calc', context, 'rate_limit');
       return new Response(
         JSON.stringify({
           ok: false,
@@ -58,44 +58,52 @@ export async function onRequestGet(context) {
     }
 
     const url = new URL(context.request.url);
-    const type = (url.searchParams.get('type') || 'single').toLowerCase();
     const value = parseFloat(url.searchParams.get('value') || '0');
-    const risk = parseFloat(url.searchParams.get('risk') || '1.5');
+    const htsRaw = (url.searchParams.get('hts') || '').replace(/\./g, '').slice(0, 4);
+    const origin = url.searchParams.get('origin') || '';
+    const freight = parseFloat(url.searchParams.get('freight') || '0');
+    const s301Raw = url.searchParams.get('s301Rate') || '0';
+    const s301Rate = s301Raw === 'other' ? 0 : parseFloat(s301Raw);
 
-    if (!value || value <= 0) {
-      await logUsage(tier, 'v1/bond', context, 'error');
-      return new Response(
-        JSON.stringify({ ok: false, error: 'value must be > 0' }),
-        {
-          headers: cors({
-            'x-rate-limit-remaining': String(limit.remaining),
-            'x-rate-limit-limit': String(limit.limit),
-            'x-rate-limit-tier': tier,
-            'x-rate-limit-reset': String(limit.resetUnix),
-          }),
-          status: 400,
-        }
-      );
-    }
-
-    const minBond = type === 'continuous' ? Math.max(50000, value) : value;
-    const premiumRate = 0.015 * risk;
-    const premium = minBond * premiumRate;
+    const dutyRates = {
+      '8518': 0,
+      '8517': 0,
+      '9503': 0,
+      '6402': 0,
+      '7318': 0,
+      '3926': 0.031,
+      '9403': 0,
+      '9013': 0,
+      '3304': 0,
+      '7326': 0.052,
+    };
+    const generalRate = dutyRates[htsRaw] || 0;
+    const duty = value * generalRate;
+    const section301 = value * s301Rate;
+    const landed = value + freight + duty + section301;
     const fmt = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    await logUsage(tier, 'v1/bond', context, 'ok');
+    const rows = [
+      ['Product value', '$' + fmt(value)],
+      ['Freight / insurance', '$' + fmt(freight)],
+      ['General duty rate', (generalRate * 100).toFixed(1) + '%'],
+      ['General duty', '$' + fmt(duty)],
+      ['Section 301', (s301Rate * 100).toFixed(1) + '%'],
+      ['Section 301 duty', '$' + fmt(section301)],
+      ['Landed cost (before broker/storage)', '$' + fmt(landed)],
+    ];
+
+    await logUsage(tier, 'v1/duty-calc', context, 'ok');
     return new Response(
       JSON.stringify({
         ok: true,
-        bondType: type === 'continuous' ? 'continuous' : 'single',
-        assessedValue: minBond,
-        premiumRate,
-        premium,
-        formatted: {
-          assessedValue: '$' + fmt(minBond),
-          premiumRate: (premiumRate * 100).toFixed(2) + '%',
-          premium: '$' + fmt(premium),
-        },
+        inputs: { value, hts: htsRaw, origin, freight, s301Rate },
+        generalRate,
+        duty,
+        section301,
+        landed,
+        table: rows,
+        note: 'Reference only. Actual rates depend on HTS special provisions, FTAs, and broker classification.',
       }),
       {
         headers: cors({
@@ -107,7 +115,7 @@ export async function onRequestGet(context) {
       }
     );
   } catch (err) {
-    await logUsage('unknown', 'v1/bond', context, 'error');
+    await logUsage('unknown', 'v1/duty-calc', context, 'error');
     return new Response(JSON.stringify({ ok: false, error: 'invalid_query' }), { headers: cors(), status: 400 });
   }
 }
