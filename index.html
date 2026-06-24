@@ -20,209 +20,697 @@
       "description": "US import customs tools for HTS lookup, duty calculation, and compliance."
     }
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="preload" as="style" href="style.css" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="style.css"></noscript>
     <script defer src="site-inject.js"></script>
     <style>
-      /* Tool-focused overrides */
-      .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 18px; }
-      .tool-card { background: var(--surface, #141414); border: 1px solid var(--border, #262626); border-radius: 12px; padding: 22px; transition: border-color .2s, transform .2s; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 8px; }
-      .tool-card:hover { border-color: #525252; transform: translateY(-2px); }
-      .tool-card .icon { font-size: 28px; line-height: 1; }
-      .tool-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--accent, #fff); margin: 0; }
-      .tool-card p { font-size: 0.9rem; color: var(--muted, #a3a3a3); margin: 0; line-height: 1.5; }
-      .tool-card .cta { margin-top: auto; align-self: flex-start; font-size: 0.85rem; }
-      .usage-badge { display: inline-flex; align-items: center; gap: 8px; background: #171717; border: 1px solid var(--border, #262626); padding: 6px 12px; border-radius: 999px; font-size: 0.8rem; color: var(--muted, #a3a3a3); }
-      .usage-badge strong { color: var(--accent, #fff); }
-      .hero-tools { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 22px; }
-      @media (min-width: 720px) {
-        .hero-tools { grid-template-columns: 1.2fr .8fr; }
+      :root {
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --nav-bg: #1e293b;
+        --nav-text: #e2e8f0;
+        --muted: #64748b;
+        --text: #1e293b;
+        --accent: #2563eb;
+        --accent-hover: #1d4ed8;
+        --border: #e2e8f0;
+        --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+        --shadow-lg: 0 10px 25px rgba(0,0,0,0.06), 0 4px 10px rgba(0,0,0,0.04);
+        --radius: 16px;
+        --radius-sm: 10px;
       }
-      .ad-leaderboard { width: 100%; min-height: 90px; background: #141414; border: 1px dashed #262626; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #525252; font-size: 0.85rem; letter-spacing: 0.05em; margin: 18px 0; }
-      .ad-rect { width: 100%; min-height: 250px; background: #141414; border: 1px dashed #262626; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #525252; font-size: 0.85rem; letter-spacing: 0.05em; margin: 18px 0; }
-      .mini-form { display: flex; gap: 10px; flex-wrap: wrap; }
-      .mini-form input { flex: 1; min-width: 220px; background: #0a0a0a; border: 1px solid #262626; color: #e5e5e5; padding: 12px 14px; border-radius: 10px; font-size: 15px; }
-      .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 18px; }
-      .step { background: var(--surface, #141414); border: 1px solid var(--border, #262626); border-radius: 12px; padding: 18px; }
-      .step-num { font-size: 0.75rem; font-weight: 700; color: #525252; text-transform: uppercase; letter-spacing: 0.08em; }
-      .step h3 { font-size: 1rem; color: var(--accent, #fff); margin: 6px 0 4px; }
-      .step p { font-size: 0.9rem; color: var(--muted, #a3a3a3); margin: 0; }
-      .alert { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); color: #fbbf24; padding: 12px 14px; border-radius: 10px; font-size: 0.9rem; }
-      .nav-top { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border, #262626); position: sticky; top: 0; background: rgba(10,10,10,0.85); backdrop-filter: blur(8px); z-index: 50; }
-      .nav-top a { color: var(--muted, #a3a3a3); text-decoration: none; font-size: 0.9rem; }
-      .nav-top a:hover { color: var(--accent, #fff); }
-      .logo { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; color: var(--accent, #fff); text-decoration: none; }
-      .counters { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 14px; }
-      .counter { background: #0a0a0a; border: 1px solid #262626; border-radius: 10px; padding: 14px; text-align: center; }
-      .counter b { display: block; font-size: 1.4rem; color: var(--accent, #fff); }
-      .counter span { font-size: 0.8rem; color: var(--muted, #a3a3a3); }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Navigation */
+      .nav-top {
+        background: var(--nav-bg);
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        padding: 0 24px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+      .nav-inner {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 64px;
+        gap: 16px;
+      }
+      .logo {
+        font-weight: 800;
+        font-size: 1.25rem;
+        color: #ffffff;
+        text-decoration: none;
+        letter-spacing: -0.02em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .logo-dot {
+        width: 8px;
+        height: 8px;
+        background: #3b82f6;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      .nav-links a {
+        color: var(--nav-text);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        opacity: 0.85;
+        transition: opacity 0.2s;
+      }
+      .nav-links a:hover { opacity: 1; }
+      .usage-badge {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.15);
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        color: #cbd5e1;
+        font-weight: 500;
+      }
+      .usage-badge strong {
+        color: #ffffff;
+        font-weight: 700;
+      }
+
+      /* Main container */
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 20px 60px;
+      }
+
+      /* Hero */
+      .hero {
+        text-align: center;
+        padding: 48px 0 24px;
+      }
+      .badge-beta {
+        display: inline-block;
+        background: #eff6ff;
+        color: var(--accent);
+        border: 1px solid #bfdbfe;
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin-bottom: 18px;
+      }
+      .hero h1 {
+        font-size: clamp(32px, 5vw, 48px);
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+        margin-bottom: 14px;
+      }
+      .hero p {
+        color: var(--muted);
+        font-size: clamp(16px, 2vw, 19px);
+        max-width: 600px;
+        margin: 0 auto 24px;
+        line-height: 1.6;
+      }
+      .hero-form {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+      .hero-form input {
+        flex: 1;
+        min-width: 240px;
+        background: #fff;
+        border: 2px solid var(--border);
+        color: var(--text);
+        padding: 14px 18px;
+        border-radius: var(--radius-sm);
+        font-size: 15px;
+        font-family: inherit;
+        transition: border-color 0.2s;
+      }
+      .hero-form input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 14px 24px;
+        border-radius: var(--radius-sm);
+        font-size: 0.95rem;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: var(--accent-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+      }
+      .btn-secondary {
+        background: #fff;
+        color: var(--accent);
+        border: 2px solid var(--accent);
+      }
+      .btn-secondary:hover {
+        background: #eff6ff;
+      }
+      .hero-note {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-top: 10px;
+      }
+      #signupStatus {
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: var(--muted);
+        min-height: 20px;
+      }
+
+      /* Ad slots */
+      .ad-slot {
+        background: #f1f5f9;
+        border: 2px dashed #cbd5e1;
+        border-radius: var(--radius-sm);
+        min-height: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        margin: 20px 0;
+        transition: all 0.2s;
+      }
+      .ad-slot.rectangle {
+        min-height: 250px;
+        background: #f8fafc;
+        border-color: #e2e8f0;
+      }
+      .ad-slot:hover {
+        border-color: #94a3b8;
+        color: #64748b;
+      }
+
+      /* Tools section */
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+      .section-header h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .section-header span {
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      /* Usage counters */
+      .counters {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .counter {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 16px;
+        text-align: center;
+        box-shadow: var(--shadow);
+      }
+      .counter b {
+        display: block;
+        font-size: 1.5rem;
+        color: var(--accent);
+        font-weight: 800;
+      }
+      .counter span {
+        font-size: 0.8rem;
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      /* Tool grid */
+      .tool-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 18px;
+        margin-bottom: 20px;
+      }
+      .tool-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        transition: all 0.2s;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+      }
+      .tool-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--accent);
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .tool-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+        border-color: #cbd5e1;
+      }
+      .tool-card:hover::before {
+        opacity: 1;
+      }
+      .tool-icon {
+        width: 48px;
+        height: 48px;
+        background: #eff6ff;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: var(--accent);
+        font-weight: 800;
+      }
+      .tool-card h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0;
+      }
+      .tool-card p {
+        font-size: 0.95rem;
+        color: var(--muted);
+        margin: 0;
+        line-height: 1.5;
+      }
+      .tool-card .cta-link {
+        margin-top: auto;
+        align-self: flex-start;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--accent);
+        text-decoration: none;
+        padding: 6px 0;
+        border-bottom: 2px solid transparent;
+        transition: border-color 0.2s;
+      }
+      .tool-card:hover .cta-link {
+        border-bottom-color: var(--accent);
+      }
+
+      /* Steps */
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 18px;
+        margin: 20px 0;
+      }
+      .step {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 22px;
+        box-shadow: var(--shadow);
+        text-align: center;
+      }
+      .step-icon {
+        width: 56px;
+        height: 56px;
+        background: #f0fdf4;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px;
+        font-size: 26px;
+      }
+      .step h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 6px;
+      }
+      .step p {
+        font-size: 0.9rem;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      /* Feedback */
+      .feedback-box {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: var(--shadow);
+        margin-top: 20px;
+      }
+      .feedback-box h2 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 6px;
+      }
+      .feedback-box p {
+        color: var(--muted);
+        font-size: 0.95rem;
+        margin-bottom: 16px;
+      }
+      .feedback-form {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+      }
+      .feedback-form select,
+      .feedback-form input {
+        background: #f8fafc;
+        border: 2px solid var(--border);
+        color: var(--text);
+        padding: 12px 14px;
+        border-radius: var(--radius-sm);
+        font-size: 0.95rem;
+        font-family: inherit;
+        min-width: 160px;
+      }
+      .feedback-form select:focus,
+      .feedback-form input:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: #fff;
+      }
+      .feedback-form input[type="text"] {
+        flex: 1;
+        min-width: 200px;
+      }
+      #feedbackStatus {
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: var(--muted);
+        min-height: 20px;
+      }
+
+      /* CTA bar */
+      .cta-bar {
+        text-align: center;
+        margin-top: 28px;
+        padding: 20px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+
+      /* Disclaimer */
+      .disclaimer {
+        color: #94a3b8;
+        font-size: 0.8rem;
+        margin-top: 28px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+        line-height: 1.6;
+        text-align: center;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      /* Footer nav */
+      .footer-nav {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 16px;
+        padding-bottom: 20px;
+      }
+      .footer-nav a {
+        color: #94a3b8;
+        font-size: 0.85rem;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .footer-nav a:hover {
+        color: var(--accent);
+      }
+
+      /* Responsive */
+      @media (max-width: 640px) {
+        .nav-inner {
+          height: auto;
+          padding: 12px 0;
+          flex-direction: column;
+        }
+        .nav-links {
+          gap: 12px;
+          justify-content: center;
+        }
+        .hero h1 {
+          font-size: 28px;
+        }
+        .tool-grid {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
 </head>
 <body>
-<main style="max-width: 1100px; margin: 0 auto; padding: 0 16px 40px;">
-
-    <!-- Top nav -->
-    <div class="nav-top">
-        <a href="index.html" class="logo">ClearanceIQ</a>
-        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
-            <a href="#tools">Tools</a>
-            <a href="pricing.html">Pricing</a>
-            <a href="contact.html">Contact</a>
-            <span class="usage-badge" id="usageBadge">Usage: <strong>—</strong></span>
+<main>
+    <!-- Navigation -->
+    <nav class="nav-top">
+      <div class="nav-inner">
+        <a href="index.html" class="logo">
+          ClearanceIQ <span class="logo-dot"></span>
+        </a>
+        <div class="nav-links">
+          <a href="#tools">Tools</a>
+          <a href="pricing.html">Pricing</a>
+          <a href="contact.html">Contact</a>
+          <span class="usage-badge" id="usageBadge">Usage: <strong>—</strong></span>
         </div>
-    </div>
+      </div>
+    </nav>
 
     <!-- Hero -->
-    <section style="text-align:center; padding: 36px 0 18px;">
-        <span class="badge" style="display:inline-block;background:#171717;border:1px solid #262626;color:#a3a3a3;font-size:0.75rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:6px 12px;border-radius:999px;">Beta — Ad-supported free tier</span>
-        <h1 style="font-size:clamp(28px,4vw+10,42px);font-weight:800;color:#fff;margin:16px 0 10px;letter-spacing:-0.03em;line-height:1.2;">US import customs, simplified.</h1>
-        <p style="color:#a3a3a3;font-size:clamp(16px,2vw+8,20px);max-width:640px;margin:0 auto 18px;">Free tools for HTS lookup, duty estimating, holds, invoices, and bonds. No account required for basic use.</p>
+    <section class="hero">
+      <span class="badge-beta">Beta — All tools free</span>
+      <h1>US import customs, simplified.</h1>
+      <p>Free tools for HTS lookup, duty estimating, CBP holds, invoices, and bonds. No account required for basic use.</p>
 
-        <form class="mini-form" id="heroSignup" style="justify-content:center; max-width: 520px; margin: 0 auto;">
-            <input name="email" type="email" placeholder="you@company.com" required />
-            <button type="submit" class="cta secondary" style="background:#fff;color:#0a0a0a;border:1px solid #fff;">Get 100 free requests</button>
-        </form>
-        <p style="font-size:0.8rem;color:#525252;margin-top:8px;">5/day anonymous · 100/day with email · No credit card</p>
-        <div id="signupStatus" style="margin-top:8px;font-size:0.85rem;color:#a3a3a3;"></div>
+      <form class="hero-form" id="heroSignup">
+        <input name="email" type="email" placeholder="you@company.com" required />
+        <button type="submit" class="btn btn-primary">Get 100 free requests</button>
+      </form>
+      <p class="hero-note">5/day anonymous · 100/day with email · No credit card</p>
+      <div id="signupStatus"></div>
     </section>
 
-    <!-- Ad slot: leaderboard (top) -->
-    <div class="ad-leaderboard" id="ad-slot-hero">
-        [ ADVERTISEMENT — Integration pending ]
+    <!-- Ad: leaderboard -->
+    <div class="ad-slot" id="ad-slot-hero">
+      [ ADVERTISEMENT — Integration pending ]
     </div>
 
-    <!-- Usage dashboard -->
-    <section id="tools" style="margin-top: 8px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-            <h2 style="font-size:1.25rem;font-weight:700;color:#fff;margin:0;">Tools</h2>
-            <span style="font-size:0.8rem;color:#525252;">Click any tool to open</span>
-        </div>
+    <!-- Tools -->
+    <section id="tools">
+      <div class="section-header">
+        <h2>Your tools</h2>
+        <span>Click any card to open</span>
+      </div>
 
-        <div class="counters" id="usageCounters" style="display:none;">
-            <div class="counter"><b id="usedCount">—</b><span>Used today</span></div>
-            <div class="counter"><b id="remainingCount">—</b><span>Remaining</span></div>
-            <div class="counter"><b id="tierLabel">Free</b><span>Plan</span></div>
-        </div>
+      <div class="counters" id="usageCounters" style="display:none;">
+        <div class="counter"><b id="usedCount">—</b><span>Used today</span></div>
+        <div class="counter"><b id="remainingCount">—</b><span>Remaining</span></div>
+        <div class="counter"><b id="tierLabel">Free</b><span>Plan</span></div>
+      </div>
 
-        <div class="tool-grid">
-            <a class="tool-card" href="/tools/hts-lookup.html" data-tool="hts-lookup">
-                <div class="icon">🔍</div>
-                <h3>HTS Duty Lookup</h3>
-                <p>Preview duty rates and AD/CVD risk by product or code.</p>
-                <span class="cta secondary" style="align-self:flex-start;font-size:0.8rem;padding:6px 10px;border-radius:8px;">Open tool →</span>
-            </a>
+      <div class="tool-grid">
+        <a class="tool-card" href="/tools/hts-lookup.html" data-tool="hts-lookup">
+          <div class="tool-icon">🔍</div>
+          <h3>HTS Duty Lookup</h3>
+          <p>Preview duty rates and AD/CVD risk by product or code.</p>
+          <span class="cta-link">Open tool →</span>
+        </a>
 
-            <a class="tool-card" href="/tools/duty-calculator.html" data-tool="duty-calculator">
-                <div class="icon">🧮</div>
-                <h3>Duty Calculator</h3>
-                <p>Estimate landed cost before you book shipment.</p>
-                <span class="cta secondary" style="align-self:flex-start;font-size:0.8rem;padding:6px 10px;border-radius:8px;">Open tool →</span>
-            </a>
+        <a class="tool-card" href="/tools/duty-calculator.html" data-tool="duty-calculator">
+          <div class="tool-icon">🧮</div>
+          <h3>Duty Calculator</h3>
+          <p>Estimate landed cost before you book shipment.</p>
+          <span class="cta-link">Open tool →</span>
+        </a>
 
-            <a class="tool-card" href="/tools/cbp-hold-decoder.html" data-tool="cbp-hold-decoder">
-                <div class="icon">🚧</div>
-                <h3>CBP Hold Decoder</h3>
-                <p>Plain-English next steps when a shipment is stopped.</p>
-                <span class="cta secondary" style="align-self:flex-start;font-size:0.8rem;padding:6px 10px;border-radius:8px;">Open tool →</span>
-            </a>
+        <a class="tool-card" href="/tools/cbp-hold-decoder.html" data-tool="cbp-hold-decoder">
+          <div class="tool-icon">🚧</div>
+          <h3>CBP Hold Decoder</h3>
+          <p>Plain-English next steps when a shipment is stopped.</p>
+          <span class="cta-link">Open tool →</span>
+        </a>
 
-            <a class="tool-card" href="/tools/supplier-checklist.html" data-tool="supplier-checklist">
-                <div class="icon">📋</div>
-                <h3>Supplier Invoice Checklist</h3>
-                <p>Print-ready checklist to send to your supplier.</p>
-                <span class="cta secondary" style="align-self:flex-start;font-size:0.8rem;padding:6px 10px;border-radius:8px;">Open tool →</span>
-            </a>
+        <a class="tool-card" href="/tools/supplier-checklist.html" data-tool="supplier-checklist">
+          <div class="tool-icon">📋</div>
+          <h3>Supplier Invoice Checklist</h3>
+          <p>Print-ready checklist to send to your supplier.</p>
+          <span class="cta-link">Open tool →</span>
+        </a>
 
-            <a class="tool-card" href="/tools/bond-estimator.html" data-tool="bond-estimator">
-                <div class="icon">🏦</div>
-                <h3>Bond Estimator</h3>
-                <p>Ballpark single or continuous bond premium.</p>
-                <span class="cta secondary" style="align-self:flex-start;font-size:0.8rem;padding:6px 10px;border-radius:8px;">Open tool →</span>
-            </a>
+        <a class="tool-card" href="/tools/bond-estimator.html" data-tool="bond-estimator">
+          <div class="tool-icon">🏦</div>
+          <h3>Bond Estimator</h3>
+          <p>Ballpark single or continuous bond premium.</p>
+          <span class="cta-link">Open tool →</span>
+        </a>
 
-            <a class="tool-card" href="/api-pricing.html" data-tool="api-access">
-                <div class="icon">⚡</div>
-                <h3>API Access</h3>
-                <p>Integrate HTS lookup and duty calc into your workflow.</p>
-                <span class="cta secondary" style="align-self:flex-start;font-size:0.8rem;padding:6px 10px;border-radius:8px;">Open →</span>
-            </a>
-        </div>
+        <a class="tool-card" href="/api-pricing.html" data-tool="api-access">
+          <div class="tool-icon">⚡</div>
+          <h3>API Access</h3>
+          <p>Integrate HTS lookup and duty calc into your workflow.</p>
+          <span class="cta-link">Open →</span>
+        </a>
+      </div>
     </section>
 
-    <!-- Ad slot: in-feed rectangle -->
-    <div class="ad-rect" id="ad-slot-tools">
-        [ ADVERTISEMENT — Integration pending ]
+    <!-- Ad: rectangle -->
+    <div class="ad-slot rectangle" id="ad-slot-tools">
+      [ ADVERTISEMENT — Integration pending ]
     </div>
 
     <!-- How it works -->
-    <section style="margin-top: 6px;">
-        <h2 style="font-size:1.25rem;font-weight:700;color:#fff;">How it works</h2>
-        <div class="steps">
-            <div class="step">
-                <div class="step-num">Step 1</div>
-                <h3>Pick a tool</h3>
-                <p>Choose HTS lookup, duty calc, hold decoder, checklist, or bond estimator.</p>
-            </div>
-            <div class="step">
-                <div class="step-num">Step 2</div>
-                <h3>Enter your shipment</h3>
-                <p>Paste product details, HTS code, or invoice data. We validate and calculate.</p>
-            </div>
-            <div class="step">
-                <div class="step-num">Step 3</div>
-                <h3>Get results instantly</h3>
-                <p>Download reports, copy codes, or share with your broker.</p>
-            </div>
+    <section>
+      <div class="section-header">
+        <h2>How it works</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-icon">1</div>
+          <h3>Pick a tool</h3>
+          <p>Choose HTS lookup, duty calc, hold decoder, checklist, or bond estimator.</p>
         </div>
+        <div class="step">
+          <div class="step-icon">2</div>
+          <h3>Enter your shipment</h3>
+          <p>Paste product details, HTS code, or invoice data. We validate and calculate.</p>
+        </div>
+        <div class="step">
+          <div class="step-icon">3</div>
+          <h3>Get results instantly</h3>
+          <p>Download reports, copy codes, or share with your broker.</p>
+        </div>
+      </div>
     </section>
 
-    <!-- Feedback / accuracy training capture -->
-    <section style="margin-top: 22px;">
-        <div class="box" style="background:#141414;border:1px solid #262626;border-radius:12px;padding:18px;">
-            <h2 style="font-size:1.1rem;font-weight:700;color:#fff;margin:0 0 8px;">Was this tool accurate for your shipment?</h2>
-            <p style="color:#a3a3a3;font-size:0.95rem;margin:0 0 12px;">Your feedback trains the model to improve HTS classification accuracy.</p>
-            <form id="feedbackForm" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-                <select name="tool" required style="background:#0a0a0a;border:1px solid #262626;color:#e5e5e5;padding:10px 12px;border-radius:10px;font-size:14px;">
-                    <option value="" disabled selected>Select tool</option>
-                    <option value="hts-lookup">HTS Lookup</option>
-                    <option value="duty-calculator">Duty Calculator</option>
-                    <option value="cbp-hold-decoder">CBP Hold Decoder</option>
-                    <option value="supplier-checklist">Supplier Checklist</option>
-                    <option value="bond-estimator">Bond Estimator</option>
-                </select>
-                <select name="accuracy" required style="background:#0a0a0a;border:1px solid #262626;color:#e5e5e5;padding:10px 12px;border-radius:10px;font-size:14px;">
-                    <option value="" disabled selected>Accuracy</option>
-                    <option value="exact">Exact</option>
-                    <option value="close">Close (minor variance)</option>
-                    <option value="wrong">Wrong</option>
-                    <option value="unsure">Unsure</option>
-                </select>
-                <input name="hts_code" placeholder="HTS code used (optional)" style="background:#0a0a0a;border:1px solid #262626;color:#e5e5e5;padding:10px 12px;border-radius:10px;font-size:14px;flex:1;min-width:180px;">
-                <button type="submit" class="cta secondary" style="background:#fff;color:#0a0a0a;border:1px solid #fff;">Submit feedback</button>
-            </form>
-            <p id="feedbackStatus" style="margin:8px 0 0;font-size:13px;color:var(--muted,#a3a3a3);"></p>
-        </div>
+    <!-- Feedback -->
+    <section>
+      <div class="feedback-box">
+        <h2>Was this tool accurate for your shipment?</h2>
+        <p>Your feedback trains the model to improve HTS classification accuracy.</p>
+        <form class="feedback-form" id="feedbackForm">
+          <select name="tool" required>
+            <option value="" disabled selected>Select tool</option>
+            <option value="hts-lookup">HTS Lookup</option>
+            <option value="duty-calculator">Duty Calculator</option>
+            <option value="cbp-hold-decoder">CBP Hold Decoder</option>
+            <option value="supplier-checklist">Supplier Checklist</option>
+            <option value="bond-estimator">Bond Estimator</option>
+          </select>
+          <select name="accuracy" required>
+            <option value="" disabled selected>Accuracy</option>
+            <option value="exact">Exact</option>
+            <option value="close">Close (minor variance)</option>
+            <option value="wrong">Wrong</option>
+            <option value="unsure">Unsure</option>
+          </select>
+          <input type="text" name="hts_code" placeholder="HTS code used (optional)">
+          <button type="submit" class="btn btn-primary">Submit feedback</button>
+        </form>
+        <p id="feedbackStatus"></p>
+      </div>
     </section>
 
-    <!-- Secondary CTA -->
-    <section style="text-align:center; margin-top: 22px;">
-        <a class="cta secondary" href="pricing.html">View pricing and paid plans</a>
-    </section>
+    <!-- Bottom CTA -->
+    <div class="cta-bar">
+      <a class="btn btn-secondary" href="pricing.html">View pricing and paid plans</a>
+    </div>
+
+    <!-- Ad: bottom -->
+    <div class="ad-slot" id="ad-slot-bottom">
+      [ ADVERTISEMENT — Integration pending ]
+    </div>
 
     <!-- Disclaimer -->
-    <p class="disclaimer" style="color:#525252;font-size:12px;margin-top:22px;border-top:1px solid #262626;padding-top:14px;">
-        Disclaimer: This product is an independent educational guide and is not affiliated with U.S. Customs and Border Protection (CBP), U.S. Department of Homeland Security, or any government agency. It does not constitute legal, customs broker, or compliance advice. Always consult a licensed customs broker or attorney for your specific import transactions.
+    <p class="disclaimer">
+      Disclaimer: This product is an independent educational guide and is not affiliated with U.S. Customs and Border Protection (CBP), U.S. Department of Homeland Security, or any government agency. It does not constitute legal, customs broker, or compliance advice. Always consult a licensed customs broker or attorney for your specific import transactions.
     </p>
 
-    <!-- Footer nav -->
-    <nav style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:14px;">
-        <a href="index.html" style="color:#525252;font-size:0.85rem;text-decoration:none;">Home</a>
-        <a href="blog/day-1.html" target="_blank" rel="noopener" style="color:#525252;font-size:0.85rem;text-decoration:none;">Day 1 Blog</a>
-        <a href="/blog/" style="color:#525252;font-size:0.85rem;text-decoration:none;">More Posts</a>
-        <a href="tools/hts-lookup.html" style="color:#525252;font-size:0.85rem;text-decoration:none;">HTS Lookup</a>
-        <a href="contact.html" style="color:#525252;font-size:0.85rem;text-decoration:none;">Contact</a>
-        <a href="pricing.html" style="color:#525252;font-size:0.85rem;text-decoration:none;">Pricing</a>
-        <a href="refund.html" style="color:#525252;font-size:0.85rem;text-decoration:none;">Refund Policy</a>
+    <!-- Footer -->
+    <nav class="footer-nav">
+      <a href="index.html">Home</a>
+      <a href="blog/day-1.html" target="_blank" rel="noopener">Day 1 Blog</a>
+      <a href="/blog/">More Posts</a>
+      <a href="tools/hts-lookup.html">HTS Lookup</a>
+      <a href="contact.html">Contact</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="refund.html">Refund Policy</a>
     </nav>
 </main>
 
@@ -230,14 +718,12 @@
   if (window.CIQ && typeof window.CIQ.logEvent === 'function') {
     window.CIQ.logEvent({ type: 'page_view', page: location.pathname });
 
-    // Tool click tracking for training data
     document.querySelectorAll('.tool-card').forEach(function(card) {
       card.addEventListener('click', function() {
         window.CIQ.logEvent({ type: 'tool_open', tool: card.getAttribute('data-tool') || 'unknown' });
       });
     });
 
-    // Feedback form tracking
     var feedbackForm = document.getElementById('feedbackForm');
     if (feedbackForm) {
       feedbackForm.addEventListener('submit', function(e) {
@@ -252,7 +738,10 @@
         };
         window.CIQ.logEvent(payload);
         var status = document.getElementById('feedbackStatus');
-        if (status) status.textContent = 'Thanks — feedback recorded for training.';
+        if (status) {
+          status.textContent = '✓ Thanks — feedback recorded for training.';
+          status.style.color = '#16a34a';
+        }
         feedbackForm.reset();
       });
     }
