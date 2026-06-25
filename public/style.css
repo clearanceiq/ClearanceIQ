@@ -1,5 +1,8 @@
 /* Root tokens must match index.html soft light theme */
 :root {
+  --ad-cta-bg: #e2e8f0;
+  --ad-cta-text: #0f172a;
+  --ad-cta-border: #cbd5e1;
   --bg: #f8fafc;
   --surface: #ffffff;
   --muted: #64748b;
@@ -61,6 +64,11 @@ input, textarea, select {
 }
 input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
 textarea { min-height: 100px; resize: vertical; }
+.ad-cta { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--ad-cta-bg); color: var(--ad-cta-text); border: 2px solid var(--ad-cta-border); border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+.ad-cta:hover { border-color: var(--accent); color: var(--accent); }
+.ad-slot { display: flex; align-items: center; justify-content: center; margin: 16px 0; min-height: 90px; background: linear-gradient(180deg, #f8fafc, #f1f5f9); border: 1px dashed var(--border); border-radius: var(--radius); }
+.ad-slot .ad-cta { background: var(--accent); color: #fff; border-color: var(--accent); }
+
 @media (max-width: 640px) {
   .kpis { grid-template-columns: 1fr; }
 }

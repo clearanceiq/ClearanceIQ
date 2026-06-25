@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compliance Checklist — ClearanceIQ</title>
+  <link rel="canonical" href="https://clearance-iq.com/tools/compliance-checklist.html">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .checklist-header { text-align: center; margin: 6px 0 10px; }
+    .checklist-header h1 { margin-top: 10px; }
+    .phase-tabs { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
+    .phase-tab { padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer; border: 2px solid var(--border); background: var(--surface); color: var(--muted); transition: all 0.2s; }
+    .phase-tab:hover { border-color: var(--accent); color: var(--accent); }
+    .phase-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .phase-section { margin-top: 24px; }
+    .phase-title { font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 12px; }
+    .checklist-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; transition: all 0.2s; }
+    .checklist-card:hover { box-shadow: var(--shadow-lg); }
+    .checklist-card.completed { opacity: 0.7; border-color: var(--accent); background: linear-gradient(180deg, #eff6ff, #fff); }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .card-meta { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .risk-badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .risk-low { background: #e2e8f0; color: #475569; }
+    .risk-medium { background: #fef3c7; color: #92400e; }
+    .risk-high { background: #fee2e2; color: #991b1b; }
+    .risk-critical { background: #7f1d1d; color: #fff; }
+    .tooltip-toggle { background: none; border: none; color: var(--accent); font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: underline; margin-top: 4px; }
+    .tooltip-content { display: none; margin-top: 10px; padding: 10px; background: #f8fafc; border-left: 3px solid var(--accent); border-radius: var(--radius-sm); font-size: 14px; color: var(--text); }
+    .tooltip-content.open { display: block; }
+    .card-actions { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-mark { padding: 8px 14px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; border: 2px solid var(--accent); background: var(--accent); color: #fff; transition: all 0.2s; }
+    .btn-mark:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-mark.done { background: transparent; color: var(--muted); border-color: var(--border); cursor: default; }
+    .progress-bar { max-width: 100%; height: 8px; background: var(--border); border-radius: 999px; margin-top: 16px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.3s ease; }
+    .progress-label { font-size: 13px; color: var(--muted); margin-top: 6px; text-align: right; }
+    .export-bar { position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+    .signature-line { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 8px; font-size: 14px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="checklist-header">
+      <span class="badge">Compliance Checklist</span>
+      <h1>US Import Compliance — Reasonable Care</h1>
+      <p class="lead" style="margin-top:10px;">Five phases. Government citations. Audit-ready documentation stubs.</p>
+    </div>
+
+    <div style="margin-top:16px;">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-label" id="progressLabel">0 of 15 items complete</div>
+    </div>
+
+    <div class="phase-tabs" id="phaseTabs"></div>
+    <div id="phases"></div>
+
+    <div class="export-bar">
+      <div>
+        <b style="font-size:14px;">Progress saved locally.</b>
+        <div style="font-size:12px; color:var(--muted);">Export Reasonable Care package when complete.</div>
+      </div>
+      <a href="/" class="cta secondary" style="font-size:14px; padding: 8px 14px;">Back to tools</a>
+    </div>
+
+    <p class="disclaimer" style="margin-top:22px;">This checklist is advisory only. It does not constitute legal advice. Always consult a licensed customs broker for your specific import transactions. ClearanceIQ is not affiliated with CBP, FDA, or USDA.</p>
+  </main>
+
+  <script>
+    const CHECKLIST = [
+      { id:"supplier-name-verified", step:1, phase:"supplier", title:"Verify supplier legal name and address", description:"Confirm the entity on the commercial invoice matches the manufacturer/vendor of record. Mismatches trigger penalties under 19 USC 1592.", regulation_ref:"19 CFR §111.1", agency:"CBP", common_errors:["Using trading company name instead of actual manufacturer","Relying on PO box when a physical plant address is required","Accepting invoice from a shell entity not on vendor master"], documentation_required:["Signed vendor agreement or PO","Commercial invoice with legal name and EIN/Tax ID","Previous CBP entry summary (if available)"], penalty_risk:"high", tool_link:"/tools/supplier-checklist.html" },
+      { id:"supplier-broker-abi-status", step:2, phase:"supplier", title:"Confirm customs broker ABI status", description:"Verify your broker is active and in good standing with CBP. Deactivated brokers cannot transmit entries.", regulation_ref:"19 CFR §111.1", agency:"CBP", common_errors:["Using a broker whose ABI was deactivated","Relying on verbal confirmation without CBP verification","Mixing up broker and importer of record responsibilities"], documentation_required:["Broker ABI status screenshot from CBP","Broker-importer agreement","Power of attorney (if applicable)"], penalty_risk:"high", tool_link:null },
+      { id:"supplier-prior-debarments", step:3, phase:"supplier", title:"Check supplier and broker for prior debarments", description:"Debarred entities cannot participate in import transactions. Screening prevents automatic penalties.", regulation_ref:"19 CFR §111.59", agency:"CBP", common_errors:["Assuming a prior debarment was lifted without checking", "Skipping screen for sub-$500 shipments","Confusing debarment with loss of ABI privileges"], documentation_required:["CBP debarment list screenshot","Screening date stamp","Corrective action note if red flag found"], penalty_risk:"medium", tool_link:null },
+
+      { id:"hts-ruling-researched", step:1, phase:"hts", title:"Research HTS code with official ruling or HTSUS reference", description:"Do not guess. Use the Harmonized Tariff Schedule or a binding ruling request for ambiguous products.", regulation_ref:"19 USC §1500; 19 CFR §177", agency:"CBP", common_errors:["Classifying by product description alone","Using supplier's HTS without verification","Ignoring Chapter/Heading/Subheading sequencing"], documentation_required:["HTSUS chapter/heading reference","Prior ruling (if applicable)","Supplier catalog with product specs"], penalty_risk:"critical", tool_link:"/tools/hts-lookup.html" },
+      { id:"hts-ad-cvd-checked", step:2, phase:"hts", title:"Flag AD/CVD exposure before filing entry", description:"Anti-dumping and countervailing duties apply to specific countries and products. Missing them generates surprise bills.", regulation_ref:"19 USC §1673; 19 CFR §351", agency:"CBP", common_errors:["Assuming AD/CVD applies only to steel/aluminum","Ignoring product-specific scope from Federal Register notices","Missing country-of-origin checks"], documentation_required:["AD/CVD commodity scope review","Federal Register notice reference (if applicable)","Country of origin certificate"], penalty_risk:"high", tool_link:"/tools/hts-lookup.html" },
+      { id:"hts-valuation-checked", step:3, phase:"hts", title:"Verify transaction value and incoterms", description:"Duty is calculated on the value of the goods plus certain adjustments. Wrong valuation leads to underpayment penalties.", regulation_ref:"19 USC §1401a; 19 CFR §152", agency:"CBP", common_errors:["Using FOB value when CIF is required","Forgetting to include assists, royalties, or license fees","Mixing up currency dates"], documentation_required:["Commercial invoice with incoterms","Freight and insurance receipts","Currency conversion dated to shipping date"], penalty_risk:"high", tool_link:"/tools/duty-calculator.html" },
+
+      { id:"permit-isf-filed-24h", step:1, phase:"permit", title:"Confirm ISF filed 24h before vessel lading", description:"Late ISF = $5,000 fine per shipment. Importer or carrier must submit via ABI or ABI-compatible system.", regulation_ref:"19 CFR §103.30", agency:"CBP", common_errors:["Waiting for forwarder to file and not verifying","Counting calendar hours from warehouse receipt, not vessel lading","Missing buyer/seller/commodity HTS 6-digit fields"], documentation_required:["ISF confirmation screenshot with timestamp","Forwarder email or message confirming filing","Bill of lading with lading date"], penalty_risk:"critical", tool_link:null },
+      { id:"permit-pga-requirements", step:2, phase:"permit", title:"Check PGA permits for your commodity", description:"FDA, USDA, FWS, and EPA may require permits, prior notices, or certifications before arrival.", regulation_ref:"21 CFR §1.283 (FDA); 7 CFR §319 (USDA)", agency:"FDA / USDA", common_errors:["Assuming PGA rules apply only to food/pharma","Missing prior notice filing deadlines","Ignoring state-level phytosanitary requirements"], documentation_required:["PGA requirement checklist for HTS chapter","Permit application or prior notice confirmation","PPQ505 or FDA Prior Notice submission confirmation"], penalty_risk:"medium", tool_link:null },
+      { id:"permit-bond-secured", step:3, phase:"permit", title:"Secure continuous or single-entry bond", description:"Bond guarantees payment of duties and compliance with CBP regulations. No bond = no release.", regulation_ref:"19 CFR §113", agency:"CBP", common_errors:["Underbonding coverage below total duty estimate","Letting bond lapse mid-year on continuous accounts","Using personal guarantee without naming surety"], documentation_required:["Bond certificate or surety confirmation","Bond amount calculation worksheet","Power of attorney or account manager contact"], penalty_risk:"critical", tool_link:"/tools/bond-estimator.html" },
+
+      { id:"clearance-entry-summary-prepared", step:1, phase:"clearance", title:"Prepare entry summary before vessel arrival", description:"HTS, valuation, origin, and duty claim must match the invoice and entry summary. Discrepancies = penalties.", regulation_ref:"19 USC §1500; 19 CFR §141", agency:"CBP", common_errors:["Submitting entry summary after release instead of at entry","Mismatching HTS between ISF and entry","Forgetting to claim special program relief (if applicable)"], documentation_required:["Draft entry summary worksheet","Invoice + packing list reconciliation","Proof of country of origin"], penalty_risk:"high", tool_link:"/tools/duty-calculator.html" },
+      { id:"clearance-cbpat-membership", step:2, phase:"clearance", title:"Confirm CTPAT eligibility if applicable", description:"CTPAT members receive reduced exams and faster releases. Verify your tier and obligations.", regulation_ref:"CBP CTPAT program requirements", agency:"CBP", common_errors:["Assuming CTPAT certifies you without annual validation","Ignoring minimum security requirements for overseas vendors","Losing CTPAT status due to missed portal updates"], documentation_required:["CTPAT certificate screenshot","Annual validation checklist","Security profile update confirmation"], penalty_risk:"low", tool_link:null },
+      { id:"clearance-entry-filed-abi", step:3, phase:"clearance", title:"File entry via ABI or ACE portal with correct data", description:"Binary data entry. Typos in HTS, vendor EIN, or port code trigger holds or penalties.", regulation_ref:"19 CFR §143", agency:"CBP", common_errors:["Manually re-keying HTS instead of copying from worksheet","Using wrong port code for airport vs seaport","Missing declared value for goods + freight + insurance"], documentation_required:["Completed entry summary worksheet","ABI submission confirmation with entry number","Release notice or hold notice (if applicable)"], penalty_risk:"high", tool_link:null },
+
+      { id:"post-entry-records-retained", step:1, phase:"post-entry", title:"Retain all import records for 5 years", description:"CBP can demand entry summaries, invoices, packing lists, and correspondence for 5 years from entry.", regulation_ref:"19 CFR §162", agency:"CBP", common_errors:["Storing records only digitally with no backup","Deleting email threads with brokers","Confusing state recordkeeping rules with federal 5-year rule"], documentation_required:["Record retention checklist","Folder naming convention + backup schedule","Document destruction log (optional but recommended)"], penalty_risk:"medium", tool_link:null },
+      { id:"post-entry-payment-verified", step:2, phase:"post-entry", title:"Confirm duties and fees paid on time", description:"Late payment triggers liquidated damages and interest. Verify CBP assessment matches your worksheet.", regulation_ref:"19 CFR §24", agency:"CBP", common_errors:["Relying on broker to pay without double-checking assessment","Confusing estimated duty with final bill","Missing supplemental invoices for AD/CVD entries"], documentation_required:["Duty payment receipt","CBP liquidation notice","Broker reconciliation statement"], penalty_risk:"medium", tool_link:"/tools/duty-calculator.html" },
+      { id:"post-entry-followup-audit", step:3, phase:"post-entry", title:"Review entry summary for accuracy 30 days post-liquidation", description:"CBP has 1 year from liquidation to issue a Notice of Action. Catching errors early avoids penalties.", regulation_ref:"19 USC §1592; 19 CFR §171", agency:"CBP", common_errors:["Ignoring CBP Form 28/29 requests until deadline passes","Assuming broker notified you of errors","Waiting until audit to open your documentation"], documentation_required:["Entry summary final copy","CF 28/29 request log (if applicable)","Correction or protest filing (if error found)"], penalty_risk:"low", tool_link:null }
+    ];
+
+    const PHASES = [
+      { key:"supplier", label:"Supplier" },
+      { key:"hts", label:"HTS" },
+      { key:"permit", label:"Permit" },
+      { key:"clearance", label:"Clearance" },
+      { key:"post-entry", label:"Post-Entry" }
+    ];
+
+    const STORAGE_KEY = "clearanceiq_checklist_state";
+    function loadState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+    function saveState(state) { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+    let state = loadState();
+    let activePhase = "supplier";
+
+    function renderTabs() {
+      const el = document.getElementById("phaseTabs");
+      el.innerHTML = PHASES.map(p => `<button class="phase-tab${p.key===activePhase?' active':''}" data-phase="${p.key}">${p.label}</button>`).join("");
+      el.querySelectorAll(".phase-tab").forEach(btn => {
+        btn.addEventListener("click", () => { activePhase = btn.dataset.phase; render(); });
+      });
+    }
+
+    function renderCards() {
+      const el = document.getElementById("phases");
+      const items = CHECKLIST.filter(i => i.phase === activePhase);
+      el.innerHTML = `<div class="phase-section"><div class="phase-title">${PHASES.find(p=>p.key===activePhase).label} Phase</div>` + items.map(item => {
+        const done = !!state[item.id];
+        return `<div class="checklist-card${done?' completed':''}" id="card-${item.id}">
+          <div class="card-header">
+            <div>
+              <div class="card-title">${item.step}. ${item.title}</div>
+              <div class="card-meta">${item.regulation_ref} · ${item.agency}</div>
+            </div>
+            <span class="risk-badge risk-${item.penalty_risk}">${item.penalty_risk}</span>
+          </div>
+          <div style="font-size:14px; color:var(--muted); margin-top:6px;">${item.description}</div>
+          ${item.tool_link ? `<div style="margin-top:8px;"><a href="${item.tool_link}" class="cta-link" style="font-size:13px;">Open tool →</a></div>` : ''}
+          <div style="margin-top:8px;">
+            <button class="tooltip-toggle" data-target="tt-${item.id}">Show common errors</button>
+          </div>
+          <div class="tooltip-content" id="tt-${item.id}">
+            <b>Common mistakes:</b>
+            <ul class="clean" style="margin-top:4px;">
+              ${item.common_errors.map(e => `<li style="margin-bottom:4px;">• ${e}</li>`).join("")}
+            </ul>
+            <b style="margin-top:8px; display:block;">What to keep on file:</b>
+            <ul class="clean" style="margin-top:4px;">
+              ${item.documentation_required.map(d => `<li style="margin-bottom:4px;">✓ ${d}</li>`).join("")}
+            </ul>
+          </div>
+          <div class="card-actions">
+            <button class="btn-mark${done?' done':''}" data-id="${item.id}">${done ? '✓ Completed' : 'Mark Complete'}</button>
+          </div>
+          ${done ? `<div class="signature-line">Completed: <span class="ts"></span> · Signature: _________________________</div>` : ''}
+        </div>`;
+      }).join("") + "</div>";
+      el.querySelectorAll(".btn-mark").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.id;
+          if (state[id]) { delete state[id]; } else { state[id] = { at: new Date().toISOString() }; }
+          saveState(state); render();
+        });
+      });
+      el.querySelectorAll(".tooltip-toggle").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const target = document.getElementById(btn.dataset.target);
+          target.classList.toggle("open");
+          btn.textContent = target.classList.contains("open") ? "Hide common errors" : "Show common errors";
+        });
+      });
+      el.querySelectorAll(".ts").forEach(el => { if (state[el.closest(".checklist-card").id.split("-")[0]]) { /* placeholder */ } });
+    }
+
+    function updateProgress() {
+      const total = CHECKLIST.length;
+      const done = Object.keys(state).length;
+      const pct = Math.round((done / total) * 100);
+      document.getElementById("progressFill").style.width = pct + "%";
+      document.getElementById("progressLabel").textContent = `${done} of ${total} items complete (${pct}%)`;
+    }
+
+    function render() { renderTabs(); renderCards(); updateProgress(); }
+
+    render();
+  </script>
+</body>
+</html>
