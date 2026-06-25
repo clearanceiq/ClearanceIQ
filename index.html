@@ -6,13 +6,7 @@
     <title>ClearanceIQ — US Import Customs Tools</title>
     <meta name="description" content="Free HTS lookup, duty calculator, CBP hold decoder, supplier checklist, and bond estimator for importers. No account required. 100 uses/day with email.">
     <link rel="canonical" href="https://clearance-iq.com/">
-<meta name="google-site-verification" content="YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY">
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX', { page_path: window.location.pathname });
+|| [];
     </script>
 
     <meta property="og:title" content="ClearanceIQ — US Import Customs Tools">
@@ -550,7 +544,8 @@
 <!-- End Cloudflare Web Analytics -->
 </head>
 <body>
-<main>
+<a href="#main" class="skip-link">Skip to main content</a>
+<main id="main">
     <!-- Navigation -->
     <nav class="nav-top">
       <div class="nav-inner">
@@ -605,7 +600,7 @@
         <span>Click any card to open</span>
       </div>
 
-      <div class="counters" id="usageCounters" style="display:none;">
+      <div class="counters" id="usageCounters">
         <div class="counter"><b id="usedCount">—</b><span>Used today</span></div>
         <div class="counter"><b id="remainingCount">—</b><span>Remaining</span></div>
         <div class="counter"><b id="tierLabel">Free</b><span>Plan</span></div>
@@ -788,6 +783,25 @@
       });
     }
   }
+
+  // Usage counters
+  (function() {
+    var usedEl = document.getElementById('usedCount');
+    var remEl = document.getElementById('remainingCount');
+    var tierEl = document.getElementById('tierLabel');
+    if (!usedEl) return;
+    fetch('/api/usage')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.error) return;
+        usedEl.textContent = data.used || '—';
+        remEl.textContent = data.remaining || '—';
+        tierEl.textContent = data.tier ? (data.tier.charAt(0).toUpperCase() + data.tier.slice(1)) : 'Free';
+      })
+      .catch(function() {
+        // Silently fail — counters stay as dashes
+      });
+  })();
 </script>
 </body>
 </html>

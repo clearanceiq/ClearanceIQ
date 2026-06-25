@@ -174,7 +174,13 @@
         });
         const data = await res.json();
         typing.remove();
-        appendMsg('bot', data.reply || 'Sorry, I couldn’t process that. Try again.');
+        if (data.reply) {
+          appendMsg('bot', data.reply);
+        } else if (data.error === 'API key not configured') {
+          appendMsg('bot', 'The compliance assistant is currently being upgraded on our servers. For urgent questions, email support@clearance-iq.com.');
+        } else {
+          appendMsg('bot', 'Sorry, I couldn’t process that. Try again.');
+        }
       } catch (e) {
         typing.remove();
         appendMsg('bot', 'Connection issue. Please try again.');

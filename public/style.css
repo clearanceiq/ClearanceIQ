@@ -83,6 +83,21 @@ textarea { min-height: 100px; resize: vertical; }
 .option-card b { display: block; font-size: 14px; color: var(--text); margin-bottom: 2px; }
 .option-card .muted { font-size: 12px; color: var(--muted); line-height: 1.4; }
 .muted { color: var(--muted); }
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--text);
+  color: #fff;
+  padding: 8px 16px;
+  z-index: 10000;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+.skip-link:focus {
+  top: 0;
+}
 
 @media (max-width: 640px) {
   .kpis { grid-template-columns: 1fr; }
