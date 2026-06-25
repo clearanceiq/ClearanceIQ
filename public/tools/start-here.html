@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Not sure where to start? — ClearanceIQ</title>
+  <meta name="description" content="Confused about US import requirements? Answer 3 questions and get a personalized compliance checklist, HTS chapter, and required paperwork.">
+  <link rel="canonical" href="https://clearance-iq.com/tools/start-here.html">
+  <link rel="stylesheet" href="/style.css">
+  <meta property="og:title" content="Not sure where to start? — ClearanceIQ">
+  <meta property="og:description" content="3 questions. Your compliance checklist. Free.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://clearance-iq.com/tools/start-here.html">
+</head>
+<body>
+<main class="container">
+  <a href="/"><span class="badge">ClearanceIQ</span></a>
+  <h1 style="margin-top:18px;">Not sure where to start?</h1>
+  <p class="lead" style="margin-top:8px;">Answer 3 quick questions and we will tell you exactly what you need for US Customs.</p>
+
+  <div class="box" id="flow" style="margin-top:22px;">
+    <!-- Step 1 -->
+    <div id="step-1" class="step-panel">
+      <h2 style="margin-top:0;">Step 1 of 3: What are you importing?</h2>
+      <div class="option-grid" id="step1-options">
+        <button class="option-card" data-value="electronics">
+          <span class="option-icon">📱</span>
+          <b>Electronics</b>
+          <span class="muted">Phones, headphones, chargers, cables</span>
+        </button>
+        <button class="option-card" data-value="textiles">
+          <span class="option-icon">👕</span>
+          <b>Textiles / Clothing / Footwear</b>
+          <span class="muted">Shirts, shoes, bags, fabric goods</span>
+        </button>
+        <button class="option-card" data-value="food">
+          <span class="option-icon">🍎</span>
+          <b>Food / Agriculture</b>
+          <span class="muted">Fresh produce, snacks, supplements</span>
+        </button>
+        <button class="option-card" data-value="machinery">
+          <span class="option-icon">⚙️</span>
+          <b>Machinery / Parts</b>
+          <span class="muted">Industrial parts, tools, engines</span>
+        </button>
+        <button class="option-card" data-value="chemicals">
+          <span class="option-icon">🧪</span>
+          <b>Chemicals / Plastics</b>
+          <span class="muted">Resins, coatings, packaging</span>
+        </button>
+        <button class="option-card" data-value="furniture">
+          <span class="option-icon">🪑</span>
+          <b>Furniture / Home</b>
+          <span class="muted">Tables, chairs, mattresses, lamps</span>
+        </button>
+        <button class="option-card" data-value="toys">
+          <span class="option-icon">🧸</span>
+          <b>Toys / Games / Sports</b>
+          <span class="muted">Kids products, games, equipment</span>
+        </button>
+        <button class="option-card" data-value="vehicles">
+          <span class="option-icon">🚗</span>
+          <b>Vehicles / Parts</b>
+          <span class="muted">Cars, motorcycles, auto parts</span>
+        </button>
+        <button class="option-card" data-value="wood">
+          <span class="option-icon">🪵</span>
+          <b>Wood / Furniture Materials</b>
+          <span class="muted">Lumber, pallets, wood packaging</span>
+        </button>
+        <button class="option-card" data-value="metals">
+          <span class="option-icon">🔩</span>
+          <b>Metals / Steel / Aluminum</b>
+          <span class="muted">Rods, sheets, fasteners</span>
+        </button>
+        <button class="option-card" data-value="jewelry">
+          <span class="option-icon">💎</span>
+          <b>Jewelry / Watches / Gems</b>
+          <span class="muted">Gold, silver, costume jewelry</span>
+        </button>
+        <button class="option-card" data-value="medical">
+          <span class="option-icon">🏥</span>
+          <b>Medical / Optics</b>
+          <span class="muted">Devices, instruments, lenses</span>
+        </button>
+        <button class="option-card" data-value="other">
+          <span class="option-icon">📦</span>
+          <b>Other</b>
+          <span class="muted">Something not listed here</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="step-2" class="step-panel" style="display:none;">
+      <h2 style="margin-top:0;" id="step2-title">Step 2 of 3</h2>
+      <p class="muted" style="margin-top:-8px; margin-bottom:14px;" id="step2-subtitle"></p>
+      <div class="option-grid" id="step2-options"></div>
+    </div>
+
+    <!-- Step 3 -->
+    <div id="step-3" class="step-panel" style="display:none;">
+      <h2 style="margin-top:0;">Step 3 of 3: Where are you shipping from?</h2>
+      <div class="option-grid" id="step3-options">
+        <button class="option-card" data-value="china">
+          <span class="option-icon">🇨🇳</span>
+          <b>China</b>
+        </button>
+        <button class="option-card" data-value="vietnam">
+          <span class="option-icon">🇻🇳</span>
+          <b>Vietnam</b>
+        </button>
+        <button class="option-card" data-value="india">
+          <span class="option-icon">🇮🇳</span>
+          <b>India</b>
+        </button>
+        <button class="option-card" data-value="eu">
+          <span class="option-icon">🇪🇺</span>
+          <b>European Union</b>
+        </button>
+        <button class="option-card" data-value="mexico">
+          <span class="option-icon">🇲🇽</span>
+          <b>Mexico</b>
+        </button>
+        <button class="option-card" data-value="other-country">
+          <span class="option-icon">🌐</span>
+          <b>Other</b>
+        </button>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div id="step-result" class="step-panel" style="display:none;">
+      <h2 style="margin-top:0;">Your compliance snapshot</h2>
+      <p class="muted" style="margin-top:-8px;">Based on what you told us. This is a starting point — not legal advice.</p>
+      <div id="result-body"></div>
+    </div>
+  </div>
+</main>
+
+<script defer src="/js/hts-paperwork.js"></script>
+<script defer src="/tools/start-here.js"></script>
+</body>
+</html>
