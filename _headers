@@ -2,7 +2,7 @@
   Cache-Control: no-cache
 
 /api/*
-  Access-Control-Allow-Origin: https://clearanceiq.pages.dev
+  Access-Control-Allow-Origin: https://clearance-iq.com
   Access-Control-Allow-Methods: GET, POST, OPTIONS
   Access-Control-Allow-Headers: content-type, x-api-key
 
