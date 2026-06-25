@@ -1,6 +1,4 @@
 User-Agent: *
 Allow: /
-Disallow: /interactive-playbook.html
 
 Sitemap: https://clearance-iq.com/sitemap.xml
-Host: clearance-iq.com

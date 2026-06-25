@@ -1,51 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://clearanceiq.pages.dev/</loc>
+    <loc>https://clearance-iq.com/</loc>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://clearanceiq.pages.dev/whats-inside.html</loc>
+    <loc>https://clearance-iq.com/pricing</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://clearance-iq.com/whats-inside.html</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://clearanceiq.pages.dev/refund.html</loc>
+    <loc>https://clearance-iq.com/refund.html</loc>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://clearanceiq.pages.dev/contact.html</loc>
+    <loc>https://clearance-iq.com/contact.html</loc>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://clearanceiq.pages.dev/blog/day-1.html</loc>
+    <loc>https://clearance-iq.com/blog/day-1.html</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://clearanceiq.pages.dev/blog/</loc>
+    <loc>https://clearance-iq.com/blog/</loc>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://clearanceiq.pages.dev/interactive-playbook.html</loc>
+    <loc>https://clearance-iq.com/interactive-playbook.html</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://clearanceiq.pages.dev/tools/hts-lookup.html</loc>
+    <loc>https://clearance-iq.com/tools/hts-lookup.html</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://clearanceiq.pages.dev/tools/supplier-checklist.html</loc>
+    <loc>https://clearance-iq.com/tools/supplier-checklist.html</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://clearanceiq.pages.dev/tools/duty-calculator.html</loc>
+    <loc>https://clearance-iq.com/tools/duty-calculator.html</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://clearanceiq.pages.dev/tools/cbp-hold-decoder.html</loc>
+    <loc>https://clearance-iq.com/tools/cbp-hold-decoder.html</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://clearanceiq.pages.dev/tools/bond-estimator.html</loc>
+    <loc>https://clearance-iq.com/tools/bond-estimator.html</loc>
     <priority>0.7</priority>
   </url>
 </urlset>
