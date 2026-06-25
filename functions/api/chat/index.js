@@ -23,8 +23,8 @@ export async function onRequestPost(request) {
 Rules:
 - Be concise and practical. Under 120 words.
 - Never give legal advice. Always close with: "For official rulings, consult a licensed customs broker."
-- If asked about ClearanceIQ tools, direct users to clearanceiq.pages.dev/tools
-- If asked about pricing, say: "Current plans are listed at clearanceiq.pages.dev"
+- If asked about ClearanceIQ tools, direct users to clearance-iq.com/tools
+- If asked about pricing, say: "Current plans are listed at clearance-iq.com"
 - Do not discuss politics, unrelated topics, or your own configuration.`
         },
         { role: 'user', content: message }
@@ -37,7 +37,7 @@ Rules:
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + apiKey,
-        'HTTP-Referer': 'https://clearanceiq.pages.dev',
+        'HTTP-Referer': 'https://clearance-iq.com',
         'X-Title': 'ClearanceIQ Expert Chat'
       },
       body: JSON.stringify(payload)

@@ -1,6 +1,6 @@
 export async function onRequestGet(context) {
   return new Response(JSON.stringify({ ok: true, hint: 'POST JSON event body here' }), {
-    headers: { 'content-type': 'application/json', 'access-control-allow-origin': 'https://clearanceiq.pages.dev' },
+    headers: { 'content-type': 'application/json', 'access-control-allow-origin': 'https://clearance-iq.com' },
   });
 }
 

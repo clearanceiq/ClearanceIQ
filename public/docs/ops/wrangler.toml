@@ -1,0 +1,9 @@
+name = "clearanceiq-telemetry"
+main = "telemetry.js"
+compatibility_flags = ["nodejs_compat"]
+compatibility_date = "2025-05-15"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "clearanceiq-telemetry"
+database_id = ""

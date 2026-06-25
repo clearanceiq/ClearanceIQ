@@ -8,7 +8,7 @@ function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     headers: {
       'content-type': 'application/json',
-      'access-control-allow-origin': 'https://clearanceiq.pages.dev',
+      'access-control-allow-origin': 'https://clearance-iq.com',
       'access-control-allow-methods': 'POST, OPTIONS',
       'access-control-allow-headers': 'content-type, x-api-key',
     },
@@ -146,7 +146,7 @@ async function kvDelete(env, key) {
 
 const corsHeaders = {
   'content-type': 'application/json',
-  'access-control-allow-origin': 'https://clearanceiq.pages.dev',
+  'access-control-allow-origin': 'https://clearance-iq.com',
   'access-control-allow-headers': 'content-type, x-api-key',
 };
 

@@ -1,6 +1,6 @@
 export async function onRequestGet(context) {
   return new Response(JSON.stringify({ ok: true, service: "lead", method: "GET" }), {
-    headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearanceiq.pages.dev" },
+    headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearance-iq.com" },
   });
 }
 
@@ -27,7 +27,7 @@ export async function onRequestPost(context) {
   if (!email || !email.includes("@")) {
     return new Response(JSON.stringify({ ok: false, error: "valid email required" }), {
       status: 400,
-      headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearanceiq.pages.dev" },
+      headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearance-iq.com" },
     });
   }
 
@@ -44,7 +44,7 @@ export async function onRequestPost(context) {
       if (count >= rateLimit) {
         return new Response(JSON.stringify({ ok: false, error: 'rate_limit', message: 'Too many submissions. Try again tomorrow.' }), {
           status: 429,
-          headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearanceiq.pages.dev" },
+          headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearance-iq.com" },
         });
       }
       await context.env.RATE_COUNTER.put(rateKey, String(count + 1), { expirationTtl: 24 * 60 * 60 });
@@ -73,13 +73,13 @@ export async function onRequestPost(context) {
   }
 
   return new Response(JSON.stringify({ ok: true, lead, status: "captured" }), {
-    headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearanceiq.pages.dev" },
+    headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearance-iq.com" },
   });
 }
 
 export const OPTIONS = async () => new Response(null, {
   headers: {
-    "access-control-allow-origin": "https://clearanceiq.pages.dev",
+    "access-control-allow-origin": "https://clearance-iq.com",
     "access-control-allow-methods": "GET, POST, OPTIONS",
     "access-control-allow-headers": "content-type",
   },

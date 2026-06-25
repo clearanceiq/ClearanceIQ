@@ -1,6 +1,6 @@
 const corsHeaders = {
   'content-type': 'application/json',
-  'access-control-allow-origin': 'https://clearanceiq.pages.dev',
+  'access-control-allow-origin': 'https://clearance-iq.com',
   'access-control-allow-headers': 'content-type, x-api-key',
 };
 
@@ -152,7 +152,7 @@ export async function onRequestPost(context) {
       limits: { daily: 100 },
       usage: 'Include header: X-API-Key: ' + record.key,
       endpoints: ['/api/v1/hts', '/api/v1/duty-calc', '/api/v1/bond'],
-      support: 'support@clearanceiq.pages.dev',
+      "support": "support@clearance-iq.com"
       verifyUrl: `/api/auth/verify?email=${encodeURIComponent(emailLower)}&token=${record.verificationToken}`,
     }),
     { headers: corsHeaders }

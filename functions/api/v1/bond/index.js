@@ -76,7 +76,7 @@ function resolveRateLimitContext(context, { anonymousCap = 5, signedCap = 100 } 
 function cors(headers = {}) {
   return {
     'content-type': 'application/json',
-    'access-control-allow-origin': 'https://clearanceiq.pages.dev',
+    'access-control-allow-origin': 'https://clearance-iq.com',
     'access-control-allow-headers': 'content-type, x-api-key',
     ...headers,
   };

@@ -214,13 +214,13 @@ ul.clean li { margin: 8px 0; }
     </ol>
 
     <h3>1. Create a key</h3>
-    <pre><code>curl -s -X POST https://clearanceiq.pages.dev/api/auth \
+    <pre><code>curl -s -X POST https://clearance-iq.com/api/auth \
   -H "content-type: application/json" \
   -d '{"email": "you@company.com"}'</code></pre>
     <p class="lead" style="font-size:15px; margin-top:10px;">Returns <code>key</code>, <code>tier</code>, and usage instructions.</p>
 
     <h3 style="margin-top:14px;">2. Call the HTS endpoint</h3>
-    <pre><code>curl -s "https://clearanceiq.pages.dev/api/v1/hts?q=smartphone" \
+    <pre><code>curl -s "https://clearance-iq.com/api/v1/hts?q=smartphone" \
   -H "x-api-key: ciq_XXXXXXXXXXXXXXXXXXXXXXXX"</code></pre>
 
     <h3 style="margin-top:14px;">3. Example response</h3>
@@ -284,7 +284,7 @@ Content-Type: application/json
   "limits": { "daily": 100 },
   "usage": "Include header: X-API-Key: ciq_...",
   "endpoints": ["/api/v1/hts", "/api/v1/duty-calc", "/api/v1/bond"],
-  "support": "support@clearanceiq.pages.dev"
+  "support": "support@clearance-iq.com"
 }</code></pre>
   </div>
 
@@ -396,7 +396,7 @@ X-API-Key: ciq_... (optional)</code></pre>
     <h2>Support</h2>
     <p class="lead" style="font-size:15px;">Stuck or want Pro access? Email the team directly.</p>
     <p style="font-size:15px;margin-top:8px;">
-      <a href="mailto:support@clearanceiq.pages.dev" style="color:#fbbf24;">support@clearanceiq.pages.dev</a>
+      <a href="mailto:support@clearance-iq.com" style="color:#fbbf24;">support@clearance-iq.com</a>
     </p>
     <p style="color:var(--muted);font-size:14px;">For Pro requests, include your use case, expected volume, and tooling.</p>
   </div>
@@ -441,7 +441,7 @@ X-API-Key: ciq_... (optional)</code></pre>
     if (apiKey) headers['x-api-key'] = apiKey;
     runBtn.disabled = true;
     try {
-      const res = await fetch('https://clearanceiq.pages.dev/api/v1/hts?' + params.toString(), {
+      const res = await fetch('https://clearance-iq.com/api/v1/hts?' + params.toString(), {
         method: 'GET',
         headers,
         mode: 'cors'
