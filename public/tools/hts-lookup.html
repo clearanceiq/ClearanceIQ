@@ -16,6 +16,8 @@
     </script>
 
 <link rel="stylesheet" href="/style.css">
+<link rel="preload" as="script" href="/js/hts-paperwork.js">
+<script src="/js/hts-paperwork.js" defer></script>
 <meta property="og:title" content="ClearanceIQ HTS Duty Lookup">
 <meta property="og:description" content="Look up HTS codes, duty rates, and AD/CVD risk.">
 <meta property="og:type" content="website">
@@ -36,20 +38,20 @@
 <main class="container" style="max-width: 860px;">
   <a href="/"><span class="badge">ClearanceIQ</span></a>
   <h1 style="margin-top:18px;">HTS Duty Lookup</h1>
-  <p class="lead" style="margin-top:8px;">Search HTS codes, preview general duty rates, and flag AD/CVD risk.</p>
+  <p class="lead" style="margin-top:8px;">Search HTS codes, preview general duty rates, flag AD/CVD risk, and see required paperwork.</p>
 
   <div class="box" style="margin-top:22px;">
-    <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:8px;">Search HTS code or keyword</label>
+    <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:8px;">Search HTS code or keyword</label>
     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <input id="q" type="text" placeholder="e.g. 8518.30.0000 or bluetooth headphones" style="flex:1; min-width:220px; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:12px 14px; border-radius:10px; font-size:15px;">
+      <input id="q" type="text" placeholder="e.g. 8518.30.0000 or bluetooth headphones" style="flex:1; min-width:220px;">
       <button class="cta" onclick="runLookup()">Look up</button>
     </div>
-    <p id="status" style="margin:10px 0 0; font-size:13px; color:#94a3b8;"></p>
+    <p id="status" style="margin:10px 0 0; font-size:13px; color:var(--muted);"></p>
   </div>
 
   <div id="result" class="box" style="display:none; margin-top:22px;">
     <h2 id="result_title" style="margin-top:0;"></h2>
-    <div id="result_body" style="color:#cbd5e1;"></div>
+    <div id="result_body" style="color:var(--text);"></div>
   </div>
 
   <div class="box" style="margin-top:22px;">
@@ -106,12 +108,32 @@ function runLookup() {
       document.getElementById("result_title").textContent = `${data.code} — ${data.description}`;
       document.getElementById("result_body").innerHTML = `
         <p><b>Indicative duty:</b> ${(data.dutyRate * 100).toFixed(1)}%</p>
-        <p><b>AD/CVD watch:</b> ${data.adcvd === "none" ? "None on record" : "Flagged"}</p>
+        <p><b>AD/CVD watch:</b> ${data.adcvd === "none" ? "None on record" : "Flagged — review before booking"}</p>
         <p style="margin-top:10px;">${data.note || ""}</p>
-        <p style="margin-top:10px; font-size:12px; color:#94a3b8;">Planning reference only. Not a ruling. Verify with CBP or a licensed broker.</p>
+        <p style="margin-top:10px; font-size:12px; color:var(--muted);">Planning reference only. Not a ruling. Verify with CBP or a licensed broker.</p>
       `;
       out.style.display = "block";
       status.textContent = "";
+
+      // Paperwork mapping
+      const paperwork = window.CIQ && window.CIQ.getPaperworkForHTS(data.code);
+      if (paperwork) {
+        const section = document.createElement("div");
+        section.style.marginTop = "14px";
+        section.innerHTML = `
+          <p style="font-size:12px; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; color:var(--muted);">Likely agency: ${paperwork.agency}</p>
+          <ul style="margin-top:6px; font-size:14px; line-height:1.6;">
+            ${paperwork.forms.map(f => `<li>✓ ${f}</li>`).join("")}
+          </ul>
+          <p style="margin-top:8px; font-size:12px; color:var(--muted);">Citations: ${paperwork.citations.join(", ")}</p>
+          ${paperwork.flags.map(f => `<p style="margin-top:4px; font-size:13px; color:#b45309;">⚠ ${f}</p>`).join("")}
+          <p style="margin-top:8px; font-size:12px; color:var(--muted);">Full checklist in the Compliance Checklist tool under the ${paperwork.desc} phase.</p>
+        `;
+        const body = document.getElementById("result_body");
+        body.appendChild(section);
+        body.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
       logEvent({ type: 'hts_hit', code: data.code, q });
     })
     .catch(err => {

@@ -22,7 +22,7 @@
   "@type": "WebApplication",
   "name": "ClearanceIQ Duty Calculator",
   "url": "https://clearance-iq.com/tools/duty-calculator.html",
-  "description": "Estimate US import duties, Section 301 tariffs, and landed costs.",
+  "description": "Estimate US import duties, Section 301 tariffs, MPF, HMF, and total landed cost.",
   "applicationCategory": "BusinessApplication"
 }
 </script>
@@ -31,33 +31,33 @@
 <main class="container" style="max-width: 860px;">
   <a href="/"><span class="badge">ClearanceIQ</span></a>
   <h1 style="margin-top:18px;">Duty Calculator</h1>
-  <p class="lead" style="margin-top:8px;">Estimate general duty, Section 301, and total landed cost for your shipment.</p>
+  <p class="lead" style="margin-top:8px;">Estimate general duty, Section 301, MPF, HMF, and total landed cost.</p>
 
   <div class="box" style="margin-top:22px; display:grid; gap:12px;">
     <div>
-      <label style="font-size:12px; color:#cbd5e1;">Product value (USD)</label>
-      <input id="value" type="number" min="0" step="0.01" placeholder="e.g. 35000" style="width:100%; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:12px 14px; border-radius:10px; font-size:15px;">
+      <label style="font-size:12px; color:var(--muted);">Product value (USD)</label>
+      <input id="value" type="number" min="0" step="0.01" placeholder="e.g. 35000" style="width:100%;">
     </div>
     <div>
-      <label style="font-size:12px; color:#cbd5e1;">HTS code</label>
-      <input id="hts" type="text" placeholder="e.g. 8518.30.0000" style="width:100%; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:12px 14px; border-radius:10px; font-size:15px;">
+      <label style="font-size:12px; color:var(--muted);">HTS code</label>
+      <input id="hts" type="text" placeholder="e.g. 8518.30.0000" style="width:100%;">
     </div>
     <div>
-      <label style="font-size:12px; color:#cbd5e1;">Country of origin</label>
-      <input id="origin" type="text" placeholder="e.g. China" style="width:100%; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:12px 14px; border-radius:10px; font-size:15px;">
+      <label style="font-size:12px; color:var(--muted);">Country of origin</label>
+      <input id="origin" type="text" placeholder="e.g. China" style="width:100%;">
     </div>
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
       <div>
-        <label style="font-size:12px; color:#cbd5e1;">Freight + insurance (USD)</label>
-        <input id="freight" type="number" min="0" step="0.01" placeholder="e.g. 1200" style="width:100%; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:12px 14px; border-radius:10px; font-size:15px;">
+        <label style="font-size:12px; color:var(--muted);">Freight + insurance (USD)</label>
+        <input id="freight" type="number" min="0" step="0.01" placeholder="e.g. 1200" style="width:100%;">
       </div>
       <div>
-        <label style="font-size:12px; color:#cbd5e1;">Section 301 applies?</label>
-        <select id="section301" style="width:100%; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:12px 14px; border-radius:10px; font-size:15px;">
+        <label style="font-size:12px; color:var(--muted);">Section 301</label>
+        <select id="section301" style="width:100%;">
           <option value="0">No</option>
           <option value="0.25">Yes — 25%</option>
           <option value="0.075">Yes — 7.5%</option>
-          <option value="other">Other</option>
+          <option value="other">Other (specify in notes)</option>
         </select>
       </div>
     </div>
@@ -66,15 +66,17 @@
 
   <div id="result" class="box" style="display:none; margin-top:22px;">
     <h2 style="margin-top:0;">Estimate</h2>
-    <div id="result_body" style="color:#cbd5e1;"></div>
+    <div id="result_body" style="color:var(--text);"></div>
   </div>
 
   <div class="box" style="margin-top:22px;">
     <h2 style="margin-top:0;">Notes</h2>
     <ul class="clean">
       <li>General duty rates are indicative only. HTS special rates, FTA preferences, and binding rulings can change the final bill.</li>
-      <li>Section 301 rates shift with US Trade Representative policy. Use this as a planning check, not a final invoice.</li>
-      <li>Landed cost = value + freight/insurance + duty + Section 301, before any broker or storage fees.</li>
+      <li>Section 301 rates shift with USTR policy. Use this as a planning check, not a final invoice.</li>
+      <li>MPF (Merchandise Processing Fee): 0.3464% of value, minimum $31.67, maximum $614.35.</li>
+      <li>HMF (Harbor Maintenance Fee): 0.125% of freight + insurance value for sea shipments.</li>
+      <li>Landed cost = value + freight/insurance + duty + Section 301 + MPF + HMF, before broker/storage fees.</li>
     </ul>
   </div>
 </main>
@@ -100,7 +102,7 @@ function calculate() {
     .then(data => {
       if (!data || !data.ok) { throw new Error(data && data.error ? data.error : 'request failed'); }
       const html = '<table style="width:100%; border-collapse:collapse;">' +
-        data.table.map(([k,v]) => `<tr style="border-bottom:1px solid rgba(148,163,184,0.12);"><td style="padding:8px 0; color:#cbd5e1;">${k}</td><td style="padding:8px 0; text-align:right; font-weight:600;">${v}</td></tr>`).join('') +
+        data.table.map(([k,v]) => `<tr style="border-bottom:1px solid var(--border);"><td style="padding:8px 0; color:var(--text);">${k}</td><td style="padding:8px 0; text-align:right; font-weight:600;">${v}</td></tr>`).join('') +
         '</table>' +
         '<p style="margin-top:12px; font-size:12px; color:#94a3b8;">Reference only. Actual rates depend on HTS special provisions, FTAs, and broker classification.</p>';
       document.getElementById('result_body').innerHTML = html;

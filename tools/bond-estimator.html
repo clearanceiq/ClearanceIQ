@@ -35,34 +35,34 @@
 
   <div class="box" style="margin-top:22px; display:grid; gap:12px;">
     <div>
-      <label style="font-size:12px; color:#cbd5e1;">Bond type</label>
-      <select id="type" onchange="update()" style="width:100%; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:12px 14px; border-radius:10px; font-size:15px;">
+      <label style="font-size:12px; color:var(--text);">Bond type</label>
+      <select id="type" onchange="update()" style="width:100%; ">
         <option value="single">Single Transaction (STB)</option>
         <option value="continuous">Continuous Bond</option>
       </select>
     </div>
     <div>
-      <label style="font-size:12px; color:#cbd5e1;">Shipment value (CIF value in USD)</label>
-      <input id="value" type="number" min="0" step="0.01" placeholder="e.g. 50000" oninput="update()" style="width:100%; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:12px 14px; border-radius:10px; font-size:15px;">
+      <label style="font-size:12px; color:var(--text);">Shipment value (CIF value in USD)</label>
+      <input id="value" type="number" min="0" step="0.01" placeholder="e.g. 50000" oninput="update()" style="width:100%; ">
     </div>
     <div>
-      <label style="font-size:12px; color:#cbd5e1;">Risk profile</label>
-      <select id="risk" onchange="update()" style="width:100%; background:#0b0f19; border:1px solid rgba(148,163,184,0.2); color:#e2e8f0; padding:12px 14px; border-radius:10px; font-size:15px;">
+      <label style="font-size:12px; color:var(--text);">Risk profile</label>
+      <select id="risk" onchange="update()" style="width:100%; ">
         <option value="1.5">Standard — no prior holds or penalties</option>
         <option value="2.0">Higher risk — prior CBP fines or complex product</option>
       </select>
     </div>
     <div id="result" class="box" style="display:none;">
       <h2 style="margin-top:0;">Estimate</h2>
-      <div id="result_body" style="color:#cbd5e1;"></div>
+      <div id="result_body" style="color:var(--text);"></div>
     </div>
   </div>
 
   <div class="box" style="margin-top:22px;">
     <h2 style="margin-top:0;">How bonds work</h2>
     <ul class="clean">
-      <li><b>Single transaction bond:</b> usually 1–3% of the duties, taxes, and penalties CBP could assess.</li>
-      <li><b>Continuous bond:</b> covers all entries for 12 months; minimums are often $25,000–$50,000.</li>
+      <li><b>Single transaction bond:</b> usually 1–3% of duties, taxes, and penalties CBP could assess. Per 19 CFR §113. Minimum coverage = estimated duties + taxes + penalties.</li>
+      <li><b>Continuous bond:</b> covers all entries for 12 months. CBP minimum is $25,000 or 10% of prior year duties, whichever is higher. Per 19 CFR §113.12.</li>
       <li>Your surety may require personal credit or company financials. Strong import history lowers the rate.</li>
     </ul>
   </div>
@@ -97,7 +97,7 @@ function update() {
         ['Estimated premium', data.formatted.premium]
       ];
       body.innerHTML = '<table style="width:100%; border-collapse:collapse;">' +
-        rows.map(([k,v]) => `<tr style="border-bottom:1px solid rgba(148,163,184,0.12);"><td style="padding:8px 0; color:#cbd5e1;">${k}</td><td style="padding:8px 0; text-align:right; font-weight:600;">${v}</td></tr>`).join('') +
+        rows.map(([k,v]) => `<tr style="border-bottom:1px solid var(--border);"><td style="padding:8px 0; color:var(--text);">${k}</td><td style="padding:8px 0; text-align:right; font-weight:600;">${v}</td></tr>`).join('') +
         '</table><p style="margin-top:12px; font-size:12px; color:#94a3b8;">Estimate only. Final premium depends on surety underwriting, credit, and product risk.</p>';
       out.style.display = 'block';
       logEvent({ type: 'bond_estimate', bondType: data.bondType, value, risk, premium: data.premium });
