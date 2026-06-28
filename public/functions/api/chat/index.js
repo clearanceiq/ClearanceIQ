@@ -15,7 +15,12 @@ export async function onRequestPost(request) {
   try {
     payload = await request.json();
   } catch {
-    // bad json handled below
+    try {
+      const txt = await request.text();
+      if (txt) {
+        try { payload = JSON.parse(txt); } catch { /* leave empty */ }
+      }
+    } catch { /* ignore */ }
   }
   const messageRaw = (payload && typeof payload.message === 'string') ? payload.message.trim() : '';
   if (!messageRaw) {
