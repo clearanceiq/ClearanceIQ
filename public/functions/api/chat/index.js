@@ -13,7 +13,7 @@ export async function onRequestOptions() {
 export async function onRequestPost(request) {
   try {
     const body = await request.text();
-    let data;
+    let bodyData;
     try {
       data = JSON.parse(body);
     } catch {
@@ -22,7 +22,7 @@ export async function onRequestPost(request) {
         headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },
       });
     }
-    const { message } = data;
+    const { message } = bodyData;
     if (!message || typeof message !== 'string') {
       return new Response(JSON.stringify({ error: 'Missing message' }), {
         status: 400,
