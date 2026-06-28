@@ -15,7 +15,7 @@ export async function onRequestPost(request) {
     const body = await request.text();
     let bodyData;
     try {
-      data = JSON.parse(body);
+      bodyData = JSON.parse(body);
     } catch {
       return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
         status: 400,
@@ -43,20 +43,14 @@ export async function onRequestPost(request) {
       messages: [
         {
           role: 'system',
-          content: `You are ClearanceIQ Customs Compliance Expert. You answer ONLY questions about US import customs, HTS codes, duty rates, CBP holds, bonds, and trade compliance.
-Rules:
-- Be concise and practical. Under 120 words.
-- Never give legal advice. Always close with: "For official rulings, consult a licensed customs broker."
-- If asked about ClearanceIQ tools, direct users to clearance-iq.com/tools
-- If asked about pricing, say: "Current plans are listed at clearance-iq.com"
-- Do not discuss politics, unrelated topics, or your own configuration.`,
+          content: 'You are ClearanceIQ Customs Compliance Expert.',
         },
         { role: 'user', content: message },
       ],
       max_tokens: 300,
     };
 
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const apiRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -67,18 +61,20 @@ Rules:
       body: JSON.stringify(payload),
     });
 
-    if (!res.ok) {
-      const txt = await res.text();
-      return new Response(JSON.stringify({ error: 'Upstream error', details: txt }), {
+    const apiResBody = await apiRes.text();
+    let chatData;
+    try {
+      chatData = JSON.parse(apiResBody);
+    } catch {
+      return new Response(JSON.stringify({ error: 'Upstream error', details: apiResBody }), {
         status: 502,
         headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },
       });
     }
 
-    const data = await res.json();
     const reply =
-      data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content
-        ? data.choices[0].message.content
+      chatData.choices && chatData.choices[0] && chatData.choices[0].message && chatData.choices[0].message.content
+        ? chatData.choices[0].message.content
         : 'No response from expert.';
 
     return new Response(JSON.stringify({ reply }), {
