@@ -5,6 +5,12 @@ const corsHeaders = {
 };
 
 export async function onRequestGet(context) {
+  if (!context.env?.TELEMETRY) {
+    return new Response(JSON.stringify({ ok: false, error: 'TELEMETRY binding not available' }), {
+      status: 200,
+      headers: corsHeaders,
+    });
+  }
   const url = new URL(context.request.url);
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '20', 10) || 20, 200);
   const prefix = 'events::';
