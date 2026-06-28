@@ -1,3 +1,14 @@
+export async function onRequestOptions() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'access-control-allow-origin': '*',
+      'access-control-allow-methods': 'POST, OPTIONS',
+      'access-control-allow-headers': 'content-type'
+    }
+  });
+}
+
 export async function onRequestPost(request) {
   try {
     const { message } = await request.json();
