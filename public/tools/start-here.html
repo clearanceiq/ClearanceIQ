@@ -15,6 +15,34 @@
 <!-- Cloudflare Web Analytics -->
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f595fc18f8864d93829ac6cd51832679"}'></script>
 <!-- End Cloudflare Web Analytics -->
+<script defer src="/site-inject.js"></script>
+  <script>
+    if (window.CIQ && typeof window.CIQ.resumeSession === "function") window.CIQ.resumeSession();
+    window.addEventListener("pageshow", function(){ if (window.CIQ && typeof window.CIQ.resumeSession === "function") window.CIQ.resumeSession(); });
+    window.addEventListener("load", function(){
+      try { if (window.CIQ && typeof window.CIQ.logEvent === "function") window.CIQ.logEvent({ type: "pageview" }); } catch(e){}
+    });
+  </script>
+  <div id="telemetry-retry" style="position:fixed;bottom:16px;right:16px;display:none;">
+    <button id="telemetry-retry-btn" style="border-radius:999px;background:#0f172a;color:#fff;border:1px solid #334155;padding:8px 12px;font-weight:600;">Retry telemetry</button>
+  </div>
+  <script>
+    (function(){
+      function setup(){
+        var btn = document.getElementById("telemetry-retry-btn");
+        var el = document.getElementById("telemetry-retry-retry");
+        if (btn && window.CIQ && typeof window.CIQ.logEvent === "function") {
+          btn.style.display = "inline-flex";
+          btn.addEventListener("click", function(){
+            window.CIQ.logEvent({ type: "retry", path: location.pathname });
+            el = document.getElementById("telemetry-retry");
+            if (el) el.style.display = "none";
+          });
+        }
+      }
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup); else setup();
+    })();
+  </script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>

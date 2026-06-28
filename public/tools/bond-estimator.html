@@ -68,10 +68,24 @@
 </main>
 
 <script>
-function logEvent(payload) {
+function logEvent(payload){
+  if (window.CIQ && typeof window.CIQ.logEvent === "function") {
+    window.CIQ.logEvent(payload);
+    return;
+  }
   if (!navigator.sendBeacon) return;
-  const body = JSON.stringify({ ...payload, ts: Date.now(), path: location.pathname });
-  navigator.sendBeacon('/api/telemetry', body);
+  try {
+    var base = typeof payload === "object" && payload !== null ? Object.assign({}, payload) : {};
+    base.ts = Date.now();
+    base.path = base.path || location.pathname;
+    navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
+  } catch(e){}
+}
+ypeof payload === "object" && payload !== null ? Object.assign({}, payload) : {};
+    base.ts = Date.now();
+    base.path = base.path || location.pathname;
+    navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
+  } catch(e){}
 }
 
 function update() {

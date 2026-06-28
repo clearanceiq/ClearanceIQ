@@ -129,15 +129,16 @@
       <button class="launcher" title="Ask ClearanceIQ Expert">💬</button>
       <div class="window">
         <div class="header">
-          <span>ClearanceIQ Customs Expert</span>
+          <span>ClearanceIQ Compliance Assistant</span>
+          <span style="font-weight:400; font-size:12px; opacity:.85;">Beta coming soon</span>
           <button class="close">✕</button>
         </div>
         <div class="messages">
-          <div class="msg bot">Hi! Ask me anything about US imports, HTS codes, duties, CBP holds, or bonds. What do you need help with?</div>
+          <div class="msg bot">The compliance assistant is launching soon. For now, use the tools on this page or email <a href="mailto:clearanceiq@proton.me">clearanceiq@proton.me</a> for urgent import questions.</div>
         </div>
-        <div class="composer">
-          <input type="text" placeholder="Type your question...">
-          <button class="send">Send</button>
+        <div class="composer" style="opacity:.5; pointer-events:none; background:#f8fafc;">
+          <input type="text" placeholder="Chat opens at launch" disabled>
+          <button class="send" disabled>Send</button>
         </div>
       </div>
     `;

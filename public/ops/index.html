@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ClearanceIQ Ops — Telemetry</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: #f8fafc; color: #0f172a; padding: 24px; }
+    h1 { font-size: 20px; margin: 0 0 12px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px; box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+    .stat { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+    .label { color: #475569; font-size: 13px; margin-top: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+    th { color: #475569; font-weight: 500; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #eef2ff; color: #1e3a8a; font-size: 12px; font-weight: 600; }
+    .muted { color: #64748b; }
+    .row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    button { border: 1px solid #cbd5e1; background: #fff; color: #0f172a; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 600; }
+    button:hover { background: #f1f5f9; }
+    pre { background: #0b1220; color: #e2e8f0; padding: 12px; border-radius: 12px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <div style="max-width: 1120px; margin: 0 auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+      <h1>ClearanceIQ Ops — Telemetry Dashboard</h1>
+      <div class="muted" id="clock"></div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="stat" id="eventsToday">—</div>
+        <div class="label">Events today</div>
+      </div>
+      <div class="card">
+        <div class="stat" id="sessionsToday">—</div>
+        <div class="label">Sessions today</div>
+      </div>
+      <div class="card">
+        <div class="stat" id="topPath">—</div>
+        <div class="label">Top page today</div>
+      </div>
+      <div class="card">
+        <div class="stat" id="lastEvent">—</div>
+        <div class="label">Latest event</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <strong>Recent events</strong>
+          <div class="muted">Live from /api/telemetry</div>
+        </div>
+        <div class="row-actions">
+          <button onclick="refresh()">Refresh now</button>
+          <button onclick="exportJson()">Export JSON</button>
+        </div>
+      </div>
+      <div style="overflow:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Type</th>
+              <th>Path</th>
+              <th>Session</th>
+              <th>Payload</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="muted" style="margin-top:10px;" id="status">Loading...</div>
+    </div>
+  </div>
+
+  <script>
+    function fmt(n) {
+      const d = new Date(n);
+      return d.toLocaleString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    function todayKey(n) {
+      const d = new Date(n);
+      return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+    }
+
+    function escapeHtml(s) {
+      if (s == null) return '';
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    async function fetchEvents() {
+      const res = await fetch('/api/telemetry?limit=80');
+      const data = await res.json();
+      return data.events || [];
+    }
+
+    function render(events) {
+      const tbody = document.getElementById('rows');
+      const today = todayKey(Date.now());
+      const todayEvents = [];
+      const sessions = new Set();
+      const paths = {};
+      let latest = events[0];
+
+      events.forEach((ev) => {
+        const d = new Date(ev.ts);
+        todayEvents.push(ev);
+        if (ev.sessionToken) sessions.add(ev.sessionToken);
+        const p = ev.path || '/';
+        paths[p] = (paths[p] || 0) + 1;
+        if (!latest || ev.ts > latest.ts) latest = ev;
+      });
+
+      const topPath = Object.entries(paths).sort((a,b)=>b[1]-a[1])[0];
+
+      document.getElementById('eventsToday').textContent = todayEvents.filter(e => todayKey(e.ts) === today).length || '0';
+      document.getElementById('sessionsToday').textContent = todayEvents.filter(e => todayKey(e.ts) === today && e.sessionToken).length || '0';
+      document.getElementById('topPath').textContent = topPath ? topPath[0] : '—';
+      document.getElementById('lastEvent').textContent = latest ? fmt(latest.ts) : '—';
+      document.getElementById('status').textContent = `Showing ${events.length} recent event(s)`;
+
+      tbody.innerHTML = '';
+      events.forEach((ev) => {
+        const tr = document.createElement('tr');
+        const payload = typeof ev.payload === 'object' && ev.payload !== null ? JSON.stringify(ev.payload) : JSON.stringify(ev);
+        tr.innerHTML = `
+          <td>${fmt(ev.ts)}</td>
+          <td><span class="pill">${escapeHtml(ev.type || 'view')}</span></td>
+          <td>${escapeHtml(ev.path || '/')}</td>
+          <td class="muted">${ev.sessionToken ? escapeHtml(ev.sessionToken) + '...' : '—'}</td>
+          <td><pre style="margin:0;padding:8px;font-size:12px;min-height:0;">${escapeHtml(payload)}</pre></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function refresh() {
+      document.getElementById('status').textContent = 'Refreshing...';
+      const events = await fetchEvents();
+      render(events);
+    }
+
+    function exportJson() {
+      fetchEvents().then((events) => {
+        const blob = new Blob([JSON.stringify({ exportedAt: Date.now(), events }, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `telemetry-${todayKey(Date.now())}.json`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+    }
+
+    function tick(){ document.getElementById('clock').textContent = fmt(Date.now()); }
+    tick();
+    setInterval(tick, 1000);
+    refresh();
+    setInterval(refresh, 15000);
+  </script>
+</body>
+</html>
