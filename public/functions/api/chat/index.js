@@ -10,25 +10,20 @@ export async function onRequestOptions() {
   });
 }
 
-async function parseBody(req) {
-  try {
-    const text = await req.text();
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
-}
-
 export async function onRequestPost(request) {
-  const parsed = await parseBody(request);
-  const message = parsed && typeof parsed.message === 'string' ? parsed.message.trim() : '';
-
-  if (!message) {
+  let payload = {};
+  try {
+    payload = await request.json();
+  } catch {
+    // fallback below
+  }
+  if (!payload || typeof payload.message !== 'string' || !payload.message.trim()) {
     return new Response(JSON.stringify({ error: 'Missing message' }), {
       status: 400,
       headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },
     });
   }
+  const message = payload.message.trim();
 
   const apiKey = OPENROUTER_API_KEY;
   if (!apiKey) {
@@ -38,53 +33,37 @@ export async function onRequestPost(request) {
     });
   }
 
-  const payload = {
-    model: 'anthropic/claude-3-haiku-20240307',
-    messages: [
-      {
-        role: 'user',
-        content: message,
-      },
-    ],
-    max_tokens: 300,
-  };
+  const answer = await (async () => {
+    try {
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + apiKey,
+          'HTTP-Referer': 'https://clearance-iq.com',
+          'X-Title': 'ClearanceIQ Expert Chat',
+        },
+        body: JSON.stringify({
+          model: 'anthropic/claude-3-haiku-20240307',
+          messages: [
+            { role: 'user', content: message }
+          ],
+          max_tokens: 300,
+        }),
+      });
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch { data = null; }
+      if (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+        return data.choices[0].message.content.trim();
+      }
+      return 'No response from expert.';
+    } catch (e) {
+      return 'Connection issue. Please try again.';
+    }
+  })();
 
-  let res;
-  try {
-    res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + apiKey,
-        'HTTP-Referer': 'https://clearance-iq.com',
-        'X-Title': 'ClearanceIQ Expert Chat',
-      },
-      body: JSON.stringify(payload),
-    });
-  } catch (e) {
-    return new Response(JSON.stringify({ error: 'Upstream network error', details: String(e) }), {
-      status: 502,
-      headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },
-    });
-  }
-
-  let chatData;
-  try {
-    chatData = await res.json();
-  } catch (e) {
-    const textBody = await res.text();
-    return new Response(JSON.stringify({ error: 'Upstream error', details: String(textBody || e.message) }), {
-      status: 502,
-      headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },
-    });
-  }
-
-  const reply =
-    chatData.choices && Array.isArray(chatData.choices) && chatData.choices[0]?.message?.content
-      ? String(chatData.choices[0].message.content)
-      : 'No response from expert.';
-
-  return new Response(JSON.stringify({ reply }), {
+  return new Response(JSON.stringify({ reply: answer }), {
     headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },
   });
 }
