@@ -34,7 +34,7 @@ function consumeRate(ctx, dailyCap) {
 
   const remaining = Math.max(0, dailyCap - entry.count);
   const limited = entry.count > dailyCap;
-  const resetUnix = nextMidnightUnix();
+  const resetUnix = nextMidnightUTC();
 
   return {
     remaining,
@@ -45,7 +45,7 @@ function consumeRate(ctx, dailyCap) {
   };
 }
 
-function nextMidnightUnix() {
+function nextMidnightUTC() {
   const now = new Date();
   const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
   return Math.floor(next.getTime() / 1000);
