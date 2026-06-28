@@ -10,19 +10,24 @@ export async function onRequestOptions() {
   });
 }
 
+async function parseBody(request) {
+  const stream = request.body;
+  if (!stream) return null;
+  const reader = stream.getReader();
+  const { value } = await reader.read();
+  if (!value) return null;
+  const text = new TextDecoder().decode(value);
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
 export async function onRequestPost(request) {
   try {
-    const body = await request.text();
-    let bodyData;
-    try {
-      bodyData = JSON.parse(body);
-    } catch {
-      return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
-        status: 400,
-        headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },
-      });
-    }
-    const { message } = bodyData;
+    const data = await parseBody(request);
+    const { message } = data || {};
     if (!message || typeof message !== 'string') {
       return new Response(JSON.stringify({ error: 'Missing message' }), {
         status: 400,
@@ -50,23 +55,23 @@ export async function onRequestPost(request) {
       max_tokens: 300,
     };
 
-    const apiRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + apiKey,
+        Authorization: 'Bearer ' + apiKey,
         'HTTP-Referer': 'https://clearance-iq.com',
         'X-Title': 'ClearanceIQ Expert Chat',
       },
       body: JSON.stringify(payload),
     });
 
-    const apiResBody = await apiRes.text();
+    const apiBody = await res.text();
     let chatData;
     try {
-      chatData = JSON.parse(apiResBody);
+      chatData = JSON.parse(apiBody);
     } catch {
-      return new Response(JSON.stringify({ error: 'Upstream error', details: apiResBody }), {
+      return new Response(JSON.stringify({ error: 'Upstream error', details: apiBody }), {
         status: 502,
         headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },
       });
