@@ -67,7 +67,6 @@ export async function onRequestGet(context) {
   const safeLimit = Number.isFinite(limitParam) ? Math.max(1, Math.min(limitParam, 200)) : 20;
   const reqKey = (url.searchParams.get('key') || '').trim();
 
-  // Hard fail closed on API key auth
   if (!reqKey) {
     return response({ ok: false, error: 'Missing x-api-key or ?key' }, {}, 400);
   }
@@ -88,8 +87,6 @@ export async function onRequestGet(context) {
     );
   }
 
-  // Auth against TELEMETRY-backed users (which is the canonical user store here)
-  // For the first pass, signed users are anyone passing ?key=; later we’ll verify API_KEYS.
   const tier = reqKey ? 'signed' : 'anonymous';
 
   if (!context.env?.TELEMETRY) {
@@ -105,13 +102,21 @@ export async function onRequestGet(context) {
   const prefix = 'events::';
   let cursor;
   const pages = [];
-  do {
-    const page = await context.env.TELEMETRY.list({ prefix, limit: Math.max(safeLimit, 200), cursor });
-    if (Array.isArray(page.keys)) {
-      pages.push(...page.keys);
-    }
-    cursor = page.list_complete ? undefined : page.cursor;
-  } while (cursor && pages.length < safeLimit);
+  try {
+    do {
+      const page = await context.env.TELEMETRY.list({ prefix, limit: Math.max(safeLimit, 200), cursor });
+      if (Array.isArray(page.keys)) {
+        pages.push(...page.keys);
+      }
+      cursor = page.list_complete ? undefined : page.cursor;
+    } while (cursor && pages.length < safeLimit);
+  } catch (err) {
+    return response(
+      { ok: false, error: 'TELEMETRY list failed', detail: err && err.message },
+      rateLimitHeaders,
+      500
+    );
+  }
 
   const sliced = pages.slice(-safeLimit).reverse();
   const rows = [];
