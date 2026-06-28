@@ -175,9 +175,13 @@
         const data = await res.json();
         typing.remove();
         if (data.reply) {
-          appendMsg('bot', data.reply);
-        } else if (data.error === 'API key not configured') {
-          appendMsg('bot', 'The compliance assistant is currently being upgraded on our servers. For urgent questions, email support@clearance-iq.com.');
+          if (data.reply === 'No response from expert.' || data.reply === 'Connection issue. Please try again.' || (typeof data.reply === 'string' && data.reply.startsWith && data.reply.startsWith('Provider error:'))) {
+            appendMsg('bot', data.reply);
+          } else {
+            appendMsg('bot', data.reply);
+          }
+        } else if (data.error) {
+          appendMsg('bot', 'Error: ' + String(data.error));
         } else {
           appendMsg('bot', 'Sorry, I couldn’t process that. Try again.');
         }

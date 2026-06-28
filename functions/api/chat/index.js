@@ -34,6 +34,7 @@ export async function onRequestPost(request) {
   }
 
   let finalReply;
+  let providerStatus = null;
   try {
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -51,11 +52,14 @@ export async function onRequestPost(request) {
         max_tokens: 300,
       }),
     });
+    providerStatus = res.status;
     const text = await res.text();
     let data;
     try { data = JSON.parse(text); } catch { data = null; }
     if (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
       finalReply = data.choices[0].message.content.trim();
+    } else if (data && data.error) {
+      finalReply = 'Provider error: ' + String(data.error).slice(0, 120);
     } else {
       finalReply = 'No response from expert.';
     }
