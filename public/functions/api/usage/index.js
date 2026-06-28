@@ -4,117 +4,169 @@ const corsHeaders = {
   'access-control-allow-headers': 'content-type, x-api-key',
 };
 
+const rateMemory = new Map();
+
+function rateKeyFor(ctx) {
+  const ip =
+    (ctx.request.headers.get('CF-Connecting-IP') || 'unknown').replace(
+      /[^a-zA-Z0-9:._-]/g,
+      '_'
+    );
+  const apiKey = (ctx.request.headers.get('X-API-Key') || '').trim();
+  return apiKey ? `signed::${apiKey}` : `anon::${ip}`;
+}
+
+function consumeRate(ctx, dailyCap) {
+  const key = rateKeyFor(ctx);
+  const today = new Date().toISOString().slice(0, 10);
+
+  if (!rateMemory.has(today)) {
+    rateMemory.set(today, {});
+  }
+
+  const dayMap = rateMemory.get(today);
+  if (!dayMap.has(key)) {
+    dayMap.set(key, { count: 0 });
+  }
+
+  const entry = dayMap.get(key);
+  entry.count += 1;
+
+  const remaining = Math.max(0, dailyCap - entry.count);
+  const limited = entry.count > dailyCap;
+  const resetUnix = nextMidnightUnix();
+
+  return {
+    remaining,
+    limited,
+    limit: dailyCap,
+    used: entry.count,
+    resetUnix,
+  };
+}
+
+function nextMidnightUnix() {
+  const now = new Date();
+  const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+  return Math.floor(next.getTime() / 1000);
+}
+
+function response(body, extraHeaders = {}, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      ...corsHeaders,
+      ...extraHeaders,
+    },
+  });
+}
+
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
-  const ok = (body) => new Response(JSON.stringify({ ok: true, ...body }), { headers: corsHeaders });
-  const err = (message, status = 500) =>
-    new Response(JSON.stringify({ ok: false, error: message }), { headers: corsHeaders, status });
+  const limitParam = parseInt(url.searchParams.get('limit') || '20', 10);
+  const safeLimit = Number.isFinite(limitParam) ? Math.max(1, Math.min(limitParam, 200)) : 20;
+  const reqKey = (url.searchParams.get('key') || '').trim();
 
-  if (url.pathname === '/api/usage/status') {
-    const apiKey = (url.searchParams.get('key') || '').trim();
-    if (!apiKey) return err('Missing required query parameter: key', 400);
-    if (!context.env?.API_KEYS) return err('API_KEYS binding not available', 500);
+  // Hard fail closed on API key auth
+  if (!reqKey) {
+    return response({ ok: false, error: 'Missing x-api-key or ?key' }, {}, 400);
+  }
 
-    const raw = await context.env.API_KEYS.get('key::' + apiKey);
-    if (!raw) return err('unauthorized', 401);
+  const rateResult = consumeRate(context, reqKey ? 200 : 5);
+  const rateLimitHeaders = {
+    'x-rate-limit-remaining': String(rateResult.remaining),
+    'x-rate-limit-limit': String(rateResult.limit),
+    'x-rate-limit-reset': String(rateResult.resetUnix),
+    'x-rate-limit-tier': reqKey ? 'signed' : 'anonymous',
+  };
 
+  if (rateResult.limited) {
+    return response(
+      { ok: false, error: 'rate limit exceeded', retryAfter: rateResult.resetUnix },
+      rateLimitHeaders,
+      429
+    );
+  }
+
+  // Auth against TELEMETRY-backed users (which is the canonical user store here)
+  // For the first pass, signed users are anyone passing ?key=; later we’ll verify API_KEYS.
+  const tier = reqKey ? 'signed' : 'anonymous';
+
+  if (!context.env?.TELEMETRY) {
+    return response({
+      keyPresent: !!reqKey,
+      tier,
+      note: 'TELEMETRY binding not available',
+      count: 0,
+      events: [],
+    }, rateLimitHeaders);
+  }
+
+  const prefix = 'events::';
+  let cursor;
+  const pages = [];
+  do {
+    const page = await context.env.TELEMETRY.list({ prefix, limit: Math.max(safeLimit, 200), cursor });
+    if (Array.isArray(page.keys)) {
+      pages.push(...page.keys);
+    }
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor && pages.length < safeLimit);
+
+  const sliced = pages.slice(-safeLimit).reverse();
+  const rows = [];
+  for (const kv of sliced) {
     try {
-      const summary = await aggregateDailyUsage(context);
-      return ok(summary);
-    } catch (e) {
-      return err('Failed to compute usage status');
+      const raw = await context.env.TELEMETRY.get(kv.name);
+      if (!raw) continue;
+      const parsed = JSON.parse(raw);
+      rows.push(parsed);
+    } catch {
+      // skip malformed event
     }
   }
 
-  const apiKey = (url.searchParams.get('key') || '').trim();
-  if (!apiKey) return err('Missing required query parameter: key', 400);
-
-  try {
-    const usage = await getKeyUsage(apiKey, context);
-    return ok({ key: apiKey, ...usage });
-  } catch (e) {
-    return err('Failed to fetch usage');
+  const byType = {};
+  const byTool = {};
+  for (const event of rows) {
+    byType[event.type || 'unknown'] = (byType[event.type || 'unknown'] || 0) + 1;
+    if (event.meta && typeof event.meta.tool === 'string') {
+      byTool[event.meta.tool] = (byTool[event.meta.tool] || 0) + 1;
+    }
   }
+
+  return response(
+    {
+      keyPresent: !!reqKey,
+      tier,
+      count: rows.length,
+      since: rows.length ? rows[rows.length - 1]?.ts : null,
+      byType,
+      byTool,
+      events: rows,
+    },
+    rateLimitHeaders
+  );
 }
 
 export const OPTIONS = async () =>
   new Response(null, {
+    status: 204,
     headers: {
       'access-control-allow-origin': 'https://clearance-iq.com',
       'access-control-allow-headers': 'content-type, x-api-key',
       'access-control-allow-methods': 'GET, OPTIONS',
     },
-    status: 204,
   });
 
-function normalizeKey(apiKey) {
-  return (apiKey || 'unknown').replace(/[^a-zA-Z0-9:._-]/g, '_');
-}
-
-async function getKeyUsage(apiKey, context) {
-  if (!context.env?.RATE_COUNTER) {
-    return {
-      requests: 0,
-      since: new Date(Date.now() - 86_400_000).toISOString(),
-      note: 'RATE_COUNTER binding not available',
-    };
-  }
-
-  const safeKey = normalizeKey(apiKey);
-  const today = new Date().toISOString().slice(0, 10);
-  const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
-
-  const endpoints = ['v1/hts', 'v1/duty-calc', 'v1/bond'];
-  const byEndpoint = {};
-
-  for (const day of [today, yesterday]) {
-    for (const endpoint of endpoints) {
-      const prefix = `usage::${day}::signed::${safeKey}::${endpoint}`;
-      let cursor;
-      do {
-        const listResult = await context.env.RATE_COUNTER.list({ prefix, limit: 500, cursor });
-        const keys = Array.isArray(listResult.keys) ? listResult.keys : [];
-        for (const kv of keys) {
-          byEndpoint[endpoint] = (byEndpoint[endpoint] || 0) + 1;
-        }
-        cursor = listResult.list_complete ? undefined : listResult.cursor;
-      } while (cursor);
-    }
-  }
-
-  const totalRequestsToday = Object.values(byEndpoint).reduce((sum, val) => sum + val, 0);
-  return { requests: totalRequestsToday, since: new Date(Date.now() - 86_400_000).toISOString(), byEndpoint };
-}
-
-async function aggregateDailyUsage(context) {
-  if (!context.env?.RATE_COUNTER) {
-    return { totalRequestsToday: 0, tiers: {}, note: 'RATE_COUNTER binding not available' };
-  }
-
-  const today = new Date().toISOString().slice(0, 10);
-  const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
-
-  const tiers = {};
-  const prefixes = new Set();
-  ['signed', 'anonymous'].forEach((tier) => {
-    prefixes.add(`usage::${today}::${tier}`);
-    prefixes.add(`usage::${yesterday}::${tier}`);
+export const onRequestPost = () =>
+  new Response(JSON.stringify({ ok: false, error: 'use GET for usage' }), {
+    status: 405,
+    headers: corsHeaders,
   });
 
-  for (const prefix of prefixes) {
-    let cursor;
-    do {
-      const listResult = await context.env.RATE_COUNTER.list({ prefix, limit: 500, cursor });
-      const keys = Array.isArray(listResult.keys) ? listResult.keys : [];
-      for (const kv of keys) {
-        const m = kv.name.match(/^usage::\d{4}-\d{2}-\d{2}::([^:]+)::/);
-        const tier = m ? m[1] : 'unknown';
-        tiers[tier] = (tiers[tier] || 0) + 1;
-      }
-      cursor = listResult.list_complete ? undefined : listResult.cursor;
-    } while (cursor);
-  }
-
-  const totalRequestsToday = Object.values(tiers).reduce((sum, val) => sum + val, 0);
-  return { totalRequestsToday, tiers };
-}
+export default {
+  onRequestGet,
+  OPTIONS,
+  onRequestPost,
+};
