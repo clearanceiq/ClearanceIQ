@@ -21,7 +21,7 @@ function consumeRate(ctx, dailyCap) {
   const today = new Date().toISOString().slice(0, 10);
 
   if (!rateMemory.has(today)) {
-    rateMemory.set(today, {});
+    rateMemory.set(today, new Map());
   }
 
   const dayMap = rateMemory.get(today);
