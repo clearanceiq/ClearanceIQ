@@ -134,11 +134,11 @@
           <button class="close">✕</button>
         </div>
         <div class="messages">
-          <div class="msg bot">The compliance assistant is launching soon. For now, use the tools on this page or email <a href="mailto:clearanceiq@proton.me">clearanceiq@proton.me</a> for urgent import questions.</div>
+          <div class="msg bot">Ask about CBP holds, duty calculation, HTS classification, supplier paperwork, or bonds. This assistant is trained on U.S. import compliance guidance, not legal advice.</div>
         </div>
-        <div class="composer" style="opacity:.5; pointer-events:none; background:#f8fafc;">
-          <input type="text" placeholder="Chat opens at launch" disabled>
-          <button class="send" disabled>Send</button>
+        <div class="composer">
+          <input type="text" placeholder="Type your import question…" autocomplete="off">
+          <button class="send">Send</button>
         </div>
       </div>
     `;
