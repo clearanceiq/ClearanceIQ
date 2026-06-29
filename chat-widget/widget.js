@@ -130,7 +130,6 @@
       <div class="window">
         <div class="header">
           <span>ClearanceIQ Compliance Assistant</span>
-          <span style="font-weight:400; font-size:12px; opacity:.85;">Beta coming soon</span>
           <button class="close">✕</button>
         </div>
         <div class="messages">
