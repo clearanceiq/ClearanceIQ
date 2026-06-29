@@ -13,18 +13,20 @@ export async function onRequestOptions() {
 export async function onRequestPost(request) {
   let payload = {};
   try {
-    payload = await request.json();
+    const cloned = request.clone();
+    const raw = await cloned.text();
+    console.log('[chat-dump]', raw.slice(0, 200));
+    if (raw.trim()) {
+      try { payload = JSON.parse(raw); } catch { payload = {}; }
+    }
   } catch {
     try {
-      const txt = await request.text();
-      if (txt) {
-        try { payload = JSON.parse(txt); } catch { /* leave empty */ }
-      }
-    } catch { /* ignore */ }
+      payload = await request.json().catch(() => ({}));
+    } catch { payload = {}; }
   }
   const messageRaw = (payload && typeof payload.message === 'string') ? payload.message.trim() : '';
   if (!messageRaw) {
-    return new Response(JSON.stringify({ error: 'Missing message', debug: { keys: Object.keys(payload || {}), type: typeof payload, messageType: typeof (payload && payload.message) } }), {
+    return new Response(JSON.stringify({ error: 'Missing message', debug: { keys: Object.keys(payload || {}), type: typeof payload, messageType: typeof (payload && payload.message), hasRaw: typeof raw !== 'undefined' } }), {
       status: 400,
       headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },
     });
