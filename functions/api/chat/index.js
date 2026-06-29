@@ -24,7 +24,7 @@ export async function onRequestPost(request) {
   }
   const messageRaw = (payload && typeof payload.message === 'string') ? payload.message.trim() : '';
   if (!messageRaw) {
-    return new Response(JSON.stringify({ error: 'Missing message' }), {
+    return new Response(JSON.stringify({ error: 'Missing message', debug: { keys: Object.keys(payload || {}), type: typeof payload, messageType: typeof (payload && payload.message) } }), {
       status: 400,
       headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },
     });
