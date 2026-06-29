@@ -557,6 +557,7 @@
           <a href="/pricing">Pricing</a>
           <a href="contact.html">Contact</a>
           <span class="usage-badge" id="usageBadge">Usage: <strong>—</strong></span>
+          <a href="privacy.html" style="color:#e2e8f0;font-size:0.85rem;text-decoration:none">Privacy</a>
         </div>
       </div>
     </nav>
@@ -786,6 +787,33 @@
       .catch(function() {
         // Silently fail — counters stay as dashes
       });
+  })();
+
+  // PDPA consent banner
+  (function(){
+    var KEY='ciq_pdpa_v1';
+    if (localStorage.getItem(KEY)) return;
+    var exists = document.getElementById('pdpa-banner');
+    if (exists) return;
+    var banner = document.createElement('div');
+    banner.id = 'pdpa-banner';
+    banner.innerHTML = '<div style="position:fixed;bottom:0;left:0;right:0;background:#0f172a;color:#e2e8f0;padding:14px 18px;font-size:14px;z-index:10000;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.08)"><span>We use local storage and analytics to improve ClearanceIQ. By continuing, you agree to our <a href="/privacy.html" style="color:#93c5fd;text-decoration:underline">Privacy Policy</a>.</span><div style="display:flex;gap:10px"><button id="pdpa-accept" style="background:#2563eb;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:700">Accept</button></div></div>';
+    document.body.appendChild(banner);
+    document.getElementById('pdpa-accept').addEventListener('click', function(){
+      try { localStorage.setItem(KEY, '1'); } catch(e){}
+      banner.remove();
+      if (window.__CIQ_TELEMETRY_INIT__) {
+        try { sessionStorage.setItem('ciq_telem_v','1'); } catch(e){}
+      }
+    });
+  })();
+
+  // Chat widget include
+  (function(){
+    var s = document.createElement('script');
+    s.src = '/chat-widget/widget.js';
+    s.defer = true;
+    document.body.appendChild(s);
   })();
 </script>
 </body>
