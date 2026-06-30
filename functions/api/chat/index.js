@@ -13,8 +13,7 @@ export async function onRequestOptions() {
 export async function onRequestPost(request) {
   let payload = {};
   try {
-    const cloned = request.clone();
-    const raw = await cloned.text();
+    const raw = await request.text();
     console.log('[chat-dump]', raw.slice(0, 200));
     if (raw.trim()) {
       try { payload = JSON.parse(raw); } catch { payload = {}; }
