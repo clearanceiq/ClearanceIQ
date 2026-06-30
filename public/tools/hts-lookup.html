@@ -123,12 +123,6 @@ function logEvent(payload){
     navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
   } catch(e){}
 }
-ypeof payload === "object" && payload !== null ? Object.assign({}, payload) : {};
-    base.ts = Date.now();
-    base.path = base.path || location.pathname;
-    navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
-  } catch(e){}
-}
 
 function runLookup() {
   const q = document.getElementById("q").value.trim().toLowerCase();
