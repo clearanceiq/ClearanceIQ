@@ -79,6 +79,33 @@
   <div id="result" class="box" style="display:none; margin-top:22px;">
     <h2 id="result_title" style="margin-top:0;"></h2>
     <div id="result_body" style="color:var(--text);"></div>
+    <div id="result_confirm" style="display:none; margin-top:14px; padding-top:12px; border-top:1px solid var(--border);">
+      <p style="font-weight:700; margin-bottom:6px;">Does this description match your shipment?</p>
+      <button class="cta" id="htsConfirmYes">Yes, this is correct</button>
+      <button class="cta secondary" id="htsConfirmNo">No, refine search</button>
+      <p id="htsConfirmStatus" style="margin-top:8px; font-size:13px; color:var(--muted);"></p>
+    </div>
+  </div>
+
+  <div id="htsRefine" class="box" style="display:none; margin-top:22px;">
+    <h2 style="margin-top:0;">Help us match your item</h2>
+    <p style="color:var(--muted); font-size:14px; margin-bottom:10px;">Add a bit more detail so we can find the right HTS code. Short generic terms often miss the right category.</p>
+    <form id="htsRefineForm" style="display:grid; gap:10px;">
+      <input type="hidden" name="originalQ" value="">
+      <div>
+        <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:6px;">Better product name or description</label>
+        <input name="betterDescription" type="text" placeholder="e.g. wooden office chair with leather seat" style="width:100%;">
+      </div>
+      <div>
+        <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:6px;">Material composition</label>
+        <input name="material" type="text" placeholder="e.g. steel frame, plastic shell, cotton upholstery" style="width:100%;">
+      </div>
+      <div>
+        <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:6px;">End use / how it will be used</label>
+        <input name="endUse" type="text" placeholder="e.g. office furniture, retail display, household use" style="width:100%;">
+      </div>
+      <button type="submit" class="cta">Search again with details</button>
+    </form>
   </div>
 
   <div class="box" style="margin-top:22px;">
@@ -128,6 +155,8 @@ function runLookup() {
   const q = document.getElementById("q").value.trim().toLowerCase();
   const out = document.getElementById("result");
   const status = document.getElementById("status");
+  const refineBox = document.getElementById('htsRefine');
+  const refineForm = document.getElementById('htsRefineForm');
 
   if (!q) { status.textContent = "Enter a code or keyword."; return; }
 
@@ -136,7 +165,9 @@ function runLookup() {
     .then(data => {
       if (!data || !data.ok) {
         out.style.display = "none";
-        status.textContent = "No local match. For official rates, use USITC HTS Search or a licensed broker.";
+        status.textContent = "No local match yet. Add a few more details and we’ll try again.";
+        if (refineBox) refineBox.style.display = 'block';
+        if (refineForm) refineForm.dataset.originalQ = q;
         logEvent({ type: 'hts_no_match', q });
         return;
       }
@@ -149,6 +180,23 @@ function runLookup() {
       `;
       out.style.display = "block";
       status.textContent = "";
+
+      const confirmBox = document.getElementById("result_confirm");
+      const confirmStatus = document.getElementById("htsConfirmStatus");
+      if (confirmBox) confirmBox.style.display = "block";
+      if (confirmStatus) confirmStatus.textContent = "";
+
+      document.getElementById("htsConfirmYes")?.addEventListener("click", function() {
+        logEvent({ type: 'hts_confirmed', code: data.code, q });
+        if (confirmStatus) confirmStatus.textContent = "✓ Saved. You can use this HTS code for planning.";
+      });
+
+      document.getElementById("htsConfirmNo")?.addEventListener("click", function() {
+        logEvent({ type: 'hts_rejected', code: data.code, q });
+        if (confirmBox) confirmBox.style.display = "none";
+        const refineBox = document.getElementById("htsRefine");
+        if (refineBox) refineBox.style.display = "block";
+      });
 
       // Paperwork mapping
       const paperwork = window.CIQ && window.CIQ.getPaperworkForHTS(data.code);
@@ -175,6 +223,68 @@ function runLookup() {
       out.style.display = "none";
       console.error('[hts-lookup]', err);
     });
+}
+
+function handleRefineSubmit(ev) {
+  if (ev) ev.preventDefault();
+  const refineBox = document.getElementById("htsRefine");
+  const out = document.getElementById("result");
+  const status = document.getElementById("status");
+  if (!refineBox) return;
+
+  const form = refineBox.querySelector("form");
+  const fd = new FormData(form || refineBox);
+  const betterDescription = (fd.get("betterDescription") || "").trim();
+  const material = (fd.get("material") || "").trim();
+  const endUse = (fd.get("endUse") || "").trim();
+  const qNext = [betterDescription, material, endUse].filter(Boolean).join(" ");
+
+  if (!qNext) {
+    status.textContent = "Please add at least one extra detail.";
+    return;
+  }
+
+  status.textContent = "Refining match with your details…";
+  refineBox.style.display = "none";
+
+  fetch('/api/v1/hts?q=' + encodeURIComponent(qNext), { headers: { accept: 'application/json' } })
+    .then(r => r.json())
+    .then(data => {
+      if (!data || !data.ok) {
+        out.style.display = "none";
+        status.textContent = "Still no match. Try broadening the description or naming the material.";
+        logEvent({ type: 'hts_no_match', q: qNext });
+        refineBox.style.display = "block";
+        return;
+      }
+
+      document.getElementById("result_title").textContent = `${data.code} — ${data.description}`;
+      document.getElementById("result_body").innerHTML = `
+        <p><b>Indicative duty:</b> ${(data.dutyRate * 100).toFixed(1)}%</p>
+        <p><b>AD/CVD watch:</b> ${data.adcvd === "none" ? "None on record" : "Flagged — review before booking"}</p>
+        <p style="margin-top:10px;">${data.note || ""}</p>
+        <p style="margin-top:10px; font-size:12px; color:var(--muted);">Planning reference only. Not a ruling. Verify with CBP or a licensed broker.</p>
+      `;
+      out.style.display = "block";
+      status.textContent = "";
+      logEvent({ type: 'hts_hit', code: data.code, q: qNext });
+
+      const confirmBox = document.getElementById("result_confirm");
+      if (confirmBox) confirmBox.style.display = "block";
+    })
+    .catch(err => {
+      out.style.display = "none";
+      console.error('[hts-lookup refine]', err);
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  const form = document.getElementById("htsRefineForm");
+  if (form) form.addEventListener("submit", handleRefineSubmit);
+});
+
+if (typeof window.CIQ !== 'undefined') {
+  window.CIQ.logEvent({ type: 'pageview' });
 }
 </script>
 </body>
