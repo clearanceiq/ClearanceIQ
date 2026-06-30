@@ -2,9 +2,7 @@
   Cache-Control: no-cache
 
 /api/*
-  Access-Control-Allow-Origin: https://clearance-iq.com
-  Access-Control-Allow-Methods: GET, POST, OPTIONS
-  Access-Control-Allow-Headers: content-type, x-api-key
+  Cache-Control: no-cache
 
 /tools/*
   Cache-Control: no-cache
@@ -13,8 +11,7 @@
   Cache-Control: no-cache
 
 # Security headers
-/*
-  X-Frame-Options: DENY
+/*  X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
