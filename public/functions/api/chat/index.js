@@ -79,4 +79,3 @@ export async function onRequestPost(request) {
 }
 
 export default { onRequestPost, onRequestOptions };
-

@@ -129,14 +129,14 @@
       <button class="launcher" title="Ask ClearanceIQ Expert">💬</button>
       <div class="window">
         <div class="header">
-          <span>ClearanceIQ Customs Expert</span>
+          <span>ClearanceIQ Compliance Assistant</span>
           <button class="close">✕</button>
         </div>
         <div class="messages">
-          <div class="msg bot">Hi! Ask me anything about US imports, HTS codes, duties, CBP holds, or bonds. What do you need help with?</div>
+          <div class="msg bot">Ask about CBP holds, duty calculation, HTS classification, supplier paperwork, or bonds. This assistant is trained on U.S. import compliance guidance, not legal advice.</div>
         </div>
         <div class="composer">
-          <input type="text" placeholder="Type your question...">
+          <input type="text" placeholder="Type your import question…" autocomplete="off">
           <button class="send">Send</button>
         </div>
       </div>
@@ -175,13 +175,9 @@
         const data = await res.json();
         typing.remove();
         if (data.reply) {
-          if (data.reply === 'No response from expert.' || data.reply === 'Connection issue. Please try again.' || (typeof data.reply === 'string' && data.reply.startsWith && data.reply.startsWith('Provider error:'))) {
-            appendMsg('bot', data.reply);
-          } else {
-            appendMsg('bot', data.reply);
-          }
-        } else if (data.error) {
-          appendMsg('bot', 'Error: ' + String(data.error));
+          appendMsg('bot', data.reply);
+        } else if (data.error === 'API key not configured') {
+          appendMsg('bot', 'The compliance assistant is currently being upgraded on our servers. For urgent questions, email support@clearance-iq.com.');
         } else {
           appendMsg('bot', 'Sorry, I couldn’t process that. Try again.');
         }

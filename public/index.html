@@ -46,59 +46,6 @@
         --radius-sm: 10px;
       }
 
-      /* PDPA consent banner */
-      #ciq-consent-banner {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 10000;
-        background: #0f172a;
-        color: #f8fafc;
-        font-size: 14px;
-        box-shadow: 0 -4px 24px rgba(0,0,0,0.2);
-      }
-      .ciq-consent-inner {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 18px 24px;
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 12px;
-      }
-      .ciq-consent-inner p {
-        margin: 0;
-        flex: 1 1 320px;
-        color: #cbd5e1;
-        line-height: 1.5;
-      }
-      .ciq-consent-inner a {
-        color: #93c5fd;
-        text-decoration: underline;
-      }
-      .ciq-consent-actions {
-        display: flex;
-        gap: 8px;
-      }
-      .ciq-btn {
-        border: none;
-        padding: 10px 16px;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 14px;
-      }
-      .ciq-btn-primary {
-        background: #2563eb;
-        color: #fff;
-      }
-      .ciq-btn-ghost {
-        background: transparent;
-        color: #e2e8f0;
-        border: 1px solid rgba(255,255,255,0.2);
-      }
-
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html { scroll-behavior: smooth; }
       body {
@@ -597,10 +544,11 @@
 <!-- End Cloudflare Web Analytics -->
 </head>
 <body>
+<a href="#navigation" class="skip-link">Skip to navigation</a>
 <a href="#main" class="skip-link">Skip to main content</a>
 <main id="main">
     <!-- Navigation -->
-    <nav class="nav-top">
+    <nav class="nav-top" id="navigation">
       <div class="nav-inner">
         <a href="index.html" class="logo">
           ClearanceIQ <span class="logo-dot"></span>
@@ -610,6 +558,7 @@
           <a href="/pricing">Pricing</a>
           <a href="contact.html">Contact</a>
           <span class="usage-badge" id="usageBadge">Usage: <strong>—</strong></span>
+          <a href="privacy.html" style="color:#e2e8f0;font-size:0.85rem;text-decoration:none">Privacy</a>
         </div>
       </div>
     </nav>
@@ -841,38 +790,25 @@
       });
   })();
 
-  // PDPA consent + lazy chat widget
-  (function() {
-    if (localStorage.getItem('ciq_consent')) return;
+  // PDPA consent banner
+  (function(){
+    var KEY='ciq_pdpa_v1';
+    if (localStorage.getItem(KEY)) return;
+    var exists = document.getElementById('pdpa-banner');
+    if (exists) return;
     var banner = document.createElement('div');
-    banner.id = 'ciq-consent-banner';
-    banner.innerHTML = '<div class="ciq-consent-inner">'
-      + '<strong>We use cookies and collect anonymized usage data</strong>'
-      + '<p>ClearanceIQ uses essential cookies for site functionality and, with your consent, collects anonymized usage events to improve our customs tools. We do not sell your data. You can opt out anytime.</p>'
-      + '<a href="/privacy.html" target="_blank">Privacy Policy</a>'
-      + '<div class="ciq-consent-actions">'
-      + '<button id="ciq-accept" class="ciq-btn ciq-btn-primary">Accept</button>'
-      + '<button id="ciq-decline" class="ciq-btn ciq-btn-ghost">Decline</button>'
-      + '</div></div>';
+    banner.id = 'pdpa-banner';
+    banner.innerHTML = '<div style="position:fixed;bottom:0;left:0;right:0;background:#0f172a;color:#e2e8f0;padding:14px 18px;font-size:14px;z-index:10000;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.08)"><span>We use local storage and analytics to improve ClearanceIQ. By continuing, you agree to our <a href="/privacy.html" style="color:#93c5fd;text-decoration:underline">Privacy Policy</a>.</span><div style="display:flex;gap:10px"><button id="pdpa-accept" style="background:#2563eb;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:700">Accept</button></div></div>';
     document.body.appendChild(banner);
-    document.getElementById('ciq-accept').addEventListener('click', function() {
-      localStorage.setItem('ciq_consent', 'accepted');
+    document.getElementById('pdpa-accept').addEventListener('click', function(){
+      try { localStorage.setItem(KEY, '1'); } catch(e){}
       banner.remove();
-      loadChatWidget();
-    });
-    document.getElementById('ciq-decline').addEventListener('click', function() {
-      localStorage.setItem('ciq_consent', 'declined');
-      banner.remove();
+      if (window.__CIQ_TELEMETRY_INIT__) {
+        try { sessionStorage.setItem('ciq_telem_v','1'); } catch(e){}
+      }
     });
   })();
 
-  function loadChatWidget() {
-    if (document.getElementById('ciq-chat-widget')) return;
-    var s = document.createElement('script');
-    s.src = '/chat-widget/widget.js';
-    s.defer = true;
-    document.body.appendChild(s);
-  }
 </script>
 </body>
 </html>
