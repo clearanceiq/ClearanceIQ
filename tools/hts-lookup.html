@@ -65,14 +65,15 @@
   <p class="lead" style="margin-top:8px;">Search HTS codes, preview general duty rates, flag AD/CVD risk, and see required paperwork.</p>
 
   <div class="box" style="margin-top:22px;">
-    <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:8px;">Paste a product page URL, HTS code, or keyword</label>
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <input id="q" type="text" placeholder="https://... or e.g. 8518.30.0000 or bluetooth headphones" style="flex:1; min-width:220px;">
-      <button class="cta" onclick="runLookup()">Look up</button>
+      <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:8px;">Paste a product page URL, HTS code, or keyword</label>
+      <p style="margin:0 0 8px; font-size:13px; color:#059669; font-weight:600;">💡 You can paste a product link directly (Amazon, Alibaba, 1688, Shopee, supplier site, etc.)</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <input id="q" type="text" placeholder="https://... or e.g. 8518.30.0000 or bluetooth headphones" style="flex:1; min-width:220px;">
+        <button class="cta" onclick="runLookup()">Look up</button>
+      </div>
+      <p id="status" style="margin:10px 0 0; font-size:13px; color:var(--muted);"></p>
+      <button id="sampleBtn" class="cta secondary" type="button" style="margin-top:10px;">Try sample</button>
     </div>
-    <p id="status" style="margin:10px 0 0; font-size:13px; color:var(--muted);"></p>
-    <button id="sampleBtn" class="cta secondary" type="button" style="margin-top:10px;">Try sample</button>
-  </div>
 
   <div id="result" class="box" style="display:none; margin-top:22px;">
     <h2 id="result_title" style="margin-top:0;"></h2>
@@ -82,10 +83,21 @@
   <div class="box" style="margin-top:22px;">
     <h2 style="margin-top:0;">How to use this</h2>
     <ul class="clean">
-      <li>Type a full HTS code or a short product description.</li>
-      <li>We’ll match known categories and show a flag if that line is in an AD/CVD watch list.</li>
-      <li>This is for planning only — final classification belongs to a licensed broker.</li>
+      <li>Paste a product page URL — we’ll extract keywords and match the best HTS code.</li>
+      <li>Or type a full HTS code or short product description.</li>
+      <li>We’ll show indicative duty rate, AD/CVD risk, and likely required paperwork.</li>
+      <li>This is planning only — final classification belongs to a licensed broker.</li>
     </ul>
+  </div>
+
+  <div class="box" style="margin-top:22px;">
+    <h2 style="margin-top:0;">Don’t know where to start?</h2>
+    <p style="margin:0 0 8px; color:var(--muted);">Paste a product page link directly — Amazon, Alibaba, 1688, Shopee, supplier site, etc. We’ll extract keywords, match the best HTS code, and tell you what paperwork to prepare.</p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <input id="starterQ" type="text" placeholder="https://... or e.g. 8518.30.0000 or bluetooth headphones" style="flex:1; min-width:220px;">
+      <button class="cta" onclick="runLookupFrom('starterQ')">Look up</button>
+    </div>
+    <button id="starterSampleBtn" class="cta secondary" type="button" style="margin-top:10px;">Try sample</button>
   </div>
 </main>
     <section style="display:none; margin-top: 22px;">
