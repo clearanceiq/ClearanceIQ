@@ -3,16 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ClearanceIQ — Duty Calculator</title>
+<title>Duty Calculator — ClearanceIQ</title>
 <meta name="description" content="Estimate US import duties, Section 301 tariffs, and landed costs. Free duty calculator for importers.">
 <link rel="canonical" href="https://clearance-iq.com/tools/duty-calculator.html">
-|| [];
-    </script>
-
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
+  "@context": "https://schema.org/",
   "@type": "WebApplication",
   "name": "ClearanceIQ Duty Calculator",
   "url": "https://clearance-iq.com/tools/duty-calculator.html",
@@ -88,7 +85,10 @@
         </select>
       </div>
     </div>
-    <button class="cta" onclick="calculate()">Calculate estimate</button>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="cta" onclick="calculate()">Calculate estimate</button>
+      <button class="cta secondary" id="sampleBtn" type="button">Try sample</button>
+    </div>
   </div>
 
   <div id="result" class="box" style="display:none; margin-top:22px;">
@@ -107,6 +107,12 @@
     </ul>
   </div>
 </main>
+    <section style="display:none; margin-top: 22px;">
+      <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:16px;">
+        <strong>Missing something?</strong>
+        <p style="margin:8px 0 0; color:var(--muted); font-size:14px;">While you're here, try <a href="/tools/hts-lookup.html">HTS Lookup</a>, <a href="/tools/duty-calculator.html">Duty Calculator</a>, or <a href="/tools/cbp-hold-decoder.html">CBP Hold Decoder</a>.</p>
+      </div>
+    </section>
 
 <script>
 function logEvent(payload){
@@ -122,12 +128,33 @@ function logEvent(payload){
     navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
   } catch(e){}
 }
-ypeof payload === "object" && payload !== null ? Object.assign({}, payload) : {};
-    base.ts = Date.now();
-    base.path = base.path || location.pathname;
-    navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
-  } catch(e){}
+
+function emit(name, extra){
+  try { logEvent({ type: name, tool: 'duty-calculator', path: location.pathname, ...extra }); } catch(e){}
 }
+
+(function(){
+  var firstInputFired = false;
+  var firstInput = document.getElementById('value');
+  if (firstInput) {
+    firstInput.addEventListener('focus', function(){
+      if (!firstInputFired) { firstInputFired = true; emit('input_focus'); }
+    }, { once: true });
+  }
+
+  var sampleBtn = document.getElementById('sampleBtn');
+  if (sampleBtn) {
+    sampleBtn.addEventListener('click', function(){
+      document.getElementById('value').value = '35000';
+      document.getElementById('hts').value = '8518.30.0000';
+      document.getElementById('origin').value = 'China';
+      document.getElementById('freight').value = '1200';
+      document.getElementById('section301').value = '0.25';
+      emit('demo_run', { demo: true });
+      calculate();
+    });
+  }
+})();
 
 function calculate() {
   const value = parseFloat(document.getElementById('value').value || '0');
@@ -149,7 +176,7 @@ function calculate() {
       document.getElementById('result_body').innerHTML = html;
       document.getElementById('result').style.display = 'block';
       document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
-      logEvent({ type: 'duty_calc', hts, generalRate: data.generalRate, duty: data.duty, section301: data.section301, landed: data.landed });
+      emit('completed', { hts, generalRate: data.generalRate, duty: data.duty, section301: data.section301, landed: data.landed });
     })
     .catch(err => {
       console.error('[duty-calc]', err);

@@ -6,9 +6,6 @@
 <title>ClearanceIQ — HTS Duty Lookup</title>
 <meta name="description" content="Look up US HTS codes, duty rates, and AD/CVD risk. Free HTS lookup for importers.">
 <link rel="canonical" href="https://clearance-iq.com/tools/hts-lookup.html">
-|| [];
-    </script>
-
 <link rel="stylesheet" href="/style.css">
 <link rel="preload" as="script" href="/js/hts-paperwork.js">
 <script src="/js/hts-paperwork.js" defer></script>
@@ -19,7 +16,7 @@
 <meta property="og:site_name" content="ClearanceIQ">
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
+  "@context": "https://schema.org/",
   "@type": "WebApplication",
   "name": "ClearanceIQ HTS Duty Lookup",
   "url": "https://clearance-iq.com/tools/hts-lookup.html",
@@ -74,6 +71,7 @@
       <button class="cta" onclick="runLookup()">Look up</button>
     </div>
     <p id="status" style="margin:10px 0 0; font-size:13px; color:var(--muted);"></p>
+    <button id="sampleBtn" class="cta secondary" type="button" style="margin-top:10px;">Try sample</button>
   </div>
 
   <div id="result" class="box" style="display:none; margin-top:22px;">
@@ -90,6 +88,12 @@
     </ul>
   </div>
 </main>
+    <section style="display:none; margin-top: 22px;">
+      <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:16px;">
+        <strong>Missing something?</strong>
+        <p style="margin:8px 0 0; color:var(--muted); font-size:14px;">While you're here, try <a href="/tools/hts-lookup.html">HTS Lookup</a>, <a href="/tools/duty-calculator.html">Duty Calculator</a>, or <a href="/tools/cbp-hold-decoder.html">CBP Hold Decoder</a>.</p>
+      </div>
+    </section>
 
 <script>
 const DATA = [
@@ -123,12 +127,29 @@ function logEvent(payload){
     navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
   } catch(e){}
 }
-ypeof payload === "object" && payload !== null ? Object.assign({}, payload) : {};
-    base.ts = Date.now();
-    base.path = base.path || location.pathname;
-    navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
-  } catch(e){}
+
+function emit(name, extra){
+  try { logEvent({ type: name, tool: 'hts-lookup', path: location.pathname, ...extra }); } catch(e){}
 }
+
+(function(){
+  var inputFired = false;
+  var input = document.getElementById('q');
+  if (input) {
+    input.addEventListener('input', function(){
+      if (!inputFired) { inputFired = true; emit('input_start'); }
+    }, { once: true });
+  }
+
+  var sampleBtn = document.getElementById('sampleBtn');
+  if (sampleBtn) {
+    sampleBtn.addEventListener('click', function(){
+      document.getElementById('q').value = '8518.30.0000';
+      emit('demo_run', { demo: true });
+      runLookup();
+    });
+  }
+})();
 
 function runLookup() {
   const q = document.getElementById("q").value.trim().toLowerCase();
@@ -143,7 +164,7 @@ function runLookup() {
       if (!data || !data.ok) {
         out.style.display = "none";
         status.textContent = "No local match. For official rates, use USITC HTS Search or a licensed broker.";
-        logEvent({ type: 'hts_no_match', q });
+        emit('hts_no_match', { q });
         return;
       }
       document.getElementById("result_title").textContent = `${data.code} — ${data.description}`;
@@ -175,7 +196,7 @@ function runLookup() {
         body.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
 
-      logEvent({ type: 'hts_hit', code: data.code, q });
+      emit('hts_hit', { code: data.code, q });
     })
     .catch(err => {
       out.style.display = "none";

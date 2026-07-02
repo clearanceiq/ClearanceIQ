@@ -1,6 +1,6 @@
 #!/bin/bash
 # Hetzner VPS bootstrap for ClearanceIQ infrastructure
-# Prereqs: install sshpass on your runner first, then create:
+# Prereqs: install ssh -i ~/.ssh/clearanceiq_vps on your runner first, then create:
 #   ~/.hetzner-vps.conf with:
 #     HETZNER_IP=your.vps.ip
 #     HETZNER_PASSWORD=your-root-password
@@ -31,7 +31,7 @@ if [ -z "$VPS_IP" ] || [ -z "$VPS_ROOT_PASSWORD" ]; then
 fi
 
 echo "=== Connecting to VPS at $VPS_IP ==="
-sshpass -p "$VPS_ROOT_PASSWORD" ssh -o StrictHostKeyChecking=no "${VPS_USER}@${VPS_IP}" 'bash -s' << INNER_EOF
+ssh -i ~/.ssh/clearanceiq_vps -o StrictHostKeyChecking=no "${VPS_USER}@${VPS_IP}" 'bash -s' << INNER_EOF
 set -e
 echo "=== Updating system ==="
 apt-get update && apt-get upgrade -y

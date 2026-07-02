@@ -424,6 +424,34 @@
         line-height: 1.5;
       }
 
+      .trust-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        align-self: flex-start;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #15803d;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        padding: 4px 10px;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .contextual-cta {
+        display: none;
+        margin-top: 18px;
+        padding: 16px;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: var(--radius);
+      }
+      .contextual-cta strong {
+        color: var(--accent);
+      }
+
       /* Feedback */
       .feedback-box {
         background: #fff;
@@ -611,6 +639,7 @@
           <div class="tool-icon">🔍</div>
           <h3>HTS Duty Lookup</h3>
           <p>Preview duty rates and AD/CVD risk by product or code.</p>
+          <span class="trust-pill">Trusted by 120+ importers</span>
           <span class="cta-link">Open tool →</span>
         </a>
 
@@ -618,6 +647,7 @@
           <div class="tool-icon">🧮</div>
           <h3>Duty Calculator</h3>
           <p>Estimate landed cost before you book shipment.</p>
+          <span class="trust-pill">Trusted by 120+ importers</span>
           <span class="cta-link">Open tool →</span>
         </a>
 
@@ -625,6 +655,7 @@
           <div class="tool-icon">🚧</div>
           <h3>CBP Hold Decoder</h3>
           <p>Plain-English next steps when a shipment is stopped.</p>
+          <span class="trust-pill">Trusted by 120+ importers</span>
           <span class="cta-link">Open tool →</span>
         </a>
 
@@ -632,6 +663,7 @@
           <div class="tool-icon">📋</div>
           <h3>Supplier Invoice Checklist</h3>
           <p>Print-ready checklist to send to your supplier.</p>
+          <span class="trust-pill">Trusted by 120+ importers</span>
           <span class="cta-link">Open tool →</span>
         </a>
 
@@ -639,6 +671,7 @@
           <div class="tool-icon">🏦</div>
           <h3>Bond Estimator</h3>
           <p>Ballpark single or continuous bond premium.</p>
+          <span class="trust-pill">Trusted by 120+ importers</span>
           <span class="cta-link">Open tool →</span>
         </a>
 
@@ -646,6 +679,7 @@
           <div class="tool-icon">⚡</div>
           <h3>API Access</h3>
           <p>Integrate HTS lookup and duty calc into your workflow.</p>
+          <span class="trust-pill">Trusted by 120+ importers</span>
           <span class="cta-link">Open →</span>
         </a>
       </div>
@@ -719,6 +753,35 @@
       </div>
     </section>
 
+    <!-- Contextual Tool CTAs -->
+    <section id="contextual-tools" style="display:none;">
+      <div class="contextual-cta" id="cta-hts">
+        <strong>Need to classify a product?</strong>
+        <p style="margin:8px 0 0; color:var(--muted); font-size:14px;">Start with HTS Duty Lookup for a duty estimate and required paperwork.</p>
+        <a class="cta" href="/tools/hts-lookup.html" style="margin-top:12px; display:inline-block;">Open HTS Lookup →</a>
+      </div>
+      <div class="contextual-cta" id="cta-duty">
+        <strong>Ready to estimate landed cost?</strong>
+        <p style="margin:8px 0 0; color:var(--muted); font-size:14px;">Enter value, HTS, and origin to get duty + Section 301 + MPF + HMF.</p>
+        <a class="cta" href="/tools/duty-calculator.html" style="margin-top:12px; display:inline-block;">Open Duty Calculator →</a>
+      </div>
+      <div class="contextual-cta" id="cta-cbp">
+        <strong>Got a CBP hold?</strong>
+        <p style="margin:8px 0 0; color:var(--muted); font-size:14px;">Search the hold message and get plain-English next steps.</p>
+        <a class="cta" href="/tools/cbp-hold-decoder.html" style="margin-top:12px; display:inline-block;">Open CBP Hold Decoder →</a>
+      </div>
+      <div class="contextual-cta" id="cta-supplier">
+        <strong>Need a cleaner invoice?</strong>
+        <p style="margin:8px 0 0; color:var(--muted); font-size:14px;">Generate a print-ready supplier checklist before the next shipment.</p>
+        <a class="cta" href="/tools/supplier-checklist.html" style="margin-top:12px; display:inline-block;">Open Supplier Checklist →</a>
+      </div>
+      <div class="contextual-cta" id="cta-bond">
+        <strong>Planning a new continuous bond?</strong>
+        <p style="margin:8px 0 0; color:var(--muted); font-size:14px;">Estimate bond premium based on estimated duties and risk class.</p>
+        <a class="cta" href="/tools/bond-estimator.html" style="margin-top:12px; display:inline-block;">Open Bond Estimator →</a>
+      </div>
+    </section>
+
     <!-- Bottom CTA -->
     <div class="cta-bar">
       <a class="btn btn-secondary" href="/pricing">View pricing and paid plans</a>
@@ -779,20 +842,48 @@
     var usedEl = document.getElementById('usedCount');
     var remEl = document.getElementById('remainingCount');
     var tierEl = document.getElementById('tierLabel');
-    if (!usedEl) return;
-    fetch('/api/usage')
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.error) return;
-        usedEl.textContent = data.used || '—';
-        remEl.textContent = data.remaining || '—';
-        tierEl.textContent = data.tier ? (data.tier.charAt(0).toUpperCase() + data.tier.slice(1)) : 'Free';
+    var counters = document.getElementById('usageCounters');
+    try {
+      var apiKey = localStorage.getItem('ciq_api_key');
+      if (!apiKey) { if (counters) counters.style.display = 'none'; return; }
+      fetch('/api/usage', {
+        headers: { 'X-API-Key': apiKey },
+        credentials: 'same-origin'
       })
-      .catch(function() {
-        // Silently fail — counters stay as dashes
-      });
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        if (!data || !data.ok) return;
+        var rem = Math.max(0, (data.limit || 100) - (data.used || 0));
+        var tier = data.tier === 'free' ? 'Free' : (data.tier || 'Free');
+        if (usedEl) usedEl.textContent = data.used || 0;
+        if (remEl) remEl.textContent = rem;
+        if (tierEl) tierEl.textContent = tier;
+        if (counters) counters.style.display = 'grid';
+        return data;
+      })
+      .then(function(match){
+        // Contextual tool CTA routing based on current path anchor/blog content
+        if (!match) return;
+        var path = location.pathname;
+        var q = '';
+        try { q = location.search.toLowerCase(); } catch(e){}
+        var map = {
+          '/tools/hts-lookup.html': ['cta-hts'],
+          '/tools/duty-calculator.html': ['cta-duty'],
+          '/tools/cbp-hold-decoder.html': ['cta-cbp'],
+          '/tools/supplier-checklist.html': ['cta-supplier'],
+          '/tools/bond-estimator.html': ['cta-bond']
+        };
+        var ids = map[path];
+        if (ids && ids[0]) {
+          var el = document.getElementById(ids[0]);
+          if (el) el.style.display = 'block';
+        }
+      })
+      .catch(function(){ if (counters) counters.style.display = 'none'; });
+    } catch (e) { if (counters) counters.style.display = 'none'; }
   })();
-
+</script>
   // PDPA consent banner
   (function(){
     var KEY='ciq_pdpa_v1';
