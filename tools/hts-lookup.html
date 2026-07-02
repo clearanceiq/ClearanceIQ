@@ -65,9 +65,9 @@
   <p class="lead" style="margin-top:8px;">Search HTS codes, preview general duty rates, flag AD/CVD risk, and see required paperwork.</p>
 
   <div class="box" style="margin-top:22px;">
-    <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:8px;">Search HTS code or keyword</label>
+    <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:8px;">Paste a product page URL, HTS code, or keyword</label>
     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <input id="q" type="text" placeholder="e.g. 8518.30.0000 or bluetooth headphones" style="flex:1; min-width:220px;">
+      <input id="q" type="text" placeholder="https://... or e.g. 8518.30.0000 or bluetooth headphones" style="flex:1; min-width:220px;">
       <button class="cta" onclick="runLookup()">Look up</button>
     </div>
     <p id="status" style="margin:10px 0 0; font-size:13px; color:var(--muted);"></p>
@@ -152,13 +152,32 @@ function emit(name, extra){
 })();
 
 function runLookup() {
-  const q = document.getElementById("q").value.trim().toLowerCase();
+  let q = document.getElementById("q").value.trim();
   const out = document.getElementById("result");
   const status = document.getElementById("status");
 
-  if (!q) { status.textContent = "Enter a code or keyword."; return; }
+  if (!q) { status.textContent = "Enter a link, code, or keyword."; return; }
 
-  fetch('/api/v1/hts?q=' + encodeURIComponent(q), { headers: { accept: 'application/json' } })
+  let keywords = q;
+  const urlMatch = /^https?:\/\//i.test(q);
+  if (urlMatch) {
+    try {
+      const u = new URL(q);
+      // Remove common shopping path segments
+      let path = u.pathname.replace(/\/+$/,'').split('/').filter(Boolean).join(' ');
+      path = path
+        .replace(/\b(dp|product|item|gp\/product|gp\/aw\/d|p|dp\/[A-Z0-9]{6,})\b/gi, ' ')
+        .replace(/[^a-z0-9\s-]/gi, ' ')
+        .replace(/\s+/g, ' ').trim();
+      const host = u.hostname.replace(/^www\./,'').split('.')[0];
+      keywords = [host, path].filter(Boolean).join(' ').trim() || q;
+    } catch (e) {
+      keywords = q.replace(/[^a-z0-9\s-]/gi,' ').replace(/\s+/g,' ').trim();
+    }
+  }
+
+  const query = keywords.toLowerCase();
+  fetch('/api/v1/hts?q=' + encodeURIComponent(query), { headers: { accept: 'application/json' } })
     .then(r => r.json())
     .then(data => {
       if (!data || !data.ok) {
@@ -177,19 +196,68 @@ function runLookup() {
       out.style.display = "block";
       status.textContent = "";
 
-      // Paperwork mapping
-      const paperwork = window.CIQ && window.CIQ.getPaperworkForHTS(data.code);
-      if (paperwork) {
+      // Paperwork advice
+      const code = (data.code || '').replace(/\./g, '');
+      const prefix = code.slice(0, 2);
+      const sub = code.slice(0, 4);
+      const linesArr = [];
+      const flagsArr = [];
+
+      if (['64'].includes(prefix)) {
+        linesArr.push('Footwear checklist');
+        flagsArr.push('Footwear/shoe entries often need commercial invoices, packing lists, and any prior-approval documentation for materials/soles.');
+      }
+      if (['39', '40'].includes(prefix)) {
+        linesArr.push('Plastics derivatives worksheet');
+        flagsArr.push('Record resin/formulation details if claiming a specific HTS provision for plastic articles.');
+      }
+      if (['70'].includes(prefix)) {
+        linesArr.push('Glass/container handling worksheet');
+        flagsArr.push('Confirm whether packing qualifies as articles of glass vs. packing glassware.');
+      }
+      if (['85', '90'].includes(prefix)) {
+        linesArr.push('Electronics compliance worksheet');
+        flagsArr.push('Collect product specs, FCC markings, and radio module documentation if applicable.');
+      }
+      if (['94'].includes(prefix)) {
+        linesArr.push('Furniture import worksheet');
+        flagsArr.push('Include material breakdowns: wood, metal, plastic, textile components.');
+      }
+      if (['61', '62'].includes(prefix)) {
+        linesArr.push('Textiles/apparel worksheet');
+        flagsArr.push('Gather fiber content percentages, country of origin, and quota status if applicable.');
+      }
+      if (['73', '76', '83'].includes(prefix)) {
+        linesArr.push('Metal products checklist');
+        flagsArr.push('Provide material certification if alloy composition affects classification.');
+      }
+      if (['87', '89'].includes(prefix)) {
+        linesArr.push('Vehicle/transport worksheet');
+        flagsArr.push('Collect EPA/DOT documentation and VIN/vehicle certification.');
+      }
+      if (['22', '24'].includes(prefix)) {
+        linesArr.push('Beverages/alcohol worksheet');
+        flagsArr.push('Confirm TTB certificate/label approval if applicable.');
+      }
+      if (['48', '49'].includes(prefix)) {
+        linesArr.push('Paper/printed matter checklist');
+        flagsArr.push('Include samples and any government-use documentation.');
+      }
+      if (['38', '35'].includes(prefix)) {
+        linesArr.push('Miscellaneous/prepared goods worksheet');
+        flagsArr.push('List exact composition and intended use for miscellaneous classifications.');
+      }
+
+      if (linesArr.length) {
         const section = document.createElement("div");
         section.style.marginTop = "14px";
         section.innerHTML = `
-          <p style="font-size:12px; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; color:var(--muted);">Likely agency: ${paperwork.agency}</p>
+          <p style="font-size:12px; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; color:var(--muted);">Likely paperwork</p>
           <ul style="margin-top:6px; font-size:14px; line-height:1.6;">
-            ${paperwork.forms.map(f => `<li>✓ ${f}</li>`).join("")}
+            ${linesArr.map(f => `<li>✓ ${f}</li>`).join("")}
           </ul>
-          <p style="margin-top:8px; font-size:12px; color:var(--muted);">Citations: ${paperwork.citations.join(", ")}</p>
-          ${paperwork.flags.map(f => `<p style="margin-top:4px; font-size:13px; color:#b45309;">⚠ ${f}</p>`).join("")}
-          <p style="margin-top:8px; font-size:12px; color:var(--muted);">Full checklist in the Compliance Checklist tool under the ${paperwork.desc} phase.</p>
+          ${flagsArr.map(f => `<p style="margin-top:6px; font-size:13px; color:#334155;">ℹ ${f}</p>`).join("")}
+          <p style="margin-top:8px; font-size:12px; color:var(--muted);">Use the Compliance Checklist tool for a full filing pack.</p>
         `;
         const body = document.getElementById("result_body");
         body.appendChild(section);

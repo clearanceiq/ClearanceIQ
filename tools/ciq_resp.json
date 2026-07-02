@@ -1,1 +1,1 @@
-{"ok":false,"error":"no_match"}
+{"ok":true,"bondType":"single","assessedValue":500000,"premiumRate":0.03,"premium":15000,"formatted":{"assessedValue":"$500,000.00","premiumRate":"3.00%","premium":"$15,000.00"}}
