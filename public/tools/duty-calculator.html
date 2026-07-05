@@ -66,6 +66,7 @@
     <div>
       <label style="font-size:12px; color:var(--muted);">HTS code</label>
       <input id="hts" type="text" placeholder="e.g. 8518.30.0000" style="width:100%;">
+      <a href="/tools/hts-lookup.html" style="font-size:12px; color:var(--accent); text-decoration:none; border-bottom:1px solid var(--accent);">Not sure? Look up HTS code →</a>
     </div>
     <div>
       <label style="font-size:12px; color:var(--muted);">Country of origin</label>
@@ -125,19 +126,30 @@ function calculate() {
   const value = parseFloat(document.getElementById('value').value || '0');
   const freight = parseFloat(document.getElementById('freight').value || '0');
   const s301Raw = document.getElementById('section301').value;
-  const hts = (document.getElementById('hts').value || '').replace(/\./g,'').slice(0,4);
+  const hts = (document.getElementById('hts').value || '').trim();
   const origin = (document.getElementById('origin').value || '').trim();
   const s301Rate = s301Raw === 'other' ? 0 : parseFloat(s301Raw);
 
+  var advise = '';
+  if (!/^\d{4}(\.\d{2}){0,3}$/.test(hts)) {
+    advise = '<p style="margin-top:10px; color:#b91c1c; font-size:13px;">⚠️ HTS code looks invalid. Expect formats like <b>8518.30.0000</b> or <b>8518300000</b>. Wrong headings produce wrong duty estimates.</p>';
+  }
+
   const qs = new URLSearchParams({ value: String(value), hts, origin, freight: String(freight), s301Rate: String(s301Rate) });
   fetch('/api/v1/duty-calc?' + qs.toString(), { headers: { accept: 'application/json' } })
-    .then(r => r.json())
+    .then(r => {
+      if (!r.ok) throw new Error('request failed');
+      var ct = r.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) throw new Error('non_json');
+      return r.json();
+    })
     .then(data => {
       if (!data || !data.ok) { throw new Error(data && data.error ? data.error : 'request failed'); }
       const html = '<table style="width:100%; border-collapse:collapse;">' +
         data.table.map(([k,v]) => `<tr style="border-bottom:1px solid var(--border);"><td style="padding:8px 0; color:var(--text);">${k}</td><td style="padding:8px 0; text-align:right; font-weight:600;">${v}</td></tr>`).join('') +
         '</table>' +
-        '<p style="margin-top:12px; font-size:12px; color:#94a3b8;">Reference only. Actual rates depend on HTS special provisions, FTAs, and broker classification.</p>';
+        '<p style="margin-top:12px; font-size:12px; color:#94a3b8;">Reference only. Actual rates depend on HTS special provisions, FTAs, and broker classification.</p>' +
+        advise;
       document.getElementById('result_body').innerHTML = html;
       document.getElementById('result').style.display = 'block';
       document.getElementById('result').scrollIntoView({ behavior: 'smooth' });

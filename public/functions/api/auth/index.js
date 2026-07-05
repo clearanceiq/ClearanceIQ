@@ -160,3 +160,10 @@ export async function onRequestPost(context) {
 }
 
 export const OPTIONS = async () => new Response(null, { headers: corsHeaders, status: 204 });
+
+export default {
+  onRequestGet,
+  onRequestPost,
+  OPTIONS
+};
+

@@ -784,14 +784,18 @@
           return;
         }
         if (status) { status.textContent = 'Saving...'; status.style.color = 'var(--muted)'; }
-        fetch('/api/auth/signup?email=' + encodeURIComponent(email))
+        fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ email: email })
+        })
           .then(function(r){ return r.json(); })
           .then(function(data){
             if (data && data.ok) {
               if (status) { status.textContent = 'Saved — you now have 100 free requests/day.'; status.style.color = '#16a34a'; }
               form.reset();
             } else {
-              if (status) { status.textContent = 'Could not save right now. Please try again.'; status.style.color = '#b91c1c'; }
+              if (status) { status.textContent = (data && data.message) ? data.message : 'Could not save right now. Please try again.'; status.style.color = '#b91c1c'; }
             }
           })
           .catch(function(){
