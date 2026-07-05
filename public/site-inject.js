@@ -139,7 +139,13 @@
       headers: { 'X-API-Key': apiKey },
       credentials: 'same-origin'
     })
-    .then(function(res){ return res.json(); })
+    .then(function(res){
+      var contentType = res.headers.get('content-type') || '';
+      if (!res.ok || !/application\/json/.test(contentType)) {
+        throw new Error('usage_not_json');
+      }
+      return res.json();
+    })
     .then(function(data){
       if (!data || !data.ok) return;
       var remaining = Math.max(0, (data.limit || 100) - (data.used || 0));

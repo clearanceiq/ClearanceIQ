@@ -123,11 +123,16 @@ function logEvent(payload){
 }
 
 function runLookup() {
-  const q = document.getElementById("q").value.trim().toLowerCase();
-  const out = document.getElementById("result");
-  const status = document.getElementById("status");
+  var qEl = document.getElementById("q");
+  var out = document.getElementById("result");
+  var status = document.getElementById("status");
+  var btn = document.getElementById("lookupBtn");
 
-  if (!q) { status.textContent = "Enter a code or keyword."; return; }
+  var q = (qEl && qEl.value || "").trim().toLowerCase();
+  if (!q) { if (status) status.textContent = "Enter a code or keyword."; return; }
+  if (status) status.textContent = "Looking up…";
+  if (out) out.style.display = "none";
+  if (btn) btn.disabled = true;
 
   fetch('/api/v1/hts?q=' + encodeURIComponent(q), { headers: { accept: 'application/json' } })
     .then(r => r.json())
@@ -155,8 +160,25 @@ function runLookup() {
       status.textContent = 'Lookup failed. Try again.';
       console.error('[hts-lookup]', err);
       logEvent({ type: 'hts_error', q, message: err && err.message ? err.message : 'unknown' });
+    })
+    .finally(function(){
+      if (btn) btn.disabled = false;
     });
 }
+
+(function(){
+  var btn = document.getElementById('lookupBtn');
+  if (!btn) return;
+  function fire(){
+    runLookup();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', fire);
+  } else {
+    fire();
+  }
+  btn.addEventListener('click', fire);
+})();
 </script>
 </body>
 </html>
