@@ -67,6 +67,13 @@ export async function onRequestGet(context) {
   const safeLimit = Number.isFinite(limitParam) ? Math.max(1, Math.min(limitParam, 200)) : 20;
   const reqKey = (url.searchParams.get('key') || '').trim();
 
+  const rateLimitHeaders = {
+    'x-rate-limit-remaining': '0',
+    'x-rate-limit-limit': '0',
+    'x-rate-limit-reset': String(nextMidnightUTC()),
+    'x-rate-limit-tier': 'anonymous',
+  };
+
   if (!reqKey) {
     return response({
       ok: true,
@@ -82,17 +89,15 @@ export async function onRequestGet(context) {
   }
 
   const rateResult = consumeRate(context, reqKey ? 200 : 5);
-  const rateLimitHeaders = {
-    'x-rate-limit-remaining': String(rateResult.remaining),
-    'x-rate-limit-limit': String(rateResult.limit),
-    'x-rate-limit-reset': String(rateResult.resetUnix),
-    'x-rate-limit-tier': reqKey ? 'signed' : 'anonymous',
-  };
+
+  const rateLimitHeadersSigned = reqKey
+    ? { ...rateLimitHeaders, 'x-rate-limit-remaining': String(rateResult.remaining), 'x-rate-limit-limit': String(rateResult.limit), 'x-rate-limit-reset': String(rateResult.resetUnix), 'x-rate-limit-tier': 'signed' }
+    : rateLimitHeaders;
 
   if (rateResult.limited) {
     return response(
       { ok: false, error: 'rate limit exceeded', retryAfter: rateResult.resetUnix },
-      rateLimitHeaders,
+      rateLimitHeadersSigned,
       429
     );
   }
@@ -106,7 +111,7 @@ export async function onRequestGet(context) {
       note: 'TELEMETRY binding not available',
       count: 0,
       events: [],
-    }, rateLimitHeaders);
+    }, rateLimitHeadersSigned);
   }
 
   const prefix = 'events::';
@@ -160,7 +165,7 @@ export async function onRequestGet(context) {
       byTool,
       events: rows,
     },
-    rateLimitHeaders
+    rateLimitHeadersSigned
   );
 }
 
