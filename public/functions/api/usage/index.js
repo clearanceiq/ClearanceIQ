@@ -68,7 +68,17 @@ export async function onRequestGet(context) {
   const reqKey = (url.searchParams.get('key') || '').trim();
 
   if (!reqKey) {
-    return response({ ok: false, error: 'Missing x-api-key or ?key' }, {}, 400);
+    return response({
+      ok: true,
+      authenticated: false,
+      note: 'Missing x-api-key or ?key',
+      count: 0,
+      events: [],
+      limit: 0,
+      used: 0,
+      remaining: 0,
+      tier: 'anonymous',
+    }, rateLimitHeaders, 200);
   }
 
   const rateResult = consumeRate(context, reqKey ? 200 : 5);
