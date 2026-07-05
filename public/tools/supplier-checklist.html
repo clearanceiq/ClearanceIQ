@@ -7,8 +7,6 @@
 <meta name="description" content="Generate a print-ready supplier invoice checklist for US import shipments. Reduce customs holds and invoice errors.">
 <link rel="canonical" href="https://clearance-iq.com/tools/supplier-checklist.html">
 
-    </script>
-
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
 {
@@ -16,8 +14,7 @@
   "@type": "WebApplication",
   "name": "ClearanceIQ Supplier Invoice Checklist",
   "url": "https://clearance-iq.com/tools/supplier-checklist.html",
-  "description": "Generate a supplier invoice checklist for US import shipments.",
-  "applicationCategory": "BusinessApplication"
+  "description": "Generate a supplier invoice checklist for US import shipments."
 }
 </script>
 
@@ -25,33 +22,6 @@
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f595fc18f8864d93829ac6cd51832679"}'></script>
 <!-- End Cloudflare Web Analytics -->
 <script defer src="/site-inject.js"></script>
-  <script>
-    if (window.CIQ && typeof window.CIQ.resumeSession === "function") window.CIQ.resumeSession();
-    window.addEventListener("pageshow", function(){ if (window.CIQ && typeof window.CIQ.resumeSession === "function") window.CIQ.resumeSession(); });
-    window.addEventListener("load", function(){
-      try { if (window.CIQ && typeof window.CIQ.logEvent === "function") window.CIQ.logEvent({ type: "pageview" }); } catch(e){}
-    });
-  </script>
-  <div id="telemetry-retry" style="position:fixed;bottom:16px;right:16px;display:none;">
-    <button id="telemetry-retry-btn" style="border-radius:999px;background:#0f172a;color:#fff;border:1px solid #334155;padding:8px 12px;font-weight:600;">Retry telemetry</button>
-  </div>
-  <script>
-    (function(){
-      function setup(){
-        var btn = document.getElementById("telemetry-retry-btn");
-        var el = document.getElementById("telemetry-retry-retry");
-        if (btn && window.CIQ && typeof window.CIQ.logEvent === "function") {
-          btn.style.display = "inline-flex";
-          btn.addEventListener("click", function(){
-            window.CIQ.logEvent({ type: "retry", path: location.pathname });
-            el = document.getElementById("telemetry-retry");
-            if (el) el.style.display = "none";
-          });
-        }
-      }
-      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup); else setup();
-    })();
-  </script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -99,12 +69,6 @@ function logEvent(payload){
   if (!navigator.sendBeacon) return;
   try {
     var base = typeof payload === "object" && payload !== null ? Object.assign({}, payload) : {};
-    base.ts = Date.now();
-    base.path = base.path || location.pathname;
-    navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
-  } catch(e){}
-}
-ypeof payload === "object" && payload !== null ? Object.assign({}, payload) : {};
     base.ts = Date.now();
     base.path = base.path || location.pathname;
     navigator.sendBeacon('/api/telemetry', JSON.stringify(base));

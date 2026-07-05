@@ -7,8 +7,6 @@
 <meta name="description" content="Estimate US customs bond costs for single transaction and continuous bonds.">
 <link rel="canonical" href="https://clearance-iq.com/tools/bond-estimator.html">
 
-    </script>
-
 <link rel="stylesheet" href="/style.css">
 <script defer src="/site-inject.js"></script>
 <script type="application/ld+json">
@@ -76,12 +74,6 @@ function logEvent(payload){
   if (!navigator.sendBeacon) return;
   try {
     var base = typeof payload === "object" && payload !== null ? Object.assign({}, payload) : {};
-    base.ts = Date.now();
-    base.path = base.path || location.pathname;
-    navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
-  } catch(e){}
-}
-ypeof payload === "object" && payload !== null ? Object.assign({}, payload) : {};
     base.ts = Date.now();
     base.path = base.path || location.pathname;
     navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
