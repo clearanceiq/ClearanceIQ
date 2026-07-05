@@ -1,0 +1,19 @@
+{
+  "hts": [
+    { "query": "LED backlight modules bulk order", "expected_code": "8541.40.8000", "expected_dutyRate": 0, "min_score": 1 },
+    { "query": "optical telescopes", "expected_code": "9013.80.0010", "expected_dutyRate": 0, "min_score": 1 },
+    { "query": "leather handbags", "expected_code": "4202.21.0000", "expected_dutyRate": 0, "min_score": 1 },
+    { "query": "smartphones", "expected_code": "8517.12.0095", "expected_dutyRate": 0, "min_score": 1 },
+    { "query": "plastic food containers sample", "expected_code": "3923.10.9000", "expected_dutyRate": 0.031, "min_score": 1 }
+  ],
+  "bond": [
+    { "type": "single", "value": 50000, "risk": 1.5, "expect_bondType": "single", "expect_premium_min": 750 },
+    { "type": "continuous", "value": 50000, "risk": 1.5, "expect_bondType": "continuous", "expect_premium_min": 750 },
+    { "type": "single", "value": 250000, "risk": 2.0, "expect_bondType": "single", "expect_premium_min": 7500 }
+  ],
+  "duty_calc": [
+    { "value": 35000, "hts": "8518", "origin": "China", "freight": 1200, "s301Rate": 0, "expect_duty_min": 0, "expect_landed_min": 36200 },
+    { "value": 35000, "hts": "3926", "origin": "Vietnam", "freight": 1200, "s301Rate": 0.25, "expect_duty_min": 1085, "expect_s301": 8750 },
+    { "value": 100000, "hts": "8517", "origin": "Germany", "freight": 5000, "s301Rate": 0, "expect_duty_min": 0, "expect_landed_min": 105000 }
+  ]
+}

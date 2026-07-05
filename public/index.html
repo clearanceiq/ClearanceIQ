@@ -6,8 +6,6 @@
     <title>ClearanceIQ — US Import Customs Tools</title>
     <meta name="description" content="Free HTS lookup, duty calculator, CBP hold decoder, supplier checklist, and bond estimator for importers. No account required. 100 uses/day with email.">
     <link rel="canonical" href="https://clearance-iq.com/">
-|| [];
-    </script>
 
     <meta property="og:title" content="ClearanceIQ — US Import Customs Tools">
     <meta property="og:description" content="HTS lookup, duty calculator, CBP hold decoder, supplier checklist, bond estimator. Free during beta.">
@@ -786,7 +784,7 @@
           return;
         }
         if (status) { status.textContent = 'Saving...'; status.style.color = 'var(--muted)'; }
-        fetch('/api/signup?email=' + encodeURIComponent(email))
+        fetch('/api/auth/signup?email=' + encodeURIComponent(email))
           .then(function(r){ return r.json(); })
           .then(function(data){
             if (data && data.ok) {

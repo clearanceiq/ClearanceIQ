@@ -826,39 +826,7 @@
 </main>
 
 <script>
-  // Hero signup
-  (function(){
-    var form = document.getElementById('heroSignup');
-    var status = document.getElementById('signupStatus');
-    if (!form) return;
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      try {
-        var fd = new FormData(form);
-        var email = (fd.get('email') || '').trim();
-        if (!email || email.indexOf('@') === -1) {
-          if (status) { status.textContent = 'Please enter a valid email.'; status.style.color = '#b91c1c'; }
-          return;
-        }
-        if (status) { status.textContent = 'Saving...'; status.style.color = 'var(--muted)'; }
-        fetch('/api/signup?email=' + encodeURIComponent(email))
-          .then(function(r){ return r.json(); })
-          .then(function(data){
-            if (data && data.ok) {
-              if (status) { status.textContent = 'Saved — you now have 100 free requests/day.'; status.style.color = '#16a34a'; }
-              form.reset();
-            } else {
-              if (status) { status.textContent = 'Could not save right now. Please try again.'; status.style.color = '#b91c1c'; }
-            }
-          })
-          .catch(function(){
-            if (status) { status.textContent = 'Network error. Please try again.'; status.style.color = '#b91c1c'; }
-          });
-      } catch (err) {
-        if (status) { status.textContent = 'Unexpected error. Please try again.'; status.style.color = '#b91c1c'; }
-      }
-    });
-  })();
+  // Hero signup is handled by site-inject.js to avoid duplicate submissions.
 
   if (window.CIQ && typeof window.CIQ.logEvent === 'function') {
     window.CIQ.logEvent({ type: 'page_view', page: location.pathname });
