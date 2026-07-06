@@ -66,20 +66,6 @@
 </main>
 
 <script>
-function logEvent(payload){
-  if (window.CIQ && typeof window.CIQ.logEvent === "function") {
-    window.CIQ.logEvent(payload);
-    return;
-  }
-  if (!navigator.sendBeacon) return;
-  try {
-    var base = typeof payload === "object" && payload !== null ? Object.assign({}, payload) : {};
-    base.ts = Date.now();
-    base.path = base.path || location.pathname;
-    navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
-  } catch(e){}
-}
-
 function update() {
   const type = document.getElementById('type').value;
   const value = parseFloat(document.getElementById('value').value || '0');
@@ -105,7 +91,7 @@ function update() {
         rows.map(([k,v]) => `<tr style="border-bottom:1px solid var(--border);"><td style="padding:8px 0; color:var(--text);">${k}</td><td style="padding:8px 0; text-align:right; font-weight:600;">${v}</td></tr>`).join('') +
         '</table><p style="margin-top:12px; font-size:12px; color:#94a3b8;">Estimate only. Final premium depends on surety underwriting, credit, and product risk.</p>';
       out.style.display = 'block';
-      logEvent({ type: 'bond_estimate', bondType: data.bondType, value, risk, premium: data.premium });
+      window.CIQ.logEvent({ type: 'bond_estimate', bondType: data.bondType, value, risk, premium: data.premium });
       return;
     })
     .catch(err => {

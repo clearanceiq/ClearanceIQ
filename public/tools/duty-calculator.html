@@ -23,33 +23,6 @@
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f595fc18f8864d93829ac6cd51832679"}'></script>
 <!-- End Cloudflare Web Analytics -->
 <script defer src="/site-inject.js"></script>
-  <script>
-    if (window.CIQ && typeof window.CIQ.resumeSession === "function") window.CIQ.resumeSession();
-    window.addEventListener("pageshow", function(){ if (window.CIQ && typeof window.CIQ.resumeSession === "function") window.CIQ.resumeSession(); });
-    window.addEventListener("load", function(){
-      try { if (window.CIQ && typeof window.CIQ.logEvent === "function") window.CIQ.logEvent({ type: "pageview" }); } catch(e){}
-    });
-  </script>
-  <div id="telemetry-retry" style="position:fixed;bottom:16px;right:16px;display:none;">
-    <button id="telemetry-retry-btn" style="border-radius:999px;background:#0f172a;color:#fff;border:1px solid #334155;padding:8px 12px;font-weight:600;">Retry telemetry</button>
-  </div>
-  <script>
-    (function(){
-      function setup(){
-        var btn = document.getElementById("telemetry-retry-btn");
-        var el = document.getElementById("telemetry-retry-retry");
-        if (btn && window.CIQ && typeof window.CIQ.logEvent === "function") {
-          btn.style.display = "inline-flex";
-          btn.addEventListener("click", function(){
-            window.CIQ.logEvent({ type: "retry", path: location.pathname });
-            el = document.getElementById("telemetry-retry");
-            if (el) el.style.display = "none";
-          });
-        }
-      }
-      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup); else setup();
-    })();
-  </script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -108,20 +81,6 @@
 </main>
 
 <script>
-function logEvent(payload){
-  if (window.CIQ && typeof window.CIQ.logEvent === "function") {
-    window.CIQ.logEvent(payload);
-    return;
-  }
-  if (!navigator.sendBeacon) return;
-  try {
-    var base = typeof payload === "object" && payload !== null ? Object.assign({}, payload) : {};
-    base.ts = Date.now();
-    base.path = base.path || location.pathname;
-    navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
-  } catch(e){}
-}
-
 function calculate() {
   const value = parseFloat(document.getElementById('value').value || '0');
   const freight = parseFloat(document.getElementById('freight').value || '0');
@@ -132,7 +91,7 @@ function calculate() {
 
   var advise = '';
   if (!/^\d{4}(\.\d{2}){0,3}$/.test(hts)) {
-    advise = '<p style="margin-top:10px; color:#b91c1c; font-size:13px;">⚠️ HTS code looks invalid. Expect formats like <b>8518.30.0000</b> or <b>8518300000</b>. Wrong headings produce wrong duty estimates.</p>';
+    advise = '<p style="margin-top:10px; color:#b91c1c; font-size:13px;">HTS code looks invalid. Expect formats like <b>8518.30.0000</b> or <b>8518300000</b>. Wrong headings produce wrong duty estimates.</p>';
   }
 
   const qs = new URLSearchParams({ value: String(value), hts, origin, freight: String(freight), s301Rate: String(s301Rate) });
@@ -153,12 +112,12 @@ function calculate() {
       document.getElementById('result_body').innerHTML = html;
       document.getElementById('result').style.display = 'block';
       document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
-      logEvent({ type: 'duty_calc', hts, generalRate: data.generalRate, duty: data.duty, section301: data.section301, landed: data.landed });
+      window.CIQ.logEvent({ type: 'duty_calc', hts, generalRate: data.generalRate, duty: data.duty, section301: data.section301, landed: data.landed });
     })
     .catch(err => {
       document.getElementById('result').style.display = 'none';
       console.error('[duty-calc]', err);
-      logEvent({ type: 'duty_calc_error', message: err && err.message ? err.message : 'unknown' });
+      window.CIQ.logEvent({ type: 'duty_calc_error', message: err && err.message ? err.message : 'unknown' });
     });
 }
 </script>
