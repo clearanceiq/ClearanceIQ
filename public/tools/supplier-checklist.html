@@ -84,6 +84,7 @@ function generate() {
   document.getElementById('checklist').scrollIntoView({ behavior: 'smooth' });
   if (window.CIQ && typeof window.CIQ.logEvent === 'function') {
     window.CIQ.logEvent({ type: 'checklist_generate', product: !!product, origin: !!origin, incoterms: !!incoterms });
+    try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
   }
 }
 </script>

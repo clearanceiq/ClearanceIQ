@@ -32,6 +32,30 @@
   window.CIQ = window.CIQ || {};
   window.CIQ.logEvent = logEvent;
   window.CIQ.resumeSession = function () { try { sessionStorage.setItem(sessionKey, sessionId); } catch(e) {} };
+  window.CIQ.refreshUsage = function () {
+    try {
+      var apiKey = '';
+      try { apiKey = localStorage.getItem('ciq_api_key') || ''; } catch (e) {}
+      fetch('/api/usage' + (apiKey ? '?key=' + encodeURIComponent(apiKey) : ''), { headers: apiKey ? { 'x-api-key': apiKey } : {} })
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+          var badge = document.getElementById('usageBadge');
+          if (badge) {
+            var strong = badge.querySelector('strong');
+            if (strong) strong.textContent = data && data.authenticated !== false && data.remaining != null ? (data.remaining + ' left') : '—';
+          }
+          var usedEl = document.getElementById('usedCount');
+          var remainEl = document.getElementById('remainingCount');
+          var tierEl = document.getElementById('tierLabel');
+          if (data && data.authenticated !== false) {
+            if (usedEl) usedEl.textContent = data.used != null ? data.used : '—';
+            if (remainEl) remainEl.textContent = data.remaining != null ? data.remaining : '—';
+            if (tierEl) tierEl.textContent = data.tier === 'signed' ? '100/day' : 'Free';
+          }
+        })
+        .catch(function(){});
+    } catch (e) {}
+  };
 
   try { sessionStorage.setItem('ciq_telem_v', '1'); } catch (e) {}
 

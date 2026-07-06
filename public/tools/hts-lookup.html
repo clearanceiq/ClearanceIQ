@@ -113,6 +113,7 @@ function runLookup() {
       status.textContent = "";
 
       window.CIQ.logEvent({ type: 'hts_hit', code: data.code, q });
+      try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
     })
     .catch(err => {
       out.style.display = 'none';

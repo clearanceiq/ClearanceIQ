@@ -66,7 +66,7 @@ const HOLDS = [
     <p><b>What to do:</b> Confirm all invoices, packing lists, and HTS codes match the entry summary. If CBP requests additional documents, respond via your broker within the stated deadline.</p>`
   },
   {
-    keywords: ["pga","fda","cpsc","usda","aphi","prior notice","sample","pga hold"],
+    keywords: ["pga","fda","usda","aphi","prior notice","sample","pga hold"],
     title: "Partner Government Agency (PGA) hold",
     body: `<p><b>What it means:</b> FDA, CPSC, USDA, APHIS, EPA, or another agency is clearing your product before release.</p>
     <p><b>Typical timeline:</b> 3–14+ days depending on agency, product type, and completeness of submitted data.</p>
@@ -147,6 +147,7 @@ function decode() {
   out.style.display = 'block';
   status.textContent = '';
   if (window.CIQ && typeof window.CIQ.logEvent === 'function') window.CIQ.logEvent({ type: 'cbp_hit', title: match.title, q });
+  try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
 }
 </script>
 </body>

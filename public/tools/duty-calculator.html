@@ -113,6 +113,7 @@ function calculate() {
       document.getElementById('result').style.display = 'block';
       document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
       window.CIQ.logEvent({ type: 'duty_calc', hts, generalRate: data.generalRate, duty: data.duty, section301: data.section301, landed: data.landed });
+      try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
     })
     .catch(err => {
       document.getElementById('result').style.display = 'none';

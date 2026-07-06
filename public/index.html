@@ -818,7 +818,8 @@
     var strong = badge.querySelector('strong');
     if (!usage || usage.authenticated === false) {
       if (strong) strong.textContent = '—';
-      badge.querySelector('span') && (badge.querySelector('span').textContent = '5/day anonymous');
+      var span = badge.querySelector('span');
+      if (span) span.textContent = '5/day anonymous';
       return;
     }
     var remaining = usage.remaining != null ? usage.remaining : '—';
@@ -857,7 +858,6 @@
   }
 
   try { updateUsage(); } catch (e) {}
-</script>
 </script>
 </body>
 </html>
