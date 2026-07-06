@@ -792,8 +792,13 @@
           .then(function(r){ return r.json(); })
           .then(function(data){
             if (data && data.ok) {
+              try {
+                localStorage.setItem('ciq_email', email);
+                if (data.apiKey) localStorage.setItem('ciq_api_key', data.apiKey);
+              } catch (e) {}
               if (status) { status.textContent = 'Saved — you now have 100 free requests/day.'; status.style.color = '#16a34a'; }
               form.reset();
+              updateUsage();
             } else {
               if (status) { status.textContent = (data && data.message) ? data.message : 'Could not save right now. Please try again.'; status.style.color = '#b91c1c'; }
             }
@@ -806,6 +811,52 @@
       }
     });
   })();
+
+  function updateUsageBadge(usage){
+    var badge = document.getElementById('usageBadge');
+    if (!badge) return;
+    var strong = badge.querySelector('strong');
+    if (!usage || usage.authenticated === false) {
+      if (strong) strong.textContent = '—';
+      badge.querySelector('span') && (badge.querySelector('span').textContent = '5/day anonymous');
+      return;
+    }
+    var remaining = usage.remaining != null ? usage.remaining : '—';
+    if (strong) strong.textContent = remaining + ' left';
+  }
+
+  function updateUsageCounters(usage){
+    var usedEl = document.getElementById('usedCount');
+    var remainEl = document.getElementById('remainingCount');
+    var tierEl = document.getElementById('tierLabel');
+    if (!usage || usage.authenticated === false) {
+      if (usedEl) usedEl.textContent = '0';
+      if (remainEl) remainEl.textContent = '5';
+      if (tierEl) tierEl.textContent = 'Free';
+      return;
+    }
+    if (usedEl) usedEl.textContent = usage.used != null ? usage.used : '—';
+    if (remainEl) remainEl.textContent = usage.remaining != null ? usage.remaining : '—';
+    if (tierEl) tierEl.textContent = usage.tier === 'signed' ? '100/day' : 'Free';
+  }
+
+  function updateUsage(){
+    var apiKey;
+    try { apiKey = localStorage.getItem('ciq_api_key') || ''; } catch (e) { apiKey = ''; }
+    var url = '/api/usage' + (apiKey ? '?key=' + encodeURIComponent(apiKey) : '');
+    fetch(url, { headers: apiKey ? { 'x-api-key': apiKey } : {} })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        updateUsageBadge(data);
+        updateUsageCounters(data);
+      })
+      .catch(function(){
+        var badge = document.getElementById('usageBadge');
+        if (badge) { var strong = badge.querySelector('strong'); if (strong) strong.textContent = '—'; }
+      });
+  }
+
+  try { updateUsage(); } catch (e) {}
 </script>
 </script>
 </body>

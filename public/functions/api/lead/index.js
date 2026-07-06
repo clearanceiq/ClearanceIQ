@@ -53,6 +53,8 @@ export async function onRequestPost(context) {
     }
   }
 
+  const apiKey = "ciq_" + Array.from(crypto.getRandomValues(new Uint8Array(24))).map(b => b.toString(16).padStart(2, "0")).join("");
+
   const lead = {
     id: crypto.randomUUID(),
     receivedAt: new Date().toISOString(),
@@ -62,6 +64,7 @@ export async function onRequestPost(context) {
     topic: topic || null,
     message: message || null,
     status: "captured",
+    apiKey,
   };
 
   if (context.env && context.env.LEADS) {
@@ -72,7 +75,7 @@ export async function onRequestPost(context) {
     }
   }
 
-  return new Response(JSON.stringify({ ok: true, lead, status: "captured" }), {
+  return new Response(JSON.stringify({ ok: true, lead: { id: lead.id, email, source, status: lead.status }, apiKey, status: "captured" }), {
     headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearance-iq.com" },
   });
 }
