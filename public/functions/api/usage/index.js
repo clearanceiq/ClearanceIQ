@@ -89,7 +89,7 @@ export async function onRequestGet(context) {
   };
 
   if (!reqKey) {
-    const rate = consumeRate(context, 5);
+    const rate = readRate(rateKeyFor(context), 5);
     return response({
       ok: true,
       authenticated: false,
