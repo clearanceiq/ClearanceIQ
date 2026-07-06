@@ -175,7 +175,7 @@ export async function onRequestGet(context) {
 
     const DATA = [
       { code: '8518.30.0000', desc: 'Loudspeaker for home theater entry system', material: 'ABS plastic cone + copper voice coil + steel magnet', enduse: 'Sound reproduction in living rooms and home theaters', duty: 'Free', adcvd: 'none', keywords: ['loudspeaker','speaker','soundbar','pa speaker','woofer','bookshelf speaker','audio speaker'] },
-      { code: '8518.40.0000', desc: 'Wired noise-cancelling headset for call center', material: 'ABS housing + 40mm dynamic driver + leatherette + foam', enduse: 'Single-agent audio for contact-center workers', duty: 'Free', adcvd: 'none', keywords: ['headphone','earphone','headset','earbud','airpod','earbuds','wearable audio'] },
+      { code: '8518.40.0000', desc: 'Wired noise-cancelling headset for call center', material: 'ABS housing + 40mm dynamic driver + leatherette + foam', enduse: 'Single-agent audio for contact-center workers', duty: 'Free', adcvd: 'none', keywords: ['headphone','earphone','headset','earbud','airpod','earbuds','wearable audio','bluetooth headphone','calls music','wireless headphone'] },
       { code: '8517.12.0095', desc: 'Unlocked smartphone replacement unit', material: 'Aluminum frame + Gorilla Glass + lithium-ion battery + PCBA', enduse: 'Consumer communication and app-based navigation', duty: 'Free', adcvd: 'none', keywords: ['smartphone','phone','mobile','cell phone','android','iphone','handset'] },
       { code: '8517.62.0000', desc: 'Indoor cellular signal booster kit', material: 'Steel chassis + ceramic duplexer + RF coaxial cable', enduse: 'Amplify weak indoor carrier signal', duty: 'Free', adcvd: 'none', keywords: ['base station','repeater','signal booster','cell repeater'] },
       { code: '9013.80.0010', desc: 'LED floor-standing digital signage panel', material: 'Aluminum extrusion frame + diffuser PMMA + LED SMD modules', enduse: 'Permanent retail advertisement and menu boards', duty: 'Free', adcvd: 'none', keywords: ['led display','led panel','lcd panel','monitor','screen','digital signage'] },
@@ -284,8 +284,15 @@ export async function onRequestGet(context) {
       moderate: 'Notify broker for AD/CVD review if shipping above de minimis.'
     };
 
+    const STOP = new Set([
+      'for','and','the','a','an','of','in','on','to','with','from','by','or',
+      'new','used','set','pack','kit','unit','product','type','model','small','large'
+    ]);
+
     function scoreToken(row, phrase) {
       const p = phrase.toLowerCase();
+      if (STOP.has(p) || p.length < 2) return 0;
+
       const hay = [
         row.code,
         row.desc,
@@ -314,13 +321,14 @@ export async function onRequestGet(context) {
         let hitTokens = 0;
         for (const t of tokens) {
           if (t.length < 2) continue;
-          if (hay.includes(t)) hitTokens += 1;
+          const normalized = t.endsWith('s') && t.length > 3 ? t.slice(0, -1) : t;
+          if (hay.includes(normalized)) hitTokens += 1;
         }
         score += (hitTokens / tokens.length) * 1.6;
       }
 
       // Compact code prefix
-      const compactCode = row.code.replace(/\./g, '');
+      const compactCode = row.code.replace(/\\./g, '');
       if (compactCode.startsWith(p)) score += 2;
 
       // Cap per row
