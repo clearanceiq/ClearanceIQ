@@ -98,8 +98,10 @@ function runLookup() {
     .then(data => {
       if (!data || !data.ok) {
         out.style.display = "none";
-        status.textContent = "No local match. For official rates, use USITC HTS Search or a licensed broker.";
+        var suggest = data && data.suggest ? ' ' + data.suggest : '';
+        status.textContent = "No local match." + suggest + " For official rates, use USITC HTS Search or a licensed broker.";
         window.CIQ.logEvent({ type: 'hts_no_match', q });
+        try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
         return;
       }
       document.getElementById("result_title").textContent = `${data.code} — ${data.description}`;
