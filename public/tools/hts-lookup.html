@@ -44,6 +44,24 @@
       <input id="q" type="text" placeholder="e.g. 8518.30.0000 or bluetooth headphones" style="flex:1; min-width:220px;">
       <button class="cta" onclick="runLookup()">Look up</button>
     </div>
+
+    <div style="margin-top:14px; display:grid; gap:10px;">
+      <div>
+        <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:4px;">Product description <span style="opacity:.7;">(optional, improves matching)</span></label>
+        <input id="q_desc" type="text" placeholder="e.g. non-stick ceramic frying pan" style="width:100%;">
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div>
+          <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:4px;">Material composition <span style="opacity:.7;">(optional)</span></label>
+          <input id="q_material" type="text" placeholder="e.g. aluminum, ceramic coating" style="width:100%;">
+        </div>
+        <div>
+          <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:4px;">Intended end use <span style="opacity:.7;">(optional)</span></label>
+          <input id="q_enduse" type="text" placeholder="e.g. household cooking" style="width:100%;">
+        </div>
+      </div>
+    </div>
+
     <p id="status" style="margin:10px 0 0; font-size:13px; color:var(--muted);"></p>
   </div>
 
@@ -83,48 +101,54 @@ const ADCVD_NOTES = {
 
 function runLookup() {
   var qEl = document.getElementById("q");
+  var descEl = document.getElementById("q_desc");
+  var materialEl = document.getElementById("q_material");
+  var enduseEl = document.getElementById("q_enduse");
   var out = document.getElementById("result");
   var status = document.getElementById("status");
-  var btn = document.getElementById("lookupBtn");
 
-  var q = (qEl && qEl.value || "").trim().toLowerCase();
-  if (!q) { if (status) status.textContent = "Enter a code or keyword."; return; }
+  var q = (qEl && qEl.value || "").trim();
+  var desc = (descEl && descEl.value || "").trim();
+  var material = (materialEl && materialEl.value || "").trim();
+  var enduse = (enduseEl && enduseEl.value || "").trim();
+
+  if (!q && !desc) { if (status) status.textContent = "Enter a code, keyword, or product description."; return; }
+
   if (status) status.textContent = "Looking up…";
   if (out) out.style.display = "none";
-  if (btn) btn.disabled = true;
 
-  fetch('/api/v1/hts?q=' + encodeURIComponent(q), { headers: { accept: 'application/json' } })
-    .then(r => r.json())
-    .then(data => {
+  var params = new URLSearchParams();
+  if (q) params.set("q", q);
+  if (desc) params.set("desc", desc);
+  if (material) params.set("material", material);
+  if (enduse) params.set("enduse", enduse);
+  fetch('/api/v1/hts?' + params.toString(), { headers: { accept: 'application/json' } })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
       if (!data || !data.ok) {
-        out.style.display = "none";
+        if (out) out.style.display = "none";
         var suggest = data && data.suggest ? ' ' + data.suggest : '';
-        status.textContent = "No local match." + suggest + " For official rates, use USITC HTS Search or a licensed broker.";
-        window.CIQ.logEvent({ type: 'hts_no_match', q });
+        status.textContent = "No match." + suggest + " For official rates, use USITC HTS Search or a licensed broker.";
+        window.CIQ.logEvent({ type: 'hts_no_match', q: q || desc });
         try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
         return;
       }
-      document.getElementById("result_title").textContent = `${data.code} — ${data.description}`;
-      document.getElementById("result_body").innerHTML = `
-        <p><b>Indicative duty:</b> ${(data.dutyRate * 100).toFixed(1)}%</p>
-        <p><b>AD/CVD watch:</b> ${data.adcvd === "none" ? "None on record" : "Flagged — review before booking"}</p>
-        <p style="margin-top:10px;">${data.note || ""}</p>
-        <p style="margin-top:10px; font-size:12px; color:var(--muted);">Planning reference only. Not a ruling. Verify with CBP or a licensed broker.</p>
-      `;
-      out.style.display = "block";
+      document.getElementById("result_title").textContent = (data.code || '') + ' — ' + (data.description || '');
+      document.getElementById("result_body").innerHTML = '<p><b>Indicative duty:</b> ' + ((typeof data.dutyRate === 'number' ? (data.dutyRate * 100).toFixed(1) : '—')) + '%</p>' +
+        '<p><b>AD/CVD watch:</b> ' + (data.adcvd === "none" ? "None on record" : "Flagged — review before booking") + '</p>' +
+        '<p style="margin-top:10px;">' + (data.note || "") + '</p>' +
+        '<p style="margin-top:10px; font-size:12px; color:var(--muted);">Planning reference only. Not a ruling. Verify with CBP or a licensed broker.</p>';
+      if (out) out.style.display = "block";
       status.textContent = "";
 
-      window.CIQ.logEvent({ type: 'hts_hit', code: data.code, q });
+      window.CIQ.logEvent({ type: 'hts_hit', code: data.code, q: q || desc });
       try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
     })
-    .catch(err => {
-      out.style.display = 'none';
+    .catch(function(err){
+      if (out) out.style.display = 'none';
       status.textContent = 'Lookup failed. Try again.';
       console.error('[hts-lookup]', err);
-      window.CIQ.logEvent({ type: 'hts_error', q, message: err && err.message ? err.message : 'unknown' });
-    })
-    .finally(function(){
-      if (btn) btn.disabled = false;
+      window.CIQ.logEvent({ type: 'hts_error', q: q || desc, message: (err && err.message) ? err.message : 'unknown' });
     });
 }
 

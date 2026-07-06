@@ -816,29 +816,27 @@
     var badge = document.getElementById('usageBadge');
     if (!badge) return;
     var strong = badge.querySelector('strong');
-    if (!usage || usage.authenticated === false) {
-      if (strong) strong.textContent = '—';
-      var span = badge.querySelector('span');
-      if (span) span.textContent = '5/day anonymous';
-      return;
-    }
-    var remaining = usage.remaining != null ? usage.remaining : '—';
+    var show = usage && (usage.authenticated !== false || usage.tier === 'anonymous');
+    var remaining = show && usage.remaining != null ? usage.remaining : '—';
     if (strong) strong.textContent = remaining + ' left';
+    var span = badge.querySelector('span');
+    if (span) span.textContent = usage && usage.tier === 'signed' ? '100/day signed' : '5/day anonymous';
   }
 
   function updateUsageCounters(usage){
     var usedEl = document.getElementById('usedCount');
     var remainEl = document.getElementById('remainingCount');
     var tierEl = document.getElementById('tierLabel');
-    if (!usage || usage.authenticated === false) {
-      if (usedEl) usedEl.textContent = '0';
-      if (remainEl) remainEl.textContent = '5';
+    if (!usage) return;
+    if (usage.tier === 'anonymous'){
+      if (usedEl) usedEl.textContent = usage.used != null ? usage.used : '0';
+      if (remainEl) remainEl.textContent = usage.remaining != null ? usage.remaining : '5';
       if (tierEl) tierEl.textContent = 'Free';
-      return;
+    }else if (usage.authenticated !== false){
+      if (usedEl) usedEl.textContent = usage.used != null ? usage.used : '—';
+      if (remainEl) remainEl.textContent = usage.remaining != null ? usage.remaining : '—';
+      if (tierEl) tierEl.textContent = usage.tier === 'signed' ? '100/day' : 'Free';
     }
-    if (usedEl) usedEl.textContent = usage.used != null ? usage.used : '—';
-    if (remainEl) remainEl.textContent = usage.remaining != null ? usage.remaining : '—';
-    if (tierEl) tierEl.textContent = usage.tier === 'signed' ? '100/day' : 'Free';
   }
 
   function updateUsage(){

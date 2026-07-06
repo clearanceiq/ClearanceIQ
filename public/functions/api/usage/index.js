@@ -45,6 +45,20 @@ function consumeRate(ctx, dailyCap) {
   };
 }
 
+function readRate(key, dailyCap) {
+  const today = new Date().toISOString().slice(0, 10);
+  const dayMap = rateMemory.has(today) ? rateMemory.get(today) : new Map();
+  const entry = dayMap.has(key) ? dayMap.get(key) : { count: 0 };
+  const used = entry.count || 0;
+  return {
+    remaining: Math.max(0, dailyCap - used),
+    limited: used > dailyCap,
+    limit: dailyCap,
+    used,
+    resetUnix: nextMidnightUTC(),
+  };
+}
+
 function nextMidnightUTC() {
   const now = new Date();
   const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
@@ -75,17 +89,23 @@ export async function onRequestGet(context) {
   };
 
   if (!reqKey) {
+    const rate = consumeRate(context, 5);
     return response({
       ok: true,
       authenticated: false,
-      note: 'Missing x-api-key or ?key',
+      note: 'Anonymous access',
       count: 0,
       events: [],
-      limit: 0,
-      used: 0,
-      remaining: 0,
+      limit: rate.limit,
+      used: rate.used,
+      remaining: rate.remaining,
       tier: 'anonymous',
-    }, rateLimitHeaders, 200);
+    }, {
+      'x-rate-limit-remaining': String(rate.remaining),
+      'x-rate-limit-limit': String(rate.limit),
+      'x-rate-limit-reset': String(rate.resetUnix),
+      'x-rate-limit-tier': 'anonymous',
+    }, 200);
   }
 
   const rateResult = consumeRate(context, reqKey ? 200 : 5);

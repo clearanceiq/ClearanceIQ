@@ -131,14 +131,20 @@ export async function onRequestGet(context) {
     }
 
     const url = new URL(context.request.url);
-    let query = (url.searchParams.get('q') || '').trim().toLowerCase();
+    const qRaw = (url.searchParams.get('q') || '').trim();
+    const desc = (url.searchParams.get('desc') || '').trim();
+    const material = (url.searchParams.get('material') || '').trim();
+    const enduse = (url.searchParams.get('enduse') || '').trim();
+    const query = [qRaw, desc, material, enduse].filter(Boolean).join(' ').toLowerCase();
+    const combined = [qRaw, desc, material, enduse].filter(Boolean).join(' ');
+
     if (!query) {
       await logUsage(tier, 'v1/hts', context, 'error');
       return new Response(
-        JSON.stringify({ ok: false, error: 'q required' }),
+        JSON.stringify({ ok: false, error: 'q or product details required', suggest: 'Please provide the product description, material composition, and intended end use so we can identify a better HTS match.' }),
         {
           headers: cors({
-            'x-rate-limit-remaining': String(limit.remaining),
+            'x-rate-limit-remaining': String(Math.max(0, limit.remaining - 1)),
             'x-rate-limit-limit': String(limit.limit),
             'x-rate-limit-tier': tier,
             'x-rate-limit-reset': String(limit.resetUnix),
@@ -148,14 +154,13 @@ export async function onRequestGet(context) {
       );
     }
 
-    if (/^https?:\/\//i.test(query) || query.includes('://') || /amazon\.com|amzn\.to|youtube\.com|youtu\.be/i.test(query)) {
+    if (/^https?:\/\//i.test(combined) || combined.includes('://') || /amazon\.com|amzn\.to|youtube\.com|youtu\.be/i.test(combined)) {
       await logUsage(tier, 'v1/hts', context, 'no_match');
       return new Response(
         JSON.stringify({
           ok: false,
           error: 'no_match',
-          suggest:
-            'That looks like a product link. Please paste the product description, material composition, and intended end use so we can identify a better HTS match.',
+          suggest: 'That looks like a product link. Please paste the product description, material composition, and intended end use so we can identify a better HTS match.',
         }),
         {
           headers: cors({

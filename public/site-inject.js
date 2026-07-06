@@ -36,18 +36,30 @@
     try {
       var apiKey = '';
       try { apiKey = localStorage.getItem('ciq_api_key') || ''; } catch (e) {}
-      fetch('/api/usage' + (apiKey ? '?key=' + encodeURIComponent(apiKey) : ''), { headers: apiKey ? { 'x-api-key': apiKey } : {} })
+      var url = '/api/usage';
+      var headers = {};
+      if (apiKey) {
+        url += '?key=' + encodeURIComponent(apiKey);
+        headers['x-api-key'] = apiKey;
+      }
+      fetch(url, { headers: headers })
         .then(function(r){ return r.json(); })
         .then(function(data){
           var badge = document.getElementById('usageBadge');
           if (badge) {
             var strong = badge.querySelector('strong');
-            if (strong) strong.textContent = data && data.authenticated !== false && data.remaining != null ? (data.remaining + ' left') : '—';
+            if (strong) {
+              var remaining = data && data.remaining != null ? data.remaining : '—';
+              var tier = data && data.tier === 'signed' ? '100/day signed' : '5/day anonymous';
+              strong.textContent = remaining + ' left';
+              var span = badge.querySelector('span');
+              if (span) span.textContent = tier;
+            }
           }
           var usedEl = document.getElementById('usedCount');
           var remainEl = document.getElementById('remainingCount');
           var tierEl = document.getElementById('tierLabel');
-          if (data && data.authenticated !== false) {
+          if (data) {
             if (usedEl) usedEl.textContent = data.used != null ? data.used : '—';
             if (remainEl) remainEl.textContent = data.remaining != null ? data.remaining : '—';
             if (tierEl) tierEl.textContent = data.tier === 'signed' ? '100/day' : 'Free';
