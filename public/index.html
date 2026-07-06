@@ -784,7 +784,7 @@
           return;
         }
         if (status) { status.textContent = 'Saving...'; status.style.color = 'var(--muted)'; }
-        fetch('/api/auth/signup', {
+        fetch('/api/lead', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ email: email })
