@@ -88,7 +88,9 @@ export async function onRequestGet(context) {
     pathname.slice(
       pathname.toLowerCase().indexOf('/api/telemetry') + '/api/telemetry'.length
     ) || '/';
+  const view = url.searchParams.get('view')?.toLowerCase();
   const isIndex = !page || page === '/';
+  const isReport = view === 'report' || page === '/report';
 
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '25', 10) || 25, 200);
 
