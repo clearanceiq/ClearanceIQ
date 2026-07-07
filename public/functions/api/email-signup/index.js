@@ -19,7 +19,8 @@ export async function onRequestGet(context) {
     count: 0,
   };
 
-  if (!context.env?.LEADS) {
+  const leadsEnv = context.env?.LEADS || context.env?.Leads;
+  if (!leadsEnv) {
     return new Response(JSON.stringify({ ...out, error: 'LEADS binding not available' }), {
       headers: { 'content-type': 'application/json', 'access-control-allow-origin': 'https://clearance-iq.com' },
     });
@@ -31,7 +32,7 @@ export async function onRequestGet(context) {
   let cursor;
   const prefix = 'email_';
   do {
-    const result = await context.env.LEADS.list({ prefix, limit: Math.max(limit, 1000), cursor });
+    const result = await leadsEnv.list({ prefix, limit: Math.max(limit, 1000), cursor });
     if (Array.isArray(result.keys)) {
       for (const kv of result.keys) items.push(kv);
     }
@@ -105,9 +106,9 @@ export async function onRequestPost(context) {
     apiKey,
   };
 
-  if (context.env && context.env.LEADS) {
+  if (context.env && (context.env.LEADS || context.env.Leads)) {
     try {
-      await context.env.LEADS.put('email_' + id, JSON.stringify(signup));
+      await (context.env.LEADS || context.env.Leads).put('email_' + id, JSON.stringify(signup));
     } catch (e) {}
   }
 
