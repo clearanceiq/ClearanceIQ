@@ -102,7 +102,7 @@ async function logUsage(tier, endpoint, context, result) {
 export async function onRequestGet(context) {
   try {
     const { key, cap, tier } = resolveRateLimitContext(context, { anonymousCap: 5, signedCap: 100 });
-    const limit = consumeLimit(key, cap, context.env);
+    const limit = await consumeLimit(key, cap, context.env);
 
     if (limit.limited) {
       await logUsage(tier, 'v1/hts', context, 'rate_limit');
