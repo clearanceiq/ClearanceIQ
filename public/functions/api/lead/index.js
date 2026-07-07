@@ -1,6 +1,46 @@
 export async function onRequestGet(context) {
-  return new Response(JSON.stringify({ ok: true, service: "lead", method: "GET" }), {
-    headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearance-iq.com" },
+  const out = {
+    ok: true,
+    service: 'lead',
+    method: 'GET',
+    items: [],
+    count: 0,
+  };
+
+  if (!context.env?.LEADS) {
+    return new Response(JSON.stringify({ ...out, error: 'LEADS binding not available' }), {
+      headers: { 'content-type': 'application/json', 'access-control-allow-origin': 'https://clearance-iq.com' },
+    });
+  }
+
+  const url = new URL(context.request.url);
+  const limit = Math.min(parseInt(url.searchParams.get('limit') || '200', 10) || 200, 1000);
+  const items = [];
+  let cursor;
+  do {
+    const result = await context.env.LEADS.list({ limit: Math.max(limit, 1000), cursor });
+    if (Array.isArray(result.keys)) {
+      for (const kv of result.keys) items.push(kv);
+    }
+    cursor = result.list_complete ? undefined : result.cursor;
+  } while (cursor && items.length < limit);
+
+  const sliced = items.slice(-limit).reverse();
+  const rows = await Promise.all(
+    sliced.map(async (kv) => {
+      try {
+        const raw = await context.env.LEADS.get(kv.name);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    })
+  );
+
+  out.items = rows.filter(Boolean);
+  out.count = out.items.length;
+  return new Response(JSON.stringify(out), {
+    headers: { 'content-type': 'application/json', 'access-control-allow-origin': 'https://clearance-iq.com' },
   });
 }
 
