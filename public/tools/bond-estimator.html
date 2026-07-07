@@ -84,6 +84,7 @@ function update() {
   fetch('/api/v1/bond?' + qs.toString(), { headers: headers })
     .then(r => r.json())
     .then(data => {
+      if (window.CIQ.isRateLimit(data)) { out.style.display = 'none'; window.CIQ.handleRateLimit(document.getElementById('status') || out, data); return; }
       if (!data || !data.ok) { throw new Error(data && data.error ? data.error : 'request failed'); }
       const rows = [
         ['Bond type', data.bondType === 'continuous' ? 'Continuous Bond' : 'Single Transaction'],

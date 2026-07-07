@@ -107,6 +107,7 @@ function calculate() {
       return r.json();
     })
     .then(data => {
+      if (window.CIQ.isRateLimit(data)) { document.getElementById('result').style.display = 'none'; window.CIQ.handleRateLimit(document.getElementById('status') || document.getElementById('result'), data); return; }
       if (!data || !data.ok) { throw new Error(data && data.error ? data.error : 'request failed'); }
       const html = '<table style="width:100%; border-collapse:collapse;">' +
         data.table.map(([k,v]) => `<tr style="border-bottom:1px solid var(--border);"><td style="padding:8px 0; color:var(--text);">${k}</td><td style="padding:8px 0; text-align:right; font-weight:600;">${v}</td></tr>`).join('') +

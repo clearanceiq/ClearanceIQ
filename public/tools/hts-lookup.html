@@ -129,6 +129,7 @@ function runLookup() {
   fetch('/api/v1/hts?' + params.toString(), { headers: headers })
     .then(function(r){ return r.json(); })
     .then(function(data){
+      if (window.CIQ.isRateLimit(data)) { if (out) out.style.display = "none"; window.CIQ.handleRateLimit(status, data); return; }
       if (!data || !data.ok) {
         if (out) out.style.display = "none";
         var suggest = data && data.suggest ? ' ' + data.suggest : '';

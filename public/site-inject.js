@@ -44,6 +44,16 @@
     } catch (e) { /* noop */ }
   };
   window.CIQ.resumeSession = function () { try { sessionStorage.setItem(sessionKey, sessionId); } catch(e) {} };
+  window.CIQ.isRateLimit = function (data) { return !!(data && data.error === 'rate_limit'); };
+  window.CIQ.handleRateLimit = function (statusEl, data) {
+    try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
+    if (!statusEl) return;
+    var msg = (data && data.upgrade)
+      ? data.upgrade
+      : 'You reached your free limit of 5 lookups/day. Sign up free for 100/day.';
+    statusEl.innerHTML = '⚠️ ' + msg + ' <a href="/">Sign up free →</a>';
+    statusEl.style.color = '#f59e0b';
+  };
   window.CIQ.refreshUsage = function () {
     try {
       var apiKey = '';
@@ -80,6 +90,39 @@
         .catch(function(){});
     } catch (e) {}
   };
+
+  // Anonymous over-limit gate for client-side-only tools (no API call of their own)
+  window.CIQ.maybeGateTool = function () {
+    try {
+      var apiKey = localStorage.getItem('ciq_api_key');
+      if (apiKey) return; // members are never gated
+      if (!navigator.sendBeacon) return;
+      fetch('/api/usage').then(function(r){ return r.json(); }).then(function(data){
+        if (data && data.authenticated === false && data.remaining <= 0) {
+          var gate = document.getElementById('ciqToolGate');
+          if (gate) return;
+          var el = document.createElement('div');
+          el.id = 'ciqToolGate';
+          el.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.92);z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;font-family:inherit;';
+          el.innerHTML = '<div style="max-width:420px;background:#0f172a;border:1px solid #334155;border-radius:14px;padding:28px;text-align:center;color:#e2e8f0;">'
+            + '<h2 style="margin:0 0 10px;font-size:20px;">Free limit reached</h2>'
+            + '<p style="margin:0 0 18px;color:#94a3b8;font-size:14px;line-height:1.5;">You have used your 5 free tool uses today. Sign up free for 100/day — no card needed.</p>'
+            + '<a href="/" style="display:inline-block;background:#38bdf8;color:#06283d;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;">Sign up free →</a>'
+            + '</div>';
+          document.body.appendChild(el);
+        }
+      }).catch(function(){});
+    } catch (e) {}
+  };
+
+  // Gate non-API tools on load
+  try {
+    var p = location.pathname;
+    if (['cbp-hold-decoder','compliance-checklist','supplier-checklist','start-here'].some(function(t){ return p.indexOf(t) !== -1; })) {
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', window.CIQ.maybeGateTool);
+      else window.CIQ.maybeGateTool();
+    }
+  } catch (e) {}
 
   try { sessionStorage.setItem('ciq_telem_v', '1'); } catch (e) {}
 
