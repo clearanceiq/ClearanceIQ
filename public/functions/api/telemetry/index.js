@@ -92,17 +92,15 @@ export async function onRequestGet(context) {
   const isIndex = !page || page === '/';
   const isReport = view === 'report' || page === '/report';
 
-  const limit = Math.min(parseInt(url.searchParams.get('limit') || '25', 10) || 25, 200);
+  if (isIndex || isReport) {
+    const reportLimit = isReport ? Math.min(parseInt(url.searchParams.get('limit') || '200', 10) || 200, 1000) : limit;
+    if (!isReport) {
+      const rows = await listAllEvents(context.env, reportLimit);
+      return new Response(JSON.stringify({ ok: true, count: rows.length, events: rows }), {
+        headers: corsHeaders,
+      });
+    }
 
-  if (isIndex) {
-    const rows = await listAllEvents(context.env, limit);
-    return new Response(JSON.stringify({ ok: true, count: rows.length, events: rows }), {
-      headers: corsHeaders,
-    });
-  }
-
-  if (page === '/report') {
-    const reportLimit = Math.min(parseInt(url.searchParams.get('limit') || '200', 10) || 200, 1000);
     const rows = await listAllEvents(context.env, reportLimit);
     const report = buildToolReport(rows);
 
@@ -111,7 +109,7 @@ export async function onRequestGet(context) {
         ok: true,
         debug: !!debug,
         originalPathname: pathname,
-        page,
+        view: view || 'path',
         count: rows.length,
         sampleEvent: rows[0] || null,
         report,
@@ -125,7 +123,7 @@ export async function onRequestGet(context) {
     );
   }
 
-  return new Response(JSON.stringify({ ok: false, error: 'Unknown telemetry path', path: page }), {
+  return new Response(JSON.stringify({ ok: false, error: 'Unknown telemetry path', path: page, view }), {
     status: 404,
     headers: corsHeaders,
   });
