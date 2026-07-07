@@ -167,17 +167,25 @@ export async function onRequestGet(context) {
     ];
 
     await logUsage(tier, 'v1/duty-calc', context, 'ok');
+    const body = {
+      ok: true,
+      inputs: { value, hts: htsRaw, origin, freight, s301Rate },
+      generalRate,
+      duty,
+      section301,
+      landed,
+      table: rows,
+      note: 'Reference only. Actual rates depend on HTS special provisions, FTAs, and broker classification.',
+    };
+    if (context.env?.TELEMETRY) {
+      try {
+        context.waitUntil(
+          context.env.TELEMETRY.put(`training::${Date.now()}::${Math.random().toString(36).slice(2, 8)}`, JSON.stringify({ ts: new Date().toISOString(), path: '/tools/duty-calculator', type: 'duty_calc', sessionToken: '', ip: 'server-side', meta: { tool: 'duty-calculator' }, payload: body }))
+        );
+      } catch { /* no-op */ }
+    }
     return new Response(
-      JSON.stringify({
-        ok: true,
-        inputs: { value, hts: htsRaw, origin, freight, s301Rate },
-        generalRate,
-        duty,
-        section301,
-        landed,
-        table: rows,
-        note: 'Reference only. Actual rates depend on HTS special provisions, FTAs, and broker classification.',
-      }),
+      JSON.stringify(body),
       {
         headers: cors({
           'x-rate-limit-remaining': String(limit.remaining),

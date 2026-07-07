@@ -31,6 +31,18 @@
 
   window.CIQ = window.CIQ || {};
   window.CIQ.logEvent = logEvent;
+  window.CIQ.logTraining = function(payload) {
+    if (!navigator.sendBeacon) return;
+    try {
+      var base = typeof payload === 'object' && payload !== null ? Object.assign({}, payload) : {};
+      base.ts = Date.now();
+      base.path = base.path || location.pathname;
+      base.sessionToken = sessionId;
+      base.tool = base.tool || ['bond-estimator','cbp-hold-decoder','compliance-checklist','duty-calculator','hts-lookup','supplier-checklist']
+        .find(function(t){ return location.pathname.indexOf(t) !== -1; });
+      navigator.sendBeacon('/api/training', JSON.stringify(base));
+    } catch (e) { /* noop */ }
+  };
   window.CIQ.resumeSession = function () { try { sessionStorage.setItem(sessionKey, sessionId); } catch(e) {} };
   window.CIQ.refreshUsage = function () {
     try {

@@ -92,12 +92,14 @@ function update() {
         '</table><p style="margin-top:12px; font-size:12px; color:#94a3b8;">Estimate only. Final premium depends on surety underwriting, credit, and product risk.</p>';
       out.style.display = 'block';
       window.CIQ.logEvent({ type: 'bond_estimate', bondType: data.bondType, value, risk, premium: data.premium });
+      window.CIQ.logTraining({ tool: 'bond-estimator', type: 'bond_estimate', input: { bondType: data.bondType, value, risk }, result: { assessedValue: data.assessedValue, premiumRate: data.premiumRate, premium: data.premium, formatted: data.formatted } });
       try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
       return;
     })
     .catch(err => {
       out.style.display = 'none';
       console.error('[bond-estimator]', err);
+      window.CIQ.logTraining({ tool: 'bond-estimator', type: 'bond_error', input: { type, value, risk }, result: { error: err && err.message ? err.message : 'unknown' } });
     });
 }
 

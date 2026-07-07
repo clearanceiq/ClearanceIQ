@@ -130,6 +130,7 @@ function runLookup() {
         var suggest = data && data.suggest ? ' ' + data.suggest : '';
         status.textContent = "No match." + suggest + " For official rates, use USITC HTS Search or a licensed broker.";
         window.CIQ.logEvent({ type: 'hts_no_match', q: q || desc });
+        if (window.CIQ && typeof window.CIQ.logTraining === 'function') window.CIQ.logTraining({ tool: 'hts-lookup', type: 'hts_no_match', input: { q: q || desc, desc, material, enduse }, result: {} });
         try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
         return;
       }
@@ -142,6 +143,7 @@ function runLookup() {
       status.textContent = "";
 
       window.CIQ.logEvent({ type: 'hts_hit', code: data.code, q: q || desc });
+      window.CIQ.logTraining({ tool: 'hts-lookup', type: 'hts_hit', input: { q: q || desc, desc, material, enduse }, result: { code: data.code, description: data.description, dutyRate: data.dutyRate, adcvd: data.adcvd } });
       try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
     })
     .catch(function(err){

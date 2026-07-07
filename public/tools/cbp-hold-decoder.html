@@ -140,6 +140,7 @@ function decode() {
     out.style.display = 'none';
     status.textContent = 'No direct local match. Ask your broker which PGA or program is blocking release.';
     if (window.CIQ && typeof window.CIQ.logEvent === 'function') window.CIQ.logEvent({ type: 'cbp_no_match', q });
+    if (window.CIQ && typeof window.CIQ.logTraining === 'function') window.CIQ.logTraining({ tool: 'cbp-hold-decoder', type: 'cbp_no_match', input: { q }, result: { title: null } });
     return;
   }
   document.getElementById('result_title').textContent = match.title;
@@ -147,6 +148,7 @@ function decode() {
   out.style.display = 'block';
   status.textContent = '';
   if (window.CIQ && typeof window.CIQ.logEvent === 'function') window.CIQ.logEvent({ type: 'cbp_hit', title: match.title, q });
+  if (window.CIQ && typeof window.CIQ.logTraining === 'function') window.CIQ.logTraining({ tool: 'cbp-hold-decoder', type: 'cbp_hit', input: { q }, result: { title: match.title } });
   try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
 }
 </script>
