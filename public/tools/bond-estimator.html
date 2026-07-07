@@ -77,7 +77,11 @@ function update() {
 
   const qs = new URLSearchParams({ type: type === 'continuous' ? 'continuous' : 'single', value: String(value), risk: String(risk) });
 
-  fetch('/api/v1/bond?' + qs.toString(), { headers: { accept: 'application/json' } })
+  var ciqKey = '';
+  try { ciqKey = localStorage.getItem('ciq_api_key') || ''; } catch (e) {}
+  var headers = { accept: 'application/json' };
+  if (ciqKey) headers['x-api-key'] = ciqKey;
+  fetch('/api/v1/bond?' + qs.toString(), { headers: headers })
     .then(r => r.json())
     .then(data => {
       if (!data || !data.ok) { throw new Error(data && data.error ? data.error : 'request failed'); }

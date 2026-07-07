@@ -62,7 +62,7 @@
             var strong = badge.querySelector('strong');
             if (strong) {
               var remaining = data && data.remaining != null ? data.remaining : '—';
-              var tier = data && data.tier === 'signed' ? '100/day signed' : '5/day anonymous';
+              var tier = (data && data.authenticated && data.tier !== 'anonymous') ? (data.tier === 'pro' ? 'Member · Pro' : 'Member · 100/day') : '5/day guest';
               strong.textContent = remaining + ' left';
               var span = badge.querySelector('span');
               if (span) span.textContent = tier;

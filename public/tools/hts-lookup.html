@@ -122,7 +122,11 @@ function runLookup() {
   if (desc) params.set("desc", desc);
   if (material) params.set("material", material);
   if (enduse) params.set("enduse", enduse);
-  fetch('/api/v1/hts?' + params.toString(), { headers: { accept: 'application/json' } })
+  var ciqKey = '';
+  try { ciqKey = localStorage.getItem('ciq_api_key') || ''; } catch (e) {}
+  var headers = { accept: 'application/json' };
+  if (ciqKey) headers['x-api-key'] = ciqKey;
+  fetch('/api/v1/hts?' + params.toString(), { headers: headers })
     .then(function(r){ return r.json(); })
     .then(function(data){
       if (!data || !data.ok) {
