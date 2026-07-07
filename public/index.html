@@ -784,7 +784,7 @@
           return;
         }
         if (status) { status.textContent = 'Saving...'; status.style.color = 'var(--muted)'; }
-        fetch('/api/lead', {
+        fetch('/api/email-signup', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ email: email })
@@ -794,13 +794,13 @@
             if (data && data.ok) {
               try {
                 localStorage.setItem('ciq_email', email);
-                if (data.apiKey) localStorage.setItem('ciq_api_key', data.apiKey);
+                if (data.signup && data.signup.apiKey) localStorage.setItem('ciq_api_key', data.signup.apiKey);
               } catch (e) {}
               if (status) { status.textContent = 'Saved — you now have 100 free requests/day.'; status.style.color = '#16a34a'; }
               form.reset();
               updateUsage();
             } else {
-              if (status) { status.textContent = (data && data.message) ? data.message : 'Could not save right now. Please try again.'; status.style.color = '#b91c1c'; }
+              if (status) { status.textContent = (data && data.error) ? data.error : 'Could not save right now. Please try again.'; status.style.color = '#b91c1c'; }
             }
           })
           .catch(function(){
