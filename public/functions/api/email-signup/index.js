@@ -43,7 +43,7 @@ export async function onRequestGet(context) {
   const rows = await Promise.all(
     sliced.map(async (kv) => {
       try {
-        const raw = await context.env.LEADS.get(kv.name);
+        const raw = await leadsEnv.get(kv.name);
         return raw ? JSON.parse(raw) : null;
       } catch {
         return null;
