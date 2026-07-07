@@ -1,4 +1,24 @@
 export async function onRequestGet(context) {
+  const ALLOWED_HASH = 'a27c372ac811e56fa1c15ee55f417ee7ab072298c7a4de21b7812a5d52b5fac8';
+
+  async function unauthorized() {
+    return new Response(JSON.stringify({ ok: false, error: 'unauthorized' }), {
+      status: 401,
+      headers: { 'content-type': 'application/json', 'access-control-allow-origin': 'https://clearance-iq.com' },
+    });
+  }
+
+  const token = (context.request.headers.get('x-leads-token') || '').trim();
+  if (!token) return unauthorized();
+  try {
+    hashed = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
+  } catch {
+    return unauthorized();
+  }
+  const hashBytes = new Uint8Array(hashed);
+  const hashHex = Array.from(hashBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+  if (hashHex !== ALLOWED_HASH) return unauthorized();
+
   const out = {
     ok: true,
     service: 'lead',

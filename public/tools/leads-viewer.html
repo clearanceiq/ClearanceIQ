@@ -59,95 +59,137 @@
     overflow: auto;
     max-width: 100%;
   }
+  .login-wrap { max-width: 440px; }
+  .login-wrap input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #1f2937;
+    background: #0f1629;
+    color: #e5e7eb;
+    margin-top: 8px;
+    margin-bottom: 14px;
+  }
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
   <h1>Leads Viewer</h1>
-  <div class="actions">
-    <button onclick="load(true)">Reload</button>
-    <button class="secondary" onclick="exportCsv()">Export CSV</button>
-  </div>
-  <div id="status" style="margin-top:12px; color:#9ca3af; font-size:13px;"></div>
-  <div style="margin-top:14px; overflow:auto;">
-    <table>
-      <thead>
-        <tr>
-          <th>When</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Topic</th>
-          <th>Message</th>
-          <th>Key</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
+
+  <div id="login" class="login-wrap">
+    <p style="color:#9ca3af; margin-top:4px;">Enter the password to view leads.</p>
+    <input type="password" id="pw" placeholder="Password" autocomplete="off" />
+    <button onclick="submitLogin()">Open</button>
+    <div id="login-error" style="color:#f87171; margin-top:10px; font-size:13px;"></div>
   </div>
 
-<script>
-async function load(silent) {
-  const tbody = document.getElementById('rows');
-  const status = document.getElementById('status');
-  tbody.innerHTML = '<tr><td colspan="6" class="empty">Loading...</td></tr>';
-  if (!silent) status.textContent = 'Loading...';
-  try {
-    const url = '/api/lead?limit=200';
-    const res = await fetch(url, { headers: { accept: 'application/json' } });
-    const data = await res.json();
-    if (!data || !data.ok) throw new Error(data && data.error ? data.error : 'request failed');
-    const rows = (data.items || []).slice().sort((a,b) => (b.ts||0) - (a.ts||0));
-    if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="6" class="empty">No leads yet.</td></tr>';
-      status.textContent = '';
+  <div id="viewer" class="hidden">
+    <div class="actions">
+      <button onclick="load(true)">Reload</button>
+      <button class="secondary" onclick="exportCsv()">Export CSV</button>
+    </div>
+    <div id="status" style="margin-top:12px; color:#9ca3af; font-size:13px;"></div>
+    <div style="margin-top:14px; overflow:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Topic</th>
+            <th>Message</th>
+            <th>Key</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+  const ALLOWED_HASH = 'a27c372ac811e56fa1c15ee55f417ee7ab072298c7a4de21b7812a5d52b5fac8';
+
+  async function submitLogin() {
+    const pw = document.getElementById('pw').value || '';
+    const hashedBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+    const hashHex = Array.from(new Uint8Array(hashedBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    if (hashHex !== ALLOWED_HASH) {
+      document.getElementById('login-error').textContent = 'Incorrect password';
       return;
     }
-    tbody.innerHTML = rows.map(lead => {
-      const when = lead.ts ? new Date(lead.ts).toLocaleString() : '—';
-      return `<tr>
-        <td>${escapeHtml(when)}</td>
-        <td>${escapeHtml(lead.name || '')}</td>
-        <td>${escapeHtml(lead.email || '')}</td>
-        <td>${escapeHtml(lead.topic || '')}</td>
-        <td>${escapeHtml((lead.message || '').slice(0, 220))}</td>
-        <td><code>${escapeHtml(lead.key || '')}</code></td>
-      </tr>`;
-    }).join('');
-    status.textContent = rows.length + ' lead' + (rows.length === 1 ? '' : 's');
-  } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty">Failed to load leads.</td></tr>';
-    status.textContent = err && err.message ? err.message : 'Load failed';
+    document.getElementById('login').classList.add('hidden');
+    document.getElementById('viewer').classList.remove('hidden');
+    load(true);
   }
-}
 
-function escapeHtml(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function exportCsv() {
-  const rows = Array.from(document.querySelectorAll('#rows tr'));
-  const out = [];
-  out.push(['When','Name','Email','Topic','Message','Key'].join(','));
-  rows.forEach(tr => {
-    const cells = Array.from(tr.querySelectorAll('td')).map(td => {
-      const text = (td.innerText || '').trim();
-      return '"' + text.replace(/"/g, '""') + '"';
-    });
-    if (cells.length) out.push(cells.join(','));
+  document.getElementById('pw').addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitLogin();
   });
-  const blob = new Blob([out.join('\n')], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'leads.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-}
 
-load(true);
-</script>
+  async function load(silent) {
+    const tbody = document.getElementById('rows');
+    const status = document.getElementById('status');
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">Loading...</td></tr>';
+    if (!silent) status.textContent = 'Loading...';
+    try {
+      const token = document.getElementById('pw').value || '';
+      const hashedBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
+      const tokenHash = Array.from(new Uint8Array(hashedBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+      const url = '/api/lead?limit=200';
+      const res = await fetch(url, { headers: { accept: 'application/json', 'x-leads-token': tokenHash } });
+      const data = await res.json();
+      if (!data || !data.ok) throw new Error(data && data.error ? data.error : 'request failed');
+      const rows = (data.items || []).slice().sort((a,b) => (b.ts||0) - (a.ts||0));
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty">No leads yet.</td></tr>';
+        status.textContent = '';
+        return;
+      }
+      tbody.innerHTML = rows.map(lead => {
+        const when = lead.ts ? new Date(lead.ts).toLocaleString() : '—';
+        return `<tr>
+          <td>${escapeHtml(when)}</td>
+          <td>${escapeHtml(lead.name || '')}</td>
+          <td>${escapeHtml(lead.email || '')}</td>
+          <td>${escapeHtml(lead.topic || '')}</td>
+          <td>${escapeHtml((lead.message || '').slice(0, 220))}</td>
+          <td><code>${escapeHtml(lead.key || '')}</code></td>
+        </tr>`;
+      }).join('');
+      status.textContent = rows.length + ' lead' + (rows.length === 1 ? '' : 's');
+    } catch (err) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty">Failed to load leads.</td></tr>';
+      status.textContent = err && err.message ? err.message : 'Load failed';
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\"/g, '&quot;');
+  }
+
+  function exportCsv() {
+    const rows = Array.from(document.querySelectorAll('#rows tr'));
+    const out = [];
+    out.push(['When','Name','Email','Topic','Message','Key'].join(','));
+    rows.forEach(tr => {
+      const cells = Array.from(tr.querySelectorAll('td')).map(td => {
+        const text = (td.innerText || '').trim();
+        return '"' + text.replace(/"/g, '""') + '"';
+      });
+      if (cells.length) out.push(cells.join(','));
+    });
+    const blob = new Blob([out.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'leads.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  </script>
 </body>
 </html>
