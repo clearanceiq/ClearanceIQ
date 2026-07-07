@@ -2,15 +2,15 @@ const inMemoryLimits = new Map();
 
 async function consumeLimit(key, dailyCap, env) {
   let entry;
-  const hasKV = env && env.RATE_COUNTER;
+  const hasKV = env && (env.TELEMETRY || env.telemetry);
   const kvKey = `rate::${key}`;
 
   if (hasKV) {
-    const raw = await env.RATE_COUNTER.get(kvKey);
+    const raw = await (env.TELEMETRY || env.telemetry).get(kvKey);
     const count = raw ? parseInt(raw, 10) : 0;
     const newCount = count + 1;
     try {
-      await env.RATE_COUNTER.put(kvKey, String(newCount), { expirationTtl: 48 * 60 * 60 });
+      await (env.TELEMETRY || env.telemetry).put(kvKey, String(newCount), { expirationTtl: 48 * 60 * 60 });
       entry = { count: newCount };
     } catch (err) {
       if (!inMemoryLimits.has(key)) {
@@ -91,8 +91,8 @@ async function logUsage(tier, endpoint, context, result) {
         : anonIp;
     const entry = JSON.stringify({ ts: new Date().toISOString(), tier, endpoint, ip: anonIp, result: result || 'ok' });
     const key = `usage::${date}::${tier}::${tag}::${endpoint}`;
-    if (context.env?.RATE_COUNTER) {
-      await context.env.RATE_COUNTER.put(key, entry, { expirationTtl: 72 * 60 * 60 });
+    if ((context.env.TELEMETRY || context.env.telemetry)) {
+      await (context.env.TELEMETRY || context.env.telemetry).put(key, entry, { expirationTtl: 72 * 60 * 60 });
     }
   } catch (err) {
     // logging is optional

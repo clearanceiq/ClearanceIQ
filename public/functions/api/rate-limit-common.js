@@ -1,14 +1,14 @@
 const inMemoryLimits = new Map();
 export async function consumeLimit(key, dailyCap, env) {
   let entry;
-  const hasKV = env && env.RATE_COUNTER;
+  const hasKV = env && (env.TELEMETRY || env.telemetry);
   const kvKey = `rate::${key}`;
   if (hasKV) {
-    const raw = await env.RATE_COUNTER.get(kvKey);
+    const raw = await (env.TELEMETRY || env.telemetry).get(kvKey);
     const count = raw ? parseInt(raw, 10) : 0;
     const newCount = count + 1;
     try {
-      await env.RATE_COUNTER.put(kvKey, String(newCount), { expirationTtl: 48 * 60 * 60 });
+      await (env.TELEMETRY || env.telemetry).put(kvKey, String(newCount), { expirationTtl: 48 * 60 * 60 });
       entry = { count: newCount };
     } catch (err) {
       if (!inMemoryLimits.has(key)) inMemoryLimits.set(key, { count: 0, ts: Date.now() });

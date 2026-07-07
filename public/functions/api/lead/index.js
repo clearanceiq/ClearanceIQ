@@ -90,9 +90,9 @@ export async function onRequestPost(context) {
   const rateKey = `lead_rate::${today}::${ip}`;
   const rateLimit = 5; // max 5 leads per day per IP
 
-  if (context.env?.RATE_COUNTER) {
+  if ((context.env.TELEMETRY || context.env.telemetry)) {
     try {
-      const existing = await context.env.RATE_COUNTER.get(rateKey);
+      const existing = await (context.env.TELEMETRY || context.env.telemetry).get(rateKey);
       const count = existing ? parseInt(existing, 10) : 0;
       if (count >= rateLimit) {
         return new Response(JSON.stringify({ ok: false, error: 'rate_limit', message: 'Too many submissions. Try again tomorrow.' }), {
@@ -100,7 +100,7 @@ export async function onRequestPost(context) {
           headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearance-iq.com" },
         });
       }
-      await context.env.RATE_COUNTER.put(rateKey, String(count + 1), { expirationTtl: 24 * 60 * 60 });
+      await (context.env.TELEMETRY || context.env.telemetry).put(rateKey, String(count + 1), { expirationTtl: 24 * 60 * 60 });
     } catch (e) {
       // rate limiting is best-effort
     }

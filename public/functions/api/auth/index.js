@@ -43,10 +43,24 @@ async function signup(context) {
     return json({ ok: false, error: 'valid email required' }, 400);
   }
 
-  let record;
-  if (context.env && context.env.API_KEYS) {
+  const ip = (context.request.headers.get('CF-Connecting-IP') || 'unknown').replace(/[^a-zA-Z0-9:._-]/g, '_');
+  const today = new Date().toISOString().slice(0, 10);
+  const signupKey = `signup::${today}::${ip}`;
+  if ((context.env.LEADS || context.env.Leads)) {
     try {
-      const existing = await context.env.API_KEYS.get('email::' + emailLower);
+      const existingCount = await (context.env.LEADS || context.env.Leads).get(signupKey);
+      const count = existingCount ? parseInt(existingCount, 10) : 0;
+      if (count >= 3) {
+        return json({ ok: false, error: 'Too many signups from this IP today. Try again tomorrow.', retryAfter: nextMidnightUTCUnix() }, 429);
+      }
+      await (context.env.LEADS || context.env.Leads).put(signupKey, String(count + 1), { expirationTtl: 24 * 60 * 60 });
+    } catch (e) { /* best-effort rate-limit */ }
+  }
+
+  let record;
+  if (context.env && (context.env.LEADS || context.env.Leads)) {
+    try {
+      const existing = await (context.env.LEADS || context.env.Leads).get('email::' + emailLower);
       if (existing) {
         record = JSON.parse(existing);
         if (record && record.key) {
@@ -54,8 +68,9 @@ async function signup(context) {
             ok: true,
             key: record.key,
             tier: record.tier,
-            message: 'Key already issued. Use existing key.',
-            usage: 'Include header: X-API-Key: <key> with requests.',
+            verified: !!record.verified,
+            message: record.verified ? 'Welcome back. Use your existing key.' : 'Key already issued. Verify your email to activate.',
+            usage: 'Include header: X-API-Key: *** with requests.',
           });
         }
       }
@@ -66,22 +81,14 @@ async function signup(context) {
     record = issueFreeKey(emailLower);
     record.verificationToken = generateVerificationToken();
     record.verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-  } else if (record.verified) {
-    return json({
-      ok: true,
-      key: record.key,
-      tier: record.tier,
-      message: 'Key already issued and verified. Use existing key.',
-      usage: 'Include header: X-API-Key: <key> with requests.',
-    });
   }
 
   record.email = emailLower;
 
-  if (context.env && context.env.API_KEYS) {
+  if (context.env && (context.env.LEADS || context.env.Leads)) {
     try {
-      await context.env.API_KEYS.put('email::' + emailLower, JSON.stringify(record));
-      await context.env.API_KEYS.put('key::' + record.key, JSON.stringify(record));
+      await (context.env.LEADS || context.env.Leads).put('email::' + emailLower, JSON.stringify(record));
+      await (context.env.LEADS || context.env.Leads).put('key::' + record.key, JSON.stringify(record));
     } catch (e) { /* persistence is best-effort on Pages */ }
   }
 
@@ -89,15 +96,21 @@ async function signup(context) {
     ok: true,
     key: record.key,
     tier: record.tier,
-    verified: record.verified,
+    verified: !!record.verified,
     verificationRequired: !record.verified,
     verificationToken: record.verificationToken,
     limits: { daily: 100 },
-    usage: 'Include header: X-API-Key: <key> with requests.',
+    usage: 'Include header: X-API-Key: ' + record.key + ' with requests.',
     endpoints: ['/api/v1/hts', '/api/v1/duty-calc', '/api/v1/bond'],
     support: 'support@clearance-iq.com',
     verifyUrl: '/api/auth/verify?email=' + encodeURIComponent(emailLower) + '&token=' + record.verificationToken,
   });
+}
+
+function nextMidnightUTCUnix() {
+  const now = new Date();
+  const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+  return Math.floor(next.getTime() / 1000);
 }
 
 export async function onRequestGet(context) {
@@ -108,9 +121,9 @@ export async function onRequestGet(context) {
     const token = (url.searchParams.get('token') || '').trim();
     if (!email || !token) return json({ ok: false, error: 'email and token required' }, 400);
 
-    if (!context.env?.API_KEYS) return json({ ok: false, error: 'API_KEYS binding not available' }, 500);
+    if (!(context.env.LEADS || context.env.Leads)) return json({ ok: false, error: 'LEADS binding not available' }, 500);
 
-    const raw = await context.env.API_KEYS.get('email::' + email);
+    const raw = await (context.env.LEADS || context.env.Leads).get('email::' + email);
     if (!raw) return json({ ok: false, error: 'no_pending_signup' }, 404);
 
     try {
@@ -122,8 +135,8 @@ export async function onRequestGet(context) {
       record.verifiedAt = new Date().toISOString();
       delete record.verificationToken;
 
-      await context.env.API_KEYS.put('email::' + email, JSON.stringify(record));
-      await context.env.API_KEYS.put('key::' + record.key, JSON.stringify(record));
+      await (context.env.LEADS || context.env.Leads).put('email::' + email, JSON.stringify(record));
+      await (context.env.LEADS || context.env.Leads).put('key::' + record.key, JSON.stringify(record));
 
       return json({ ok: true, message: 'Email verified. You may now use your API key.', key: record.key });
     } catch (e) {

@@ -784,7 +784,7 @@
           return;
         }
         if (status) { status.textContent = 'Saving...'; status.style.color = 'var(--muted)'; }
-        fetch('/api/email-signup', {
+        fetch('/api/auth/signup', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ email: email })
@@ -794,11 +794,15 @@
             if (data && data.ok) {
               try {
                 localStorage.setItem('ciq_email', email);
-                if (data.signup && data.signup.apiKey) localStorage.setItem('ciq_api_key', data.signup.apiKey);
+                if (data.key) localStorage.setItem('ciq_api_key', data.key);
               } catch (e) {}
-              if (status) { status.textContent = 'Saved — you now have 100 free requests/day.'; status.style.color = '#16a34a'; }
+              if (status) { status.textContent = '✓ You are now a member — 100 free requests/day.'; status.style.color = '#16a34a'; }
               form.reset();
               updateUsage();
+              try {
+                var note = document.querySelector('.hero-note');
+                if (note) note.innerHTML = 'You are a member · <strong>100/day</strong> · No credit card';
+              } catch (e) {}
             } else {
               if (status) { status.textContent = (data && data.error) ? data.error : 'Could not save right now. Please try again.'; status.style.color = '#b91c1c'; }
             }
@@ -816,11 +820,16 @@
     var badge = document.getElementById('usageBadge');
     if (!badge) return;
     var strong = badge.querySelector('strong');
-    var show = usage && (usage.authenticated !== false || usage.tier === 'anonymous');
-    var remaining = show && usage.remaining != null ? usage.remaining : '—';
+    var remaining = (usage && usage.remaining != null) ? usage.remaining : '—';
     if (strong) strong.textContent = remaining + ' left';
     var span = badge.querySelector('span');
-    if (span) span.textContent = usage && usage.tier === 'signed' ? '100/day signed' : '5/day anonymous';
+    if (span) {
+      if (usage && usage.authenticated && usage.tier !== 'anonymous') {
+        span.textContent = usage.tier === 'pro' ? 'Member · Pro' : 'Member · 100/day';
+      } else {
+        span.textContent = '5/day guest';
+      }
+    }
   }
 
   function updateUsageCounters(usage){
