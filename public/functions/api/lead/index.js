@@ -9,15 +9,7 @@ export async function onRequestGet(context) {
   }
 
   const token = (context.request.headers.get('x-leads-token') || '').trim();
-  if (!token) return unauthorized();
-  try {
-    hashed = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
-  } catch {
-    return unauthorized();
-  }
-  const hashBytes = new Uint8Array(hashed);
-  const hashHex = Array.from(hashBytes).map(b => b.toString(16).padStart(2, '0')).join('');
-  if (hashHex !== ALLOWED_HASH) return unauthorized();
+  if (!token || token !== ALLOWED_HASH) return unauthorized();
 
   const out = {
     ok: true,
