@@ -46,57 +46,14 @@ function buildToolReport(events) {
   return report;
 }
 
-export async function onRequestGet(context) {
-  if (!context.env?.TELEMETRY) {
-    return new Response(JSON.stringify({ ok: false, error: 'TELEMETRY binding not available' }), {
-      status: 200,
-      headers: corsHeaders,
-    });
-  }
-  const url = new URL(context.request.url);
-  const pathname = url.pathname.toLowerCase();
-
-  if (pathname.endsWith('/report') || pathname.endsWith('/telemetry/report')) {
-    const limit = Math.min(parseInt(url.searchParams.get('limit') || '200', 10) || 200, 1000);
-    const prefix = 'events::';
-    let cursor;
-    const items = [];
-    do {
-      const result = await context.env.TELEMETRY.list({ prefix, limit: Math.max(limit, 1000), cursor });
-      if (Array.isArray(result.keys)) {
-        for (const kv of result.keys) items.push(kv);
-      }
-      cursor = result.list_complete ? undefined : result.cursor;
-    } while (cursor && items.length < limit);
-
-    const sliced = items.slice(-limit).reverse();
-    const rows = await Promise.all(
-      sliced.map(async (kv) => {
-        try {
-          const raw = await context.env.TELEMETRY.get(kv.name);
-          return raw ? JSON.parse(raw) : null;
-        } catch {
-          return null;
-        }
-      })
-    );
-
-    const report = buildToolReport(rows.filter(Boolean));
-    return new Response(JSON.stringify({ ok: true, generatedAt: Date.now(), count: rows.filter(Boolean).length, report }), {
-      headers: corsHeaders,
-    });
-  }
-
-  const limit = Math.min(parseInt(url.searchParams.get('limit') || '20', 10) || 20, 200);
+async function listAllEvents(env, limit) {
   const prefix = 'events::';
   let cursor;
   const items = [];
   do {
-    const result = await context.env.TELEMETRY.list({ prefix, limit: Math.max(limit, 200), cursor });
+    const result = await env.TELEMETRY.list({ prefix, limit: Math.max(limit, 1000), cursor });
     if (Array.isArray(result.keys)) {
-      for (const kv of result.keys) {
-        items.push(kv);
-      }
+      for (const kv of result.keys) items.push(kv);
     }
     cursor = result.list_complete ? undefined : result.cursor;
   } while (cursor && items.length < limit);
@@ -105,7 +62,7 @@ export async function onRequestGet(context) {
   const rows = await Promise.all(
     sliced.map(async (kv) => {
       try {
-        const raw = await context.env.TELEMETRY.get(kv.name);
+        const raw = await env.TELEMETRY.get(kv.name);
         return raw ? JSON.parse(raw) : null;
       } catch {
         return null;
@@ -113,7 +70,61 @@ export async function onRequestGet(context) {
     })
   );
 
-  return new Response(JSON.stringify({ ok: true, count: rows.filter(Boolean).length, events: rows.filter(Boolean) }), {
+  return rows.filter(Boolean);
+}
+
+export async function onRequestGet(context) {
+  if (!context.env?.TELEMETRY) {
+    return new Response(JSON.stringify({ ok: false, error: 'TELEMETRY binding not available' }), {
+      status: 200,
+      headers: corsHeaders,
+    });
+  }
+
+  const url = new URL(context.request.url);
+  const pathname = url.pathname;
+  const debug = url.searchParams.get('debug');
+  const page =
+    pathname.slice(
+      pathname.toLowerCase().indexOf('/api/telemetry') + '/api/telemetry'.length
+    ) || '/';
+  const isIndex = !page || page === '/';
+
+  const limit = Math.min(parseInt(url.searchParams.get('limit') || '25', 10) || 25, 200);
+
+  if (isIndex) {
+    const rows = await listAllEvents(context.env, limit);
+    return new Response(JSON.stringify({ ok: true, count: rows.length, events: rows }), {
+      headers: corsHeaders,
+    });
+  }
+
+  if (page === '/report') {
+    const reportLimit = Math.min(parseInt(url.searchParams.get('limit') || '200', 10) || 200, 1000);
+    const rows = await listAllEvents(context.env, reportLimit);
+    const report = buildToolReport(rows);
+
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        debug: !!debug,
+        originalPathname: pathname,
+        page,
+        count: rows.length,
+        sampleEvent: rows[0] || null,
+        report,
+      }),
+      {
+        headers: {
+          ...corsHeaders,
+          'access-control-allow-origin': '*',
+        },
+      }
+    );
+  }
+
+  return new Response(JSON.stringify({ ok: false, error: 'Unknown telemetry path', path: page }), {
+    status: 404,
     headers: corsHeaders,
   });
 }
@@ -122,8 +133,7 @@ export const OPTIONS = () =>
   new Response(null, {
     status: 204,
     headers: {
-      'access-control-allow-origin': 'https://clearance-iq.com',
-      'access-control-allow-headers': 'content-type',
+      ...corsHeaders,
       'access-control-allow-methods': 'GET, POST, OPTIONS',
     },
   });
