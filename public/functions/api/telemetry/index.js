@@ -4,6 +4,48 @@ const corsHeaders = {
   'access-control-allow-headers': 'content-type',
 };
 
+function buildToolReport(events) {
+  const now = Date.now();
+  const sessions = new Map();
+  const toolEvents = new Map();
+  const seenBySessionAndTool = new Map();
+
+  for (const event of events) {
+    const session = event.sessionToken;
+    const tool = event.meta?.tool || event.payload?.tool || 'unknown';
+    if (!tool || tool === 'null') continue;
+
+    if (!toolEvents.has(tool)) toolEvents.set(tool, []);
+    toolEvents.get(tool).push(event);
+
+    if (session) {
+      const key = `${session}::${tool}`;
+      if (!seenBySessionAndTool.has(key)) {
+        seenBySessionAndTool.set(key, true);
+        if (!sessions.has(tool)) sessions.set(tool, new Set());
+        sessions.get(tool).add(session);
+      }
+    }
+  }
+
+  const report = [];
+  for (const [tool, eventList] of toolEvents.entries()) {
+    const unique = sessions.has(tool) ? sessions.get(tool).size : 0;
+    const latest = eventList.sort((a, b) => (b.ts || 0) - (a.ts || 0))[0];
+    report.push({
+      tool,
+      events: eventList.length,
+      unique_sessions: unique,
+      latest_ts: latest?.ts || null,
+      latest_path: latest?.path || null,
+      retention_hours: latest ? Math.max(0, Math.round((now - (latest.ts || now)) / (1000 * 60 * 60))) : null,
+    });
+  }
+
+  report.sort((a, b) => b.events - a.events || b.unique_sessions - a.unique_sessions);
+  return report;
+}
+
 export async function onRequestGet(context) {
   if (!context.env?.TELEMETRY) {
     return new Response(JSON.stringify({ ok: false, error: 'TELEMETRY binding not available' }), {
@@ -12,6 +54,39 @@ export async function onRequestGet(context) {
     });
   }
   const url = new URL(context.request.url);
+  const pathname = url.pathname.toLowerCase();
+
+  if (pathname.endsWith('/report') || pathname.endsWith('/telemetry/report')) {
+    const limit = Math.min(parseInt(url.searchParams.get('limit') || '200', 10) || 200, 1000);
+    const prefix = 'events::';
+    let cursor;
+    const items = [];
+    do {
+      const result = await context.env.TELEMETRY.list({ prefix, limit: Math.max(limit, 1000), cursor });
+      if (Array.isArray(result.keys)) {
+        for (const kv of result.keys) items.push(kv);
+      }
+      cursor = result.list_complete ? undefined : result.cursor;
+    } while (cursor && items.length < limit);
+
+    const sliced = items.slice(-limit).reverse();
+    const rows = await Promise.all(
+      sliced.map(async (kv) => {
+        try {
+          const raw = await context.env.TELEMETRY.get(kv.name);
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    const report = buildToolReport(rows.filter(Boolean));
+    return new Response(JSON.stringify({ ok: true, generatedAt: Date.now(), count: rows.filter(Boolean).length, report }), {
+      headers: corsHeaders,
+    });
+  }
+
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '20', 10) || 20, 200);
   const prefix = 'events::';
   let cursor;
