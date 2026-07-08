@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard — ClearanceIQ</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    background: #0b0f19;
+    color: #e5e7eb;
+    margin: 0;
+    padding: 24px;
+  }
+  h1 { margin-top: 0; font-size: 22px; }
+  .login-wrap { max-width: 460px; }
+  .login-wrap input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #1f2937;
+    background: #0f1629;
+    color: #e5e7eb;
+    margin-top: 6px;
+    margin-bottom: 12px;
+  }
+  .hidden { display: none !important; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .card {
+    background: #0f1629;
+    border: 1px solid #1f2937;
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .card .num { font-size: 30px; font-weight: 700; }
+  .card .lbl { color: #9ca3af; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+  .section { background: #0f1629; border: 1px solid #1f2937; border-radius: 12px; padding: 18px; margin-bottom: 22px; }
+  .section h2 { margin-top: 0; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
+  .section h2 .count { color: #60a5fa; font-size: 13px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  th { text-align: left; padding: 9px 10px; background: #111827; color: #9ca3af; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+  td { padding: 9px 10px; border-top: 1px solid #1f2937; font-size: 13px; vertical-align: top; }
+  tr:hover td { background: #111827; }
+  .empty { color: #9ca3af; padding: 16px 10px; }
+  .actions { margin-bottom: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+  button { background: #2563eb; color: white; border: 0; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-weight: 500; }
+  button.secondary { background: #374151; }
+  a { color: #60a5fa; text-decoration: none; }
+  .err { color: #f87171; font-size: 13px; margin-top: 8px; }
+  code { color: #fbbf24; font-size: 12px; }
+  .bar { height: 6px; background: #1f2937; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+  .bar > span { display: block; height: 100%; background: #60a5fa; }
+</style>
+</head>
+<body>
+  <h1>ClearanceIQ — Dashboard</h1>
+
+  <div id="login" class="login-wrap">
+    <p style="color:#9ca3af; margin-top:4px;">Enter the two viewer passwords to load the dashboard.</p>
+    <label style="font-size:13px; color:#9ca3af;">Leads password</label>
+    <input type="password" id="pwLeads" placeholder="Leads password" autocomplete="off" />
+    <label style="font-size:13px; color:#9ca3af;">Email signups password</label>
+    <input type="password" id="pwEmail" placeholder="Email signups password" autocomplete="off" />
+    <button onclick="submitLogin()">Open dashboard</button>
+    <div id="login-error" class="err"></div>
+  </div>
+
+  <div id="dash" class="hidden">
+    <div class="actions">
+      <button onclick="loadAll()">Reload all</button>
+    </div>
+
+    <div class="cards">
+      <div class="card"><div class="num" id="kpiTelemetry">—</div><div class="lbl">Telemetry events (stored)</div></div>
+      <div class="card"><div class="num" id="kpiSignups">—</div><div class="lbl">Email signups</div></div>
+      <div class="card"><div class="num" id="kpiContacts">—</div><div class="lbl">Contact form submits</div></div>
+      <div class="card"><div class="num" id="kpiTools">—</div><div class="lbl">Active tools</div></div>
+    </div>
+
+    <div class="section">
+      <h2>Telemetry — tool usage <span class="count" id="telCount"></span></h2>
+      <div id="telStatus" style="color:#9ca3af; font-size:13px;"></div>
+      <table>
+        <thead><tr><th>Tool</th><th>Events</th><th>Unique sessions</th><th>Last seen</th><th>Retention (h)</th></tr></thead>
+        <tbody id="telRows"></tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>Email signups <span class="count" id="emCount"></span></h2>
+      <div id="emStatus" style="color:#9ca3af; font-size:13px;"></div>
+      <table>
+        <thead><tr><th>When</th><th>Email</th><th>Source</th><th>Tier</th></tr></thead>
+        <tbody id="emRows"></tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>Contact form submissions <span class="count" id="ctCount"></span></h2>
+      <div id="ctStatus" style="color:#9ca3af; font-size:13px;"></div>
+      <table>
+        <thead><tr><th>When</th><th>Name</th><th>Email</th><th>Topic</th><th>Message</th></tr></thead>
+        <tbody id="ctRows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+  const LEADS_HASH = 'a27c372ac811e56fa1c15ee55f417ee7ab072298c7a4de21b7812a5d52b5fac8';
+  const EMAIL_HASH = 'af994c9f2209826a0a539618fabf5bc24fad9eca93785181deec9e4c837960b9';
+
+  async function sha256(s) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function submitLogin() {
+    const pwLeads = document.getElementById('pwLeads').value || '';
+    const pwEmail = document.getElementById('pwEmail').value || '';
+    const lh = await sha256(pwLeads);
+    const eh = await sha256(pwEmail);
+    if (lh !== LEADS_HASH || eh !== EMAIL_HASH) {
+      document.getElementById('login-error').textContent = 'One or both passwords are incorrect.';
+      return;
+    }
+    window.__leadsToken = lh;
+    window.__emailToken = eh;
+    document.getElementById('login').classList.add('hidden');
+    document.getElementById('dash').classList.remove('hidden');
+    loadAll();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !document.getElementById('dash').classList.contains('hidden') === false) submitLogin();
+  });
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function fmt(ts) {
+    if (!ts) return '—';
+    const n = typeof ts === 'number' ? ts : Date.parse(ts);
+    if (isNaN(n)) return '—';
+    return new Date(n).toLocaleString();
+  }
+  async function getJson(url, headers) {
+    const res = await fetch(url, { headers: Object.assign({ accept: 'application/json' }, headers || {}) });
+    return res.json();
+  }
+
+  async function loadAll() {
+    loadTelemetry();
+    loadSignups();
+    loadContacts();
+  }
+
+  async function loadTelemetry() {
+    const tbody = document.getElementById('telRows');
+    const status = document.getElementById('telStatus');
+    const count = document.getElementById('telCount');
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">Loading...</td></tr>';
+    try {
+      const data = await getJson('/api/telemetry?view=report&limit=1000');
+      if (!data || !data.ok) throw new Error(data && data.error ? data.error : 'request failed');
+      const report = data.report || [];
+      document.getElementById('kpiTelemetry').textContent = data.count || 0;
+      document.getElementById('kpiTools').textContent = report.length;
+      count.textContent = report.length + ' tools';
+      if (!report.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty">No telemetry events yet.</td></tr>';
+        status.textContent = '';
+        return;
+      }
+      const maxEv = Math.max(...report.map(r => r.events || 0), 1);
+      tbody.innerHTML = report.map(r => {
+        const pct = Math.round(((r.events || 0) / maxEv) * 100);
+        return `<tr>
+          <td><b>${escapeHtml(r.tool)}</b></td>
+          <td>${r.events || 0}<div class="bar"><span style="width:${pct}%"></span></div></td>
+          <td>${r.unique_sessions || 0}</td>
+          <td>${fmt(r.latest_ts)}</td>
+          <td>${r.retention_hours != null ? r.retention_hours : '—'}</td>
+        </tr>`;
+      }).join('');
+      status.textContent = '';
+    } catch (err) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty">Failed to load telemetry.</td></tr>';
+      status.textContent = err && err.message ? err.message : 'Load failed';
+    }
+  }
+
+  async function loadSignups() {
+    const tbody = document.getElementById('emRows');
+    const status = document.getElementById('emStatus');
+    const count = document.getElementById('emCount');
+    tbody.innerHTML = '<tr><td colspan="4" class="empty">Loading...</td></tr>';
+    try {
+      const data = await getJson('/api/email-signup?limit=200', { 'x-email-token': window.__emailToken });
+      if (!data || !data.ok) throw new Error(data && data.error ? data.error : 'request failed');
+      const rows = (data.items || []).slice().sort((a,b) => Date.parse(b.createdAt||0) - Date.parse(a.createdAt||0));
+      document.getElementById('kpiSignups').textContent = rows.length;
+      count.textContent = rows.length + ' signups';
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty">No email signups yet.</td></tr>';
+        status.textContent = '';
+        return;
+      }
+      tbody.innerHTML = rows.map(s => `<tr>
+        <td>${fmt(s.createdAt)}</td>
+        <td>${escapeHtml(s.email || '')}</td>
+        <td>${escapeHtml(s.source || '')}</td>
+        <td>${escapeHtml(s.tier || '')}</td>
+      </tr>`).join('');
+      status.textContent = '';
+    } catch (err) {
+      tbody.innerHTML = '<tr><td colspan="4" class="empty">Failed to load signups.</td></tr>';
+      status.textContent = err && err.message ? err.message : 'Load failed';
+    }
+  }
+
+  async function loadContacts() {
+    const tbody = document.getElementById('ctRows');
+    const status = document.getElementById('ctStatus');
+    const count = document.getElementById('ctCount');
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">Loading...</td></tr>';
+    try {
+      const data = await getJson('/api/lead?limit=200', { 'x-leads-token': window.__leadsToken });
+      if (!data || !data.ok) throw new Error(data && data.error ? data.error : 'request failed');
+      const rows = (data.items || []).filter(it => it && (it.email || it.name || it.topic || it.message)).slice().sort((a,b) => (b.ts || Date.parse(b.createdAt||0) || 0) - (a.ts || Date.parse(a.createdAt||0) || 0));
+      document.getElementById('kpiContacts').textContent = rows.length;
+      count.textContent = rows.length + ' submissions';
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty">No contact submissions yet.</td></tr>';
+        status.textContent = '';
+        return;
+      }
+      tbody.innerHTML = rows.map(c => `<tr>
+        <td>${fmt(c.ts || c.createdAt)}</td>
+        <td>${escapeHtml(c.name || '')}</td>
+        <td>${escapeHtml(c.email || '')}</td>
+        <td>${escapeHtml(c.topic || '')}</td>
+        <td>${escapeHtml((c.message || '').slice(0, 200))}</td>
+      </tr>`).join('');
+      status.textContent = '';
+    } catch (err) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty">Failed to load contacts.</td></tr>';
+      status.textContent = err && err.message ? err.message : 'Load failed';
+    }
+  }
+  </script>
+</body>
+</html>
