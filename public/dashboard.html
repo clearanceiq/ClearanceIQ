@@ -57,11 +57,9 @@
   <h1>ClearanceIQ — Dashboard</h1>
 
   <div id="login" class="login-wrap">
-    <p style="color:#9ca3af; margin-top:4px;">Enter the two viewer passwords to load the dashboard.</p>
-    <label style="font-size:13px; color:#9ca3af;">Leads password</label>
-    <input type="password" id="pwLeads" placeholder="Leads password" autocomplete="off" />
-    <label style="font-size:13px; color:#9ca3af;">Email signups password</label>
-    <input type="password" id="pwEmail" placeholder="Email signups password" autocomplete="off" />
+    <p style="color:#9ca3af; margin-top:4px;">Enter the viewer password to load the dashboard.</p>
+    <label style="font-size:13px; color:#9ca3af;">Viewer password</label>
+    <input type="password" id="pw" placeholder="Viewer password" autocomplete="off" />
     <button onclick="submitLogin()">Open dashboard</button>
     <div id="login-error" class="err"></div>
   </div>
@@ -107,8 +105,7 @@
   </div>
 
   <script>
-  const LEADS_HASH = 'a27c372ac811e56fa1c15ee55f417ee7ab072298c7a4de21b7812a5d52b5fac8';
-  const EMAIL_HASH = 'af994c9f2209826a0a539618fabf5bc24fad9eca93785181deec9e4c837960b9';
+  const ALLOWED_HASH = 'a27c372ac811e56fa1c15ee55f417ee7ab072298c7a4de21b7812a5d52b5fac8';
 
   async function sha256(s) {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
@@ -116,23 +113,20 @@
   }
 
   async function submitLogin() {
-    const pwLeads = document.getElementById('pwLeads').value || '';
-    const pwEmail = document.getElementById('pwEmail').value || '';
-    const lh = await sha256(pwLeads);
-    const eh = await sha256(pwEmail);
-    if (lh !== LEADS_HASH || eh !== EMAIL_HASH) {
-      document.getElementById('login-error').textContent = 'One or both passwords are incorrect.';
+    const pw = document.getElementById('pw').value || '';
+    const hash = await sha256(pw);
+    if (hash !== ALLOWED_HASH) {
+      document.getElementById('login-error').textContent = 'Incorrect password.';
       return;
     }
-    window.__leadsToken = lh;
-    window.__emailToken = eh;
+    window.__token = hash;
     document.getElementById('login').classList.add('hidden');
     document.getElementById('dash').classList.remove('hidden');
     loadAll();
   }
 
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !document.getElementById('dash').classList.contains('hidden') === false) submitLogin();
+  document.getElementById('pw').addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitLogin();
   });
 
   function escapeHtml(s) {
@@ -197,7 +191,7 @@
     const count = document.getElementById('emCount');
     tbody.innerHTML = '<tr><td colspan="4" class="empty">Loading...</td></tr>';
     try {
-      const data = await getJson('/api/email-signup?limit=200', { 'x-email-token': window.__emailToken });
+      const data = await getJson('/api/email-signup?limit=200', { 'x-email-token': window.__token });
       if (!data || !data.ok) throw new Error(data && data.error ? data.error : 'request failed');
       const rows = (data.items || []).slice().sort((a,b) => Date.parse(b.createdAt||0) - Date.parse(a.createdAt||0));
       document.getElementById('kpiSignups').textContent = rows.length;
@@ -226,7 +220,7 @@
     const count = document.getElementById('ctCount');
     tbody.innerHTML = '<tr><td colspan="5" class="empty">Loading...</td></tr>';
     try {
-      const data = await getJson('/api/lead?limit=200', { 'x-leads-token': window.__leadsToken });
+      const data = await getJson('/api/lead?limit=200', { 'x-leads-token': window.__token });
       if (!data || !data.ok) throw new Error(data && data.error ? data.error : 'request failed');
       const rows = (data.items || []).filter(it => it && (it.email || it.name || it.topic || it.message)).slice().sort((a,b) => (b.ts || Date.parse(b.createdAt||0) || 0) - (a.ts || Date.parse(a.createdAt||0) || 0));
       document.getElementById('kpiContacts').textContent = rows.length;
