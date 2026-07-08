@@ -70,6 +70,16 @@
     <div id="result_body" style="color:var(--text);"></div>
   </div>
 
+  <!-- Monetization: broker referral + FBA affiliate (shown after result) -->
+  <div id="cta_nextstep" class="box" style="display:none; margin-top:22px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.3);">
+    <h3 style="margin-top:0;">Need a licensed broker or FBA tool?</h3>
+    <p style="font-size:14px; color:var(--text);">ClearanceIQ is a planning check, not a filing service. For the actual entry or deeper FBA research:</p>
+    <ul class="clean">
+      <li><a href="REPLACE_WITH_BROKER_REFERRAL_URL" target="_blank" rel="noopener" style="color:var(--accent); font-weight:600;">Talk to our partner broker →</a> — licensed US customs broker, referred by ClearanceIQ.</li>
+      <li><a href="REPLACE_WITH_FBA_AFFILIATE_URL" target="_blank" rel="noopener" style="color:var(--accent); font-weight:600;">Helium 10 for FBA research →</a> — product/keyword research the pros use (affiliate).</li>
+    </ul>
+  </div>
+
   <div class="box" style="margin-top:22px;">
     <h2 style="margin-top:0;">How to use this</h2>
     <ul class="clean">
@@ -147,6 +157,7 @@ function runLookup() {
       if (out) out.style.display = "block";
       status.textContent = "";
       try { if (window.CIQ && window.CIQ.saveHistory) window.CIQ.saveHistory('hts-lookup', q || desc, (data.code || '') + ' ' + (data.description || ''), (typeof data.dutyRate === 'number' ? (data.dutyRate * 100).toFixed(1) : '—') + '% duty'); } catch(e){}
+      var cta = document.getElementById('cta_nextstep'); if (cta) cta.style.display = 'block';
 
       window.CIQ.logEvent({ type: 'hts_hit', code: data.code, q: q || desc });
       window.CIQ.logTraining({ tool: 'hts-lookup', type: 'hts_hit', input: { q: q || desc, desc, material, enduse }, result: { code: data.code, description: data.description, dutyRate: data.dutyRate, adcvd: data.adcvd } });
