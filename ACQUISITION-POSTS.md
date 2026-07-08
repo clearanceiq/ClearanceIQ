@@ -64,6 +64,36 @@ Goal: get real importers/FBA sellers to try the free tool. No pitchy sales. Lead
 
 ---
 
+## POST 4 — Twitter/X thread (4th channel)
+
+Post as your personal account (@yourhandle). Keep it founder-voice, not corporate.
+
+**Tweet 1 (the hook):**
+> Surprise US import duties are what sink first-time importers. I built a free tool to sanity-check duty + HTS before you pay a factory. No broker call needed for a quick check. 🧵 clearance-iq.com
+
+**Tweet 2:**
+> What it does:
+> • HTS code lookup + indicative duty %
+> • Duty calculator (value + freight + Section 301)
+> • Bond estimator
+> • CBP hold decoder + compliance checklists
+> Free for a basic check — sign up for 100/day + saved history.
+
+**Tweet 3:**
+> Why I built it: too many FBA sellers learn their real landed cost *after* the container is on the water. A 30-second check before you source saves the expensive mistake.
+> (Planning reference, not a ruling — always confirm with CBP/broker.)
+
+**Tweet 4 (engagement + close):**
+> Importers/freight folks — what's the one compliance question you Google most? Building the next feature from your answers. Try it: clearance-iq.com
+
+**Posting tips:**
+- Post all 4 as a thread (reply to your own tweet to chain them).
+- Pin Tweet 1 for a week.
+- Reply to every reply fast — X rewards conversation.
+- One thread is enough; don't spam daily.
+
+---
+
 ## HOW TO POST — step by step
 
 ### Reddit

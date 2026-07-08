@@ -22,6 +22,16 @@
 | P3.1 | Execute winning track (consumer scale OR B2B pilot) | both | Day 90 |
 | P3.2 | Retention dashboard: signup -> return -> Pro-conversion | dev | Day 75 |
 
+## NEAR-TERM EXECUTION TRACKER (detailed)
+| When | Task | Blocks / Notes |
+|------|------|----------------|
+| **Today** | Fix the Buy Now button → connect to Stripe or Gumroad | This is the only thing blocking revenue right now |
+| **Tomorrow** | Verify email capture flow works end-to-end | |
+| **Tomorrow** | Test the Start Here tool on mobile | |
+| **This week** | 3 new blog posts via Hermes | Target queries: "cbp hold notice what to do", "how to calculate import duty fba", "commercial invoice mistakes cbp" |
+| **Next week** | Submit sitemap to Google Search Console | |
+| **Next week** | Set Operator launch date (30 days from now) | |
+
 ## ONE METRIC THAT MATTERS
 signup -> 7-day return -> Pro conversion
 

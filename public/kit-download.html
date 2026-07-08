@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your ClearanceIQ Import Kit</title>
+<link rel="stylesheet" href="/style.css">
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f595fc18f8864d93829ac6cd51832679"}'></script>
+</head>
+<body>
+<main id="main" class="container">
+  <div style="text-align:center;margin-top:6px;">
+    <span class="badge">Import Kit — Digital Download</span>
+    <h1 style="margin-top:10px;">Your ClearanceIQ Import Kit</h1>
+  </div>
+  <div id="status" class="box" style="margin-top:20px;">Verifying your purchase…</div>
+  <div id="files" class="box" style="margin-top:16px; display:none;">
+    <h2>Download your documents</h2>
+    <ul class="clean" style="margin-top:8px;">
+      <li><a href="/kit/import-kit.zip">📦 Full kit (ZIP)</a></li>
+      <li><a href="/kit/supplier-verification-worksheet.pdf">Supplier Verification Worksheet</a></li>
+      <li><a href="/kit/commercial-invoice-checklist.pdf">Commercial Invoice Checklist</a></li>
+      <li><a href="/kit/hts-classification-worksheet.pdf">HTS Classification Worksheet</a></li>
+      <li><a href="/kit/isf-tracker.pdf">ISF 10+2 Filing Tracker</a></li>
+      <li><a href="/kit/bond-estimator-worksheet.pdf">Bond Estimator Worksheet</a></li>
+      <li><a href="/kit/cbp-hold-response-template.pdf">CBP Hold Response Template</a></li>
+      <li><a href="/kit/entry-summary-error-log.pdf">Entry Summary Error Log</a></li>
+      <li><a href="/kit/reasonable-care-cover-sheet.pdf">Reasonable Care Cover Sheet</a></li>
+    </ul>
+    <p style="margin-top:12px;font-size:13px;color:var(--muted);">These are educational templates, not legal advice. Verify with a licensed broker before filing.</p>
+  </div>
+  <div style="text-align:center;margin-top:24px;">
+    <a class="cta secondary" href="/">Back to home</a>
+  </div>
+  <p class="disclaimer" style="margin-top:22px;">ClearanceIQ is an independent educational platform. Not affiliated with CBP, FDA, USDA, or any government agency.</p>
+</main>
+<script>
+  const params = new URLSearchParams(location.search);
+  const sid = params.get('session_id');
+  const statusEl = document.getElementById('status');
+  const filesEl = document.getElementById('files');
+
+  function showFiles() {
+    statusEl.innerHTML = '<b>Purchase confirmed.</b> Your files are ready below.';
+    filesEl.style.display = 'block';
+  }
+  function showLocked() {
+    statusEl.innerHTML = 'We could not confirm a completed purchase for this session. If you just paid, refresh in a moment — webhook sync can take a few seconds. Otherwise email <a href="mailto:clearanceiq@proton.me">clearanceiq@proton.me</a>.';
+  }
+
+  if (!sid) { showLocked(); }
+  else {
+    fetch('/api/order-status?session_id=' + encodeURIComponent(sid))
+      .then(r => r.json())
+      .then(d => { if (d.ok && d.paid) showFiles(); else showLocked(); })
+      .catch(() => showLocked());
+  }
+</script>
+</body>
+</html>
