@@ -1,5 +1,5 @@
 export async function onRequestGet(context) {
-  const ALLOWED_HASH = 'af994c9f2209826a0a539618fabf5bc24fad9eca93785181deec9e4c837960b9';
+  const ALLOWED_HASH = 'a27c372ac811e56fa1c15ee55f417ee7ab072298c7a4de21b7812a5d52b5fac8';
 
   async function unauthorized() {
     return new Response(JSON.stringify({ ok: false, error: 'unauthorized' }), {
