@@ -91,6 +91,18 @@
     } catch (e) {}
   };
 
+  window.CIQ.saveHistory = function (tool, input, label, result) {
+    try {
+      var apiKey = localStorage.getItem('ciq_api_key');
+      if (!apiKey) return; // only signed users get history
+      fetch('/api/history', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-api-key': apiKey },
+        body: JSON.stringify({ tool: tool, input: input || '', label: label || '', result: result || '' })
+      }).catch(function(){});
+    } catch (e) {}
+  };
+
   // Anonymous over-limit gate for client-side-only tools (no API call of their own)
   window.CIQ.maybeGateTool = function () {
     try {

@@ -146,6 +146,7 @@ function runLookup() {
         '<p style="margin-top:10px; font-size:12px; color:var(--muted);">Planning reference only. Not a ruling. Verify with CBP or a licensed broker.</p>';
       if (out) out.style.display = "block";
       status.textContent = "";
+      try { if (window.CIQ && window.CIQ.saveHistory) window.CIQ.saveHistory('hts-lookup', q || desc, (data.code || '') + ' ' + (data.description || ''), (typeof data.dutyRate === 'number' ? (data.dutyRate * 100).toFixed(1) : '—') + '% duty'); } catch(e){}
 
       window.CIQ.logEvent({ type: 'hts_hit', code: data.code, q: q || desc });
       window.CIQ.logTraining({ tool: 'hts-lookup', type: 'hts_hit', input: { q: q || desc, desc, material, enduse }, result: { code: data.code, description: data.description, dutyRate: data.dutyRate, adcvd: data.adcvd } });

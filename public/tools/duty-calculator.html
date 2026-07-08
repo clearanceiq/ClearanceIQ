@@ -117,6 +117,7 @@ function calculate() {
       document.getElementById('result_body').innerHTML = html;
       document.getElementById('result').style.display = 'block';
       document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+      try { if (window.CIQ && window.CIQ.saveHistory) window.CIQ.saveHistory('duty-calculator', hts || value, 'Duty calc', 'Landed: ' + (data.landed != null ? '$' + data.landed : '—')); } catch (e) {}
       window.CIQ.logEvent({ type: 'duty_calc', hts, generalRate: data.generalRate, duty: data.duty, section301: data.section301, landed: data.landed });
       window.CIQ.logTraining({ tool: 'duty-calculator', type: 'duty_calc', input: { value, hts, origin, freight, s301Rate }, result: { generalRate: data.generalRate, duty: data.duty, section301: data.section301, landed: data.landed } });
       try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
