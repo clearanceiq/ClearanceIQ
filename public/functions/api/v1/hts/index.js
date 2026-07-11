@@ -99,6 +99,36 @@ async function logUsage(tier, endpoint, context, result) {
   }
 }
 
+// ---- Official HTS 2026 Rev 11 duty-rate lookup (real published data) ----
+let _htsData = null;
+let _htsPromise = null;
+async function getHtsData(context) {
+  if (_htsData) return _htsData;
+  if (_htsPromise) return _htsPromise;
+  _htsPromise = (async () => {
+    try {
+      const url = new URL('/data/hts-data.json', context.request.url);
+      const res = await fetch(url.toString());
+      if (!res.ok) throw new Error('hts-data http ' + res.status);
+      _htsData = await res.json();
+    } catch (e) {
+      _htsData = {}; // graceful degrade -> candidate fallback
+    }
+    return _htsData;
+  })();
+  return _htsPromise;
+}
+function base8(code) {
+  const m = String(code || '').match(/^(\d{4}\.\d{2}\.\d{2})/);
+  return m ? m[1] : String(code || '').slice(0, 10);
+}
+async function lookupRate(code, context) {
+  const data = await getHtsData(context);
+  if (!data || typeof data !== 'object') return null;
+  const b = base8(code);
+  return data[b] || data[code] || null;
+}
+
 export async function onRequestGet(context) {
   try {
     const { key, cap, tier } = resolveRateLimitContext(context, { anonymousCap: 5, signedCap: 100 });
@@ -389,17 +419,38 @@ export async function onRequestGet(context) {
     }
 
     const { row: match } = best;
+    const rate = await lookupRate(match.code, context);
     await logUsage(tier, 'v1/hts', context, 'ok');
+
+    let dutyRate = null;
+    let dutyPct = null;          // numeric % when the rate is a percentage
+    let dutyConfidence = 'candidate';
+    let source = 'curated-candidate';
+    let note = (ADCVD_NOTES[match.adcvd] || '') +
+      ' Candidate match from a curated starter list — not the official HTS. Confirm the exact general duty rate and any special/column-2 rates at hts.usitc.gov or with a licensed broker.';
+
+    if (rate) {
+      dutyRate = rate;
+      dutyConfidence = 'official';
+      source = 'usitc-2026-rev11';
+      note = (ADCVD_NOTES[match.adcvd] || '') +
+        ' General (Column 1) duty rate sourced from the official USITC Harmonized Tariff Schedule 2026 Revision 11. Special-program and Column 2 rates, plus any Chapter 99 additional duties, are not included — confirm at hts.usitc.gov or with a licensed broker.';
+      // Extract a numeric percentage if the rate is expressed as a % (e.g. "4.5%" -> 4.5)
+      const pctMatch = String(rate).match(/(\d+(?:\.\d+)?)\s*%/);
+      if (pctMatch) dutyPct = parseFloat(pctMatch[1]);
+    }
+
     return new Response(
       JSON.stringify({
         ok: true,
         code: match.code,
         description: match.desc,
-        dutyRate: null,
-        dutyConfidence: 'candidate',
-        source: 'curated-candidate',
+        dutyRate,
+        dutyPct,
+        dutyConfidence,
+        source,
         adcvd: match.adcvd,
-        note: (ADCVD_NOTES[match.adcvd] || '') + ' Candidate match from a curated starter list — not the official HTS. Confirm the exact general duty rate and any special/column-2 rates at hts.usitc.gov or with a licensed broker.',
+        note,
         verifyUrl: 'https://hts.usitc.gov',
       }),
       {

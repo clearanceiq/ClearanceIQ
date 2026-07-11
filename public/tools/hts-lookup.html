@@ -150,10 +150,15 @@ function runLookup() {
         return;
       }
       document.getElementById("result_title").textContent = (data.code || '') + ' — ' + (data.description || '');
-      var dutyLine = (data.dutyRate && typeof data.dutyRate === 'number')
-        ? '<p><b>Indicative duty:</b> ' + (data.dutyRate * 100).toFixed(1) + '%</p>'
-        : '<p><b>Duty rate:</b> not shown — this is a candidate match, not the official HTS. Confirm the general duty rate at ' +
+      var dutyLine;
+      if (data.dutyPct !== null && typeof data.dutyPct === 'number') {
+        dutyLine = '<p><b>Indicative general duty:</b> ' + data.dutyPct.toFixed(1) + '% <span style="opacity:.7;">(Column 1, from USITC 2026 Rev 11)</span></p>';
+      } else if (data.dutyRate && typeof data.dutyRate === 'string' && data.dutyRate.trim() !== '') {
+        dutyLine = '<p><b>Indicative general duty:</b> ' + data.dutyRate + ' <span style="opacity:.7;">(Column 1, from USITC 2026 Rev 11)</span></p>';
+      } else {
+        dutyLine = '<p><b>Duty rate:</b> not shown — this is a candidate match, not the official HTS. Confirm the general duty rate at ' +
           '<a href="' + (data.verifyUrl || 'https://hts.usitc.gov') + '" target="_blank" rel="noopener" style="color:var(--accent);">hts.usitc.gov</a> or with a licensed broker.</p>';
+      }
       document.getElementById("result_body").innerHTML = dutyLine +
         (data.dutyConfidence === 'candidate' ? '<p style="color:#f59e0b;"><b>⚠ Candidate match</b> from a curated starter list — verify the exact code before filing.</p>' : '') +
         '<p><b>AD/CVD watch:</b> ' + (data.adcvd === "none" ? "None on record" : "Flagged — review before booking") + '</p>' +
