@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ClearanceIQ — HTS Duty Lookup</title>
-<meta name="description" content="Look up US HTS codes, duty rates, and AD/CVD risk. Free HTS lookup for importers.">
+<meta name="description" content="Find a starting HTS code for your product. Free HTS lookup for importers — candidate match, then verify the official rate at hts.usitc.gov.">
 <link rel="canonical" href="https://clearance-iq.com/tools/hts-lookup.html">
 
 <link rel="stylesheet" href="/style.css">
@@ -36,7 +36,7 @@
 <main id="main" class="container" style="max-width: 860px;">
   <a href="/"><span class="badge">ClearanceIQ</span></a>
   <h1 style="margin-top:18px;">HTS Duty Lookup</h1>
-  <p class="lead" style="margin-top:8px;">Search HTS codes, preview general duty rates, flag AD/CVD risk, and see required paperwork.</p>
+  <p class="lead" style="margin-top:8px;">Find a starting HTS code for your product, flag AD/CVD risk, and see required paperwork. Then confirm the official duty rate with CBP or a licensed broker.</p>
 
   <div class="box" style="margin-top:22px;">
     <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:8px;">Search HTS code or keyword</label>
@@ -84,8 +84,8 @@
     <h2 style="margin-top:0;">How to use this</h2>
     <ul class="clean">
       <li>Type a full HTS code or a short product description.</li>
-      <li>We’ll match known categories and show a flag if that line is in an AD/CVD watch list.</li>
-      <li>This is for planning only — final classification belongs to a licensed broker.</li>
+      <li>We'll suggest a starting code and flag if that line is in an AD/CVD watch list.</li>
+      <li>This is a candidate match from a curated starter list — always confirm the official rate at hts.usitc.gov or with a licensed broker.</li>
     </ul>
   </div>
 </main>
@@ -150,7 +150,12 @@ function runLookup() {
         return;
       }
       document.getElementById("result_title").textContent = (data.code || '') + ' — ' + (data.description || '');
-      document.getElementById("result_body").innerHTML = '<p><b>Indicative duty:</b> ' + ((typeof data.dutyRate === 'number' ? (data.dutyRate * 100).toFixed(1) : '—')) + '%</p>' +
+      var dutyLine = (data.dutyRate && typeof data.dutyRate === 'number')
+        ? '<p><b>Indicative duty:</b> ' + (data.dutyRate * 100).toFixed(1) + '%</p>'
+        : '<p><b>Duty rate:</b> not shown — this is a candidate match, not the official HTS. Confirm the general duty rate at ' +
+          '<a href="' + (data.verifyUrl || 'https://hts.usitc.gov') + '" target="_blank" rel="noopener" style="color:var(--accent);">hts.usitc.gov</a> or with a licensed broker.</p>';
+      document.getElementById("result_body").innerHTML = dutyLine +
+        (data.dutyConfidence === 'candidate' ? '<p style="color:#f59e0b;"><b>⚠ Candidate match</b> from a curated starter list — verify the exact code before filing.</p>' : '') +
         '<p><b>AD/CVD watch:</b> ' + (data.adcvd === "none" ? "None on record" : "Flagged — review before booking") + '</p>' +
         '<p style="margin-top:10px;">' + (data.note || "") + '</p>' +
         '<p style="margin-top:10px; font-size:12px; color:var(--muted);">Planning reference only. Not a ruling. Verify with CBP or a licensed broker.</p>';

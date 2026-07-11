@@ -395,9 +395,12 @@ export async function onRequestGet(context) {
         ok: true,
         code: match.code,
         description: match.desc,
-        dutyRate: parseFloat(match.duty) || 0,
+        dutyRate: null,
+        dutyConfidence: 'candidate',
+        source: 'curated-candidate',
         adcvd: match.adcvd,
-        note: ADCVD_NOTES[match.adcvd] || '',
+        note: (ADCVD_NOTES[match.adcvd] || '') + ' Candidate match from a curated starter list — not the official HTS. Confirm the exact general duty rate and any special/column-2 rates at hts.usitc.gov or with a licensed broker.',
+        verifyUrl: 'https://hts.usitc.gov',
       }),
       {
         headers: cors({
