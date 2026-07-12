@@ -51,7 +51,7 @@ export async function onRequestGet(context) {
     })
   );
 
-  out.items = rows.filter(Boolean).filter(function(r){ return r && typeof r.email === 'string' && r.email.indexOf('@') !== -1; });
+  out.items = rows.filter(Boolean).filter(function(r){ return r && typeof r.email === 'string' && r.email.indexOf('@') !== -1 && r.email.toLowerCase().indexOf('@example.com') === -1; });
   out.count = out.items.length;
   return new Response(JSON.stringify(out), {
     headers: { 'content-type': 'application/json', 'access-control-allow-origin': 'https://clearance-iq.com' },
