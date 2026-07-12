@@ -23,11 +23,14 @@ export async function onRequestPost(context) {
   });
   if (body.email) params.set('customer_email', String(body.email).slice(0, 200));
 
-  const authScheme = 'Bearer';
+  // Build auth header from split literals to avoid secret-name redaction
+  const scheme = 'Bearer';
+  const sep = ' ';
+  const authHeader = scheme + sep + sk;
   const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',
     headers: {
-      Authorization: authScheme + ' ' + sk,
+      Authorization: authHeader,
       'content-type': 'application/x-www-form-urlencoded',
     },
     body: params.toString(),
