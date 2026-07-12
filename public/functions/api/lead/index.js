@@ -50,7 +50,7 @@ export async function onRequestGet(context) {
     })
   );
 
-  out.items = rows.filter(Boolean);
+  out.items = rows.filter(Boolean).filter(function(r){ return r && typeof r.email === 'string' && r.email.indexOf('@') !== -1; });
   out.count = out.items.length;
   return new Response(JSON.stringify(out), {
     headers: { 'content-type': 'application/json', 'access-control-allow-origin': 'https://clearance-iq.com' },
@@ -77,7 +77,16 @@ export async function onRequestPost(context) {
   const message = (body.message || "").toString().trim();
   const topic = (body.topic || "").toString().trim();
 
-  if (!email || !email.includes("@")) {
+  // Reject telemetry/non-lead payloads that sometimes hit this endpoint
+  if (body.ts && body.tool && !body.email) {
+    return new Response(JSON.stringify({ ok: false, error: "invalid payload" }), {
+      status: 400,
+      headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearance-iq.com" },
+    });
+  }
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!EMAIL_RE.test(email) || email.toLowerCase().endsWith("@example.com")) {
     return new Response(JSON.stringify({ ok: false, error: "valid email required" }), {
       status: 400,
       headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearance-iq.com" },
