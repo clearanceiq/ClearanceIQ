@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ClearanceIQ — Duty Calculator</title>
+<title>Duty Calculator — ClearanceIQ</title>
 <meta name="description" content="Estimate US import duties, Section 301 tariffs, and landed costs. Free duty calculator for importers.">
-<link rel="canonical" href="https://clearance-iq.com/tools/duty-calculator">
-
+<link rel="canonical" href="https://clearance-iq.com/tools/duty-calculator.html">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
+  "@context": "https://schema.org/",
   "@type": "WebApplication",
   "name": "ClearanceIQ Duty Calculator",
   "url": "https://clearance-iq.com/tools/duty-calculator.html",
@@ -23,13 +22,40 @@
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f595fc18f8864d93829ac6cd51832679"}'></script>
 <!-- End Cloudflare Web Analytics -->
 <script defer src="/site-inject.js"></script>
+  <script>
+    if (window.CIQ && typeof window.CIQ.resumeSession === "function") window.CIQ.resumeSession();
+    window.addEventListener("pageshow", function(){ if (window.CIQ && typeof window.CIQ.resumeSession === "function") window.CIQ.resumeSession(); });
+    window.addEventListener("load", function(){
+      try { if (window.CIQ && typeof window.CIQ.logEvent === "function") window.CIQ.logEvent({ type: "pageview" }); } catch(e){}
+    });
+  </script>
+  <div id="telemetry-retry" style="position:fixed;bottom:16px;right:16px;display:none;">
+    <button id="telemetry-retry-btn" style="border-radius:999px;background:#0f172a;color:#fff;border:1px solid #334155;padding:8px 12px;font-weight:600;">Retry telemetry</button>
+  </div>
+  <script>
+    (function(){
+      function setup(){
+        var btn = document.getElementById("telemetry-retry-btn");
+        var el = document.getElementById("telemetry-retry-retry");
+        if (btn && window.CIQ && typeof window.CIQ.logEvent === "function") {
+          btn.style.display = "inline-flex";
+          btn.addEventListener("click", function(){
+            window.CIQ.logEvent({ type: "retry", path: location.pathname });
+            el = document.getElementById("telemetry-retry");
+            if (el) el.style.display = "none";
+          });
+        }
+      }
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup); else setup();
+    })();
+  </script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
 <main id="main" class="container" style="max-width: 860px;">
   <a href="/"><span class="badge">ClearanceIQ</span></a>
   <h1 style="margin-top:18px;">Duty Calculator</h1>
-  <p class="lead" style="margin-top:18px;">Estimate general duty, Section 301, MPF, HMF, and total landed cost.</p>
+  <p class="lead" style="margin-top:8px;">Estimate general duty, Section 301, MPF, HMF, and total landed cost.</p>
 
   <div class="box" style="margin-top:22px; display:grid; gap:12px;">
     <div>
@@ -39,7 +65,6 @@
     <div>
       <label style="font-size:12px; color:var(--muted);">HTS code</label>
       <input id="hts" type="text" placeholder="e.g. 8518.30.0000" style="width:100%;">
-      <a href="/tools/hts-lookup.html" style="font-size:12px; color:var(--accent); text-decoration:none; border-bottom:1px solid var(--accent);">Not sure? Look up HTS code →</a>
     </div>
     <div>
       <label style="font-size:12px; color:var(--muted);">Country of origin</label>
@@ -60,22 +85,15 @@
         </select>
       </div>
     </div>
-    <button class="cta" onclick="calculate()">Calculate estimate</button>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="cta" onclick="calculate()">Calculate estimate</button>
+      <button class="cta secondary" id="sampleBtn" type="button">Try sample</button>
+    </div>
   </div>
 
   <div id="result" class="box" style="display:none; margin-top:22px;">
     <h2 style="margin-top:0;">Estimate</h2>
     <div id="result_body" style="color:var(--text);"></div>
-  </div>
-
-  <!-- Monetization: broker referral + FBA affiliate (shown after result) -->
-  <div id="cta_nextstep" class="box" style="display:none; margin-top:22px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.3);">
-    <h3 style="margin-top:0;">Need a licensed broker or FBA tool?</h3>
-    <p style="font-size:14px; color:var(--text);">ClearanceIQ is a planning check, not a filing service. For the actual entry or deeper FBA research:</p>
-    <ul class="clean">
-      <li><a href="https://clearance-iq.com/contact" target="_blank" rel="noopener" style="color:var(--accent); font-weight:600;">Talk to our partner broker →</a> — licensed US customs broker, referred by ClearanceIQ.</li>
-      <li><a href="https://i.helium10.com/c/7475003/3054775/37271" target="_blank" rel="noopener" style="color:var(--accent); font-weight:600;">Helium 10 for FBA research →</a> — product/keyword research the pros use (affiliate).</li>
-    </ul>
   </div>
 
   <div class="box" style="margin-top:22px;">
@@ -89,56 +107,83 @@
     </ul>
   </div>
 </main>
+    <section style="display:none; margin-top: 22px;">
+      <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:16px;">
+        <strong>Missing something?</strong>
+        <p style="margin:8px 0 0; color:var(--muted); font-size:14px;">While you're here, try <a href="/tools/hts-lookup.html">HTS Lookup</a>, <a href="/tools/duty-calculator.html">Duty Calculator</a>, or <a href="/tools/cbp-hold-decoder.html">CBP Hold Decoder</a>.</p>
+      </div>
+    </section>
 
 <script>
+function logEvent(payload){
+  if (window.CIQ && typeof window.CIQ.logEvent === "function") {
+    window.CIQ.logEvent(payload);
+    return;
+  }
+  if (!navigator.sendBeacon) return;
+  try {
+    var base = typeof payload === "object" && payload !== null ? Object.assign({}, payload) : {};
+    base.ts = Date.now();
+    base.path = base.path || location.pathname;
+    navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
+  } catch(e){}
+}
+
+function emit(name, extra){
+  try { logEvent({ type: name, tool: 'duty-calculator', path: location.pathname, ...extra }); } catch(e){}
+}
+
+(function(){
+  var firstInputFired = false;
+  var firstInput = document.getElementById('value');
+  if (firstInput) {
+    firstInput.addEventListener('focus', function(){
+      if (!firstInputFired) { firstInputFired = true; emit('input_focus'); }
+    }, { once: true });
+  }
+
+  var sampleBtn = document.getElementById('sampleBtn');
+  if (sampleBtn) {
+    sampleBtn.addEventListener('click', function(){
+      document.getElementById('value').value = '35000';
+      document.getElementById('hts').value = '8518.30.0000';
+      document.getElementById('origin').value = 'China';
+      document.getElementById('freight').value = '1200';
+      document.getElementById('section301').value = '0.25';
+      emit('demo_run', { demo: true });
+      calculate();
+    });
+  }
+})();
+
 function calculate() {
   const value = parseFloat(document.getElementById('value').value || '0');
   const freight = parseFloat(document.getElementById('freight').value || '0');
   const s301Raw = document.getElementById('section301').value;
-  const hts = (document.getElementById('hts').value || '').trim();
+  const hts = (document.getElementById('hts').value || '').replace(/\./g,'').slice(0,4);
   const origin = (document.getElementById('origin').value || '').trim();
   const s301Rate = s301Raw === 'other' ? 0 : parseFloat(s301Raw);
 
-  var advise = '';
-  if (!/^\d{4}(\.\d{2}){0,3}$/.test(hts)) {
-    advise = '<p style="margin-top:10px; color:#b91c1c; font-size:13px;">HTS code looks invalid. Expect formats like <b>8518.30.0000</b> or <b>8518300000</b>. Wrong headings produce wrong duty estimates.</p>';
-  }
-
   const qs = new URLSearchParams({ value: String(value), hts, origin, freight: String(freight), s301Rate: String(s301Rate) });
-  var ciqKey = '';
-  try { ciqKey = localStorage.getItem('ciq_api_key') || ''; } catch (e) {}
-  var headers = { accept: 'application/json' };
-  if (ciqKey) headers['x-api-key'] = ciqKey;
-  fetch('/api/v1/duty-calc?' + qs.toString(), { headers: headers })
-    .then(r => {
-      if (!r.ok) throw new Error('request failed');
-      var ct = r.headers.get('content-type') || '';
-      if (!ct.includes('application/json')) throw new Error('non_json');
-      return r.json();
-    })
+  fetch('/api/v1/duty-calc?' + qs.toString(), { headers: { accept: 'application/json' } })
+    .then(r => r.json())
     .then(data => {
-      if (window.CIQ.isRateLimit(data)) { document.getElementById('result').style.display = 'none'; window.CIQ.handleRateLimit(document.getElementById('status') || document.getElementById('result'), data); return; }
       if (!data || !data.ok) { throw new Error(data && data.error ? data.error : 'request failed'); }
       const html = '<table style="width:100%; border-collapse:collapse;">' +
         data.table.map(([k,v]) => `<tr style="border-bottom:1px solid var(--border);"><td style="padding:8px 0; color:var(--text);">${k}</td><td style="padding:8px 0; text-align:right; font-weight:600;">${v}</td></tr>`).join('') +
         '</table>' +
-        '<p style="margin-top:12px; font-size:12px; color:#94a3b8;">Reference only. Actual rates depend on HTS special provisions, FTAs, and broker classification.</p>' +
-        advise;
+        '<p style="margin-top:12px; font-size:12px; color:#94a3b8;">Reference only. Actual rates depend on HTS special provisions, FTAs, and broker classification.</p>';
       document.getElementById('result_body').innerHTML = html;
       document.getElementById('result').style.display = 'block';
       document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
-      var cta = document.getElementById('cta_nextstep'); if (cta) cta.style.display = 'block';
-      try { if (window.CIQ && window.CIQ.saveHistory) window.CIQ.saveHistory('duty-calculator', hts || value, 'Duty calc', 'Landed: ' + (data.landed != null ? '$' + data.landed : '—')); } catch (e) {}
-      window.CIQ.logEvent({ type: 'duty_calc', hts, generalRate: data.generalRate, duty: data.duty, section301: data.section301, landed: data.landed });
-      window.CIQ.logTraining({ tool: 'duty-calculator', type: 'duty_calc', input: { value, hts, origin, freight, s301Rate }, result: { generalRate: data.generalRate, duty: data.duty, section301: data.section301, landed: data.landed } });
-      try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
+      emit('completed', { hts, generalRate: data.generalRate, duty: data.duty, section301: data.section301, landed: data.landed });
     })
     .catch(err => {
-      document.getElementById('result').style.display = 'none';
       console.error('[duty-calc]', err);
-      window.CIQ.logEvent({ type: 'duty_calc_error', message: err && err.message ? err.message : 'unknown' });
     });
 }
+
+function fmt(n) { return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 </script>
 </body>
 </html>

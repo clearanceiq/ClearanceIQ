@@ -1,4 +1,91 @@
 ;(function () {
+  'use strict';
+  if (window.__CIQ_THEME_TOGGLE_INIT__) return;
+  window.__CIQ_THEME_TOGGLE_INIT__ = true;
+
+  var STORAGE_KEY = 'ciq_theme_pref';
+  var TOGGLE_ID = 'ciq-theme-toggle';
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+
+  function getPreferredTheme() {
+    try {
+      var stored = localStorage.getItem(STORAGE_KEY);
+      if (stored === 'light' || stored === 'dark') return stored;
+    } catch { }
+    return 'dark';
+  }
+
+  function persistTheme(theme) {
+    try {
+      localStorage.setItem(STORAGE_KEY, theme);
+    } catch { }
+  }
+
+  function toggleTheme() {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(next);
+    persistTheme(next);
+  }
+
+  function injectStyles() {
+    var css = [
+      'html[data-theme="light"] {',
+      '  --bg: #ffffff;',
+      '  --surface: #f8fafc;',
+      '  --muted: #475569;',
+      '  --text: #0f172a;',
+      '}'
+    ].join('\n');
+
+    var style = document.createElement('style');
+    style.textContent = css;
+    document.head.appendChild(style);
+  }
+
+  function buildToggle() {
+    if (document.getElementById(TOGGLE_ID)) return;
+    var button = document.createElement('button');
+    button.id = TOGGLE_ID;
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Toggle light and dark theme');
+    button.textContent = 'Theme';
+    Object.assign(button.style, {
+      position: 'fixed',
+      top: '14px',
+      right: '14px',
+      zIndex: '9999',
+      background: 'rgba(15, 23, 42, 0.35)',
+      color: 'var(--text)',
+      border: '1px solid rgba(148,163,184,0.35)',
+      borderRadius: '999px',
+      padding: '8px 12px',
+      fontSize: '13px',
+      cursor: 'pointer',
+      backdropFilter: 'blur(6px)',
+      WebkitBackdropFilter: 'blur(6px)',
+      lineHeight: '1'
+    });
+    button.addEventListener('click', toggleTheme);
+    document.body.appendChild(button);
+  }
+
+  function init() {
+    injectStyles();
+    applyTheme(getPreferredTheme());
+    buildToggle();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+(function () {
   if (window.__CIQ_TELEMETRY_INIT__) return;
   window.__CIQ_TELEMETRY_INIT__ = true;
 
@@ -31,110 +118,7 @@
 
   window.CIQ = window.CIQ || {};
   window.CIQ.logEvent = logEvent;
-  window.CIQ.logTraining = function(payload) {
-    if (!navigator.sendBeacon) return;
-    try {
-      var base = typeof payload === 'object' && payload !== null ? Object.assign({}, payload) : {};
-      base.ts = Date.now();
-      base.path = base.path || location.pathname;
-      base.sessionToken = sessionId;
-      base.tool = base.tool || ['bond-estimator','cbp-hold-decoder','compliance-checklist','duty-calculator','hts-lookup','supplier-checklist']
-        .find(function(t){ return location.pathname.indexOf(t) !== -1; });
-      navigator.sendBeacon('/api/training', JSON.stringify(base));
-    } catch (e) { /* noop */ }
-  };
   window.CIQ.resumeSession = function () { try { sessionStorage.setItem(sessionKey, sessionId); } catch(e) {} };
-  window.CIQ.isRateLimit = function (data) { return !!(data && data.error === 'rate_limit'); };
-  window.CIQ.handleRateLimit = function (statusEl, data) {
-    try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
-    if (!statusEl) return;
-    var msg = (data && data.upgrade)
-      ? data.upgrade
-      : 'You reached your free limit of 5 lookups/day. Sign up free for 100/day.';
-    statusEl.innerHTML = '⚠️ ' + msg + ' <a href="/">Sign up free →</a>';
-    statusEl.style.color = '#f59e0b';
-  };
-  window.CIQ.refreshUsage = function () {
-    try {
-      var apiKey = '';
-      try { apiKey = localStorage.getItem('ciq_api_key') || ''; } catch (e) {}
-      var url = '/api/usage';
-      var headers = {};
-      if (apiKey) {
-        url += '?key=' + encodeURIComponent(apiKey);
-        headers['x-api-key'] = apiKey;
-      }
-      fetch(url, { headers: headers })
-        .then(function(r){ return r.json(); })
-        .then(function(data){
-          var badge = document.getElementById('usageBadge');
-          if (badge) {
-            var strong = badge.querySelector('strong');
-            if (strong) {
-              var remaining = data && data.remaining != null ? data.remaining : '—';
-              var tier = (data && data.authenticated && data.tier !== 'anonymous') ? (data.tier === 'pro' ? 'Member · Pro' : 'Member · 100/day') : '5/day guest';
-              strong.textContent = remaining + ' left';
-              var span = badge.querySelector('span');
-              if (span) span.textContent = tier;
-            }
-          }
-          var usedEl = document.getElementById('usedCount');
-          var remainEl = document.getElementById('remainingCount');
-          var tierEl = document.getElementById('tierLabel');
-          if (data) {
-            if (usedEl) usedEl.textContent = data.used != null ? data.used : '—';
-            if (remainEl) remainEl.textContent = data.remaining != null ? data.remaining : '—';
-            if (tierEl) tierEl.textContent = data.tier === 'signed' ? '100/day' : 'Free';
-          }
-        })
-        .catch(function(){});
-    } catch (e) {}
-  };
-
-  window.CIQ.saveHistory = function (tool, input, label, result) {
-    try {
-      var apiKey = localStorage.getItem('ciq_api_key');
-      if (!apiKey) return; // only signed users get history
-      fetch('/api/history', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-api-key': apiKey },
-        body: JSON.stringify({ tool: tool, input: input || '', label: label || '', result: result || '' })
-      }).catch(function(){});
-    } catch (e) {}
-  };
-
-  // Anonymous over-limit gate for client-side-only tools (no API call of their own)
-  window.CIQ.maybeGateTool = function () {
-    try {
-      var apiKey = localStorage.getItem('ciq_api_key');
-      if (apiKey) return; // members are never gated
-      if (!navigator.sendBeacon) return;
-      fetch('/api/usage').then(function(r){ return r.json(); }).then(function(data){
-        if (data && data.authenticated === false && data.remaining <= 0) {
-          var gate = document.getElementById('ciqToolGate');
-          if (gate) return;
-          var el = document.createElement('div');
-          el.id = 'ciqToolGate';
-          el.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.92);z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;font-family:inherit;';
-          el.innerHTML = '<div style="max-width:420px;background:#0f172a;border:1px solid #334155;border-radius:14px;padding:28px;text-align:center;color:#e2e8f0;">'
-            + '<h2 style="margin:0 0 10px;font-size:20px;">Free limit reached</h2>'
-            + '<p style="margin:0 0 18px;color:#94a3b8;font-size:14px;line-height:1.5;">You have used your 5 free tool uses today. Sign up free for 100/day — no card needed.</p>'
-            + '<a href="/" style="display:inline-block;background:#38bdf8;color:#06283d;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;">Sign up free →</a>'
-            + '</div>';
-          document.body.appendChild(el);
-        }
-      }).catch(function(){});
-    } catch (e) {}
-  };
-
-  // Gate non-API tools on load
-  try {
-    var p = location.pathname;
-    if (['cbp-hold-decoder','compliance-checklist','supplier-checklist','start-here'].some(function(t){ return p.indexOf(t) !== -1; })) {
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', window.CIQ.maybeGateTool);
-      else window.CIQ.maybeGateTool();
-    }
-  } catch (e) {}
 
   try { sessionStorage.setItem('ciq_telem_v', '1'); } catch (e) {}
 
@@ -143,4 +127,79 @@
     var storedEmail = localStorage.getItem('ciq_email');
     if (storedEmail) window.__CIQ_EMAIL__ = storedEmail;
   } catch { }
+
+  // Auto-update usage badge from API key if present
+  function updateUsageBadge() {
+    var apiKey = localStorage.getItem('ciq_api_key');
+    var badge = document.getElementById('usageBadge');
+    var counters = document.getElementById('usageCounters');
+    if (!apiKey || !badge) return;
+
+    fetch('/api/usage', {
+      headers: { 'X-API-Key': apiKey },
+      credentials: 'same-origin'
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      if (!data || !data.ok) return;
+      var remaining = Math.max(0, (data.limit || 100) - (data.used || 0));
+      var tier = data.tier === 'free' ? 'Free' : (data.tier || 'Free');
+      badge.innerHTML = 'Usage: <strong>' + remaining + ' left</strong> · ' + tier;
+      if (counters) {
+        counters.style.display = 'grid';
+        var used = document.getElementById('usedCount');
+        var rem = document.getElementById('remainingCount');
+        var tierEl = document.getElementById('tierLabel');
+        if (used) used.textContent = data.used || 0;
+        if (rem) rem.textContent = remaining;
+        if (tierEl) tierEl.textContent = tier;
+      }
+    })
+    .catch(function(){ /* noop */ });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateUsageBadge);
+  } else {
+    updateUsageBadge();
+  }
+})();
+
+// Hero signup: auto-issue key + training capture
+(function () {
+  var form = document.getElementById('heroSignup');
+  var status = document.getElementById('signupStatus');
+  if (!form) return;
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (status) status.textContent = 'Issuing key…';
+    var fd = new FormData(form);
+    var email = String(fd.get('email') || '').trim();
+    if (!email) { if (status) status.textContent = 'Email required.'; return; }
+
+    fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: email }),
+      credentials: 'same-origin'
+    })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      if (data && data.key) {
+        try { localStorage.setItem('ciq_api_key', data.key); } catch {}
+        try { localStorage.setItem('ciq_email', email); } catch {}
+        if (window.__CIQ_EMAIL__) window.__CIQ_EMAIL__ = email;
+        if (status) status.textContent = 'Key issued. Your limit: ' + (data.tier === 'free' ? '100/day' : 'unlimited') + '.';
+        if (window.CIQ && typeof window.CIQ.logEvent === 'function') {
+          window.CIQ.logEvent({ type: 'signup', email: email, tier: data.tier || 'free' });
+        }
+      } else {
+        if (status) status.textContent = (data && data.message) ? data.message : 'Signup failed. Try again.';
+      }
+    })
+    .catch(function () {
+      if (status) status.textContent = 'Network error. Try again.';
+    });
+  });
 })();

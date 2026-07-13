@@ -4,9 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ClearanceIQ — HTS Duty Lookup</title>
-<meta name="description" content="Find a starting HTS code for your product. Free HTS lookup for importers — candidate match, then verify the official rate at hts.usitc.gov.">
-<link rel="canonical" href="https://clearance-iq.com/tools/hts-lookup">
-
+<meta name="description" content="Look up US HTS codes, duty rates, and AD/CVD risk. Free HTS lookup for importers.">
+<link rel="canonical" href="https://clearance-iq.com/tools/hts-lookup.html">
 <link rel="stylesheet" href="/style.css">
 <link rel="preload" as="script" href="/js/hts-paperwork.js">
 <script src="/js/hts-paperwork.js" defer></script>
@@ -17,7 +16,7 @@
 <meta property="og:site_name" content="ClearanceIQ">
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
+  "@context": "https://schema.org/",
   "@type": "WebApplication",
   "name": "ClearanceIQ HTS Duty Lookup",
   "url": "https://clearance-iq.com/tools/hts-lookup.html",
@@ -30,65 +29,83 @@
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f595fc18f8864d93829ac6cd51832679"}'></script>
 <!-- End Cloudflare Web Analytics -->
 <script defer src="/site-inject.js"></script>
+  <script>
+    if (window.CIQ && typeof window.CIQ.resumeSession === "function") window.CIQ.resumeSession();
+    window.addEventListener("pageshow", function(){ if (window.CIQ && typeof window.CIQ.resumeSession === "function") window.CIQ.resumeSession(); });
+    window.addEventListener("load", function(){
+      try { if (window.CIQ && typeof window.CIQ.logEvent === "function") window.CIQ.logEvent({ type: "pageview" }); } catch(e){}
+    });
+  </script>
+  <div id="telemetry-retry" style="position:fixed;bottom:16px;right:16px;display:none;">
+    <button id="telemetry-retry-btn" style="border-radius:999px;background:#0f172a;color:#fff;border:1px solid #334155;padding:8px 12px;font-weight:600;">Retry telemetry</button>
+  </div>
+  <script>
+    (function(){
+      function setup(){
+        var btn = document.getElementById("telemetry-retry-btn");
+        var el = document.getElementById("telemetry-retry-retry");
+        if (btn && window.CIQ && typeof window.CIQ.logEvent === "function") {
+          btn.style.display = "inline-flex";
+          btn.addEventListener("click", function(){
+            window.CIQ.logEvent({ type: "retry", path: location.pathname });
+            el = document.getElementById("telemetry-retry");
+            if (el) el.style.display = "none";
+          });
+        }
+      }
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup); else setup();
+    })();
+  </script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
 <main id="main" class="container" style="max-width: 860px;">
   <a href="/"><span class="badge">ClearanceIQ</span></a>
   <h1 style="margin-top:18px;">HTS Duty Lookup</h1>
-  <p class="lead" style="margin-top:8px;">Find a starting HTS code for your product, flag AD/CVD risk, and see required paperwork. Then confirm the official duty rate with CBP or a licensed broker.</p>
+  <p class="lead" style="margin-top:8px;">Search HTS codes, preview general duty rates, flag AD/CVD risk, and see required paperwork.</p>
 
   <div class="box" style="margin-top:22px;">
-    <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:8px;">Search HTS code or keyword</label>
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <input id="q" type="text" placeholder="e.g. 8518.30.0000 or bluetooth headphones" style="flex:1; min-width:220px;">
-      <button class="cta" onclick="runLookup()">Look up</button>
-    </div>
-
-    <div style="margin-top:14px; display:grid; gap:10px;">
-      <div>
-        <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:4px;">Product description <span style="opacity:.7;">(optional, improves matching)</span></label>
-        <input id="q_desc" type="text" placeholder="e.g. non-stick ceramic frying pan" style="width:100%;">
+      <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:8px;">Paste a product page URL, HTS code, or keyword</label>
+      <p style="margin:0 0 8px; font-size:13px; color:#059669; font-weight:600;">💡 You can paste a product link directly (Amazon, Alibaba, 1688, Shopee, supplier site, etc.)</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <input id="q" type="text" placeholder="https://... or e.g. 8518.30.0000 or bluetooth headphones" style="flex:1; min-width:220px;">
+        <button class="cta" onclick="runLookup()">Look up</button>
       </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-        <div>
-          <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:4px;">Material composition <span style="opacity:.7;">(optional)</span></label>
-          <input id="q_material" type="text" placeholder="e.g. aluminum, ceramic coating" style="width:100%;">
-        </div>
-        <div>
-          <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:4px;">Intended end use <span style="opacity:.7;">(optional)</span></label>
-          <input id="q_enduse" type="text" placeholder="e.g. household cooking" style="width:100%;">
-        </div>
-      </div>
+      <p id="status" style="margin:10px 0 0; font-size:13px; color:var(--muted);"></p>
+      <button id="sampleBtn" class="cta secondary" type="button" style="margin-top:10px;">Try sample</button>
     </div>
-
-    <p id="status" style="margin:10px 0 0; font-size:13px; color:var(--muted);"></p>
-  </div>
 
   <div id="result" class="box" style="display:none; margin-top:22px;">
     <h2 id="result_title" style="margin-top:0;"></h2>
     <div id="result_body" style="color:var(--text);"></div>
   </div>
 
-  <!-- Monetization: broker referral + FBA affiliate (shown after result) -->
-  <div id="cta_nextstep" class="box" style="display:none; margin-top:22px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.3);">
-    <h3 style="margin-top:0;">Need a licensed broker or FBA tool?</h3>
-    <p style="font-size:14px; color:var(--text);">ClearanceIQ is a planning check, not a filing service. For the actual entry or deeper FBA research:</p>
+  <div class="box" style="margin-top:22px;">
+    <h2 style="margin-top:0;">How to use this</h2>
     <ul class="clean">
-      <li><a href="https://clearance-iq.com/contact" target="_blank" rel="noopener" style="color:var(--accent); font-weight:600;">Talk to our partner broker →</a> — licensed US customs broker, referred by ClearanceIQ.</li>
-      <li><a href="https://i.helium10.com/c/7475003/3054775/37271" target="_blank" rel="noopener" style="color:var(--accent); font-weight:600;">Helium 10 for FBA research →</a> — product/keyword research the pros use (affiliate).</li>
+      <li>Paste a product page URL — we’ll extract keywords and match the best HTS code.</li>
+      <li>Or type a full HTS code or short product description.</li>
+      <li>We’ll show indicative duty rate, AD/CVD risk, and likely required paperwork.</li>
+      <li>This is planning only — final classification belongs to a licensed broker.</li>
     </ul>
   </div>
 
   <div class="box" style="margin-top:22px;">
-    <h2 style="margin-top:0;">How to use this</h2>
-    <ul class="clean">
-      <li>Type a full HTS code or a short product description.</li>
-      <li>We'll suggest a starting code and flag if that line is in an AD/CVD watch list.</li>
-      <li>This is a candidate match from a curated starter list — always confirm the official rate at hts.usitc.gov or with a licensed broker.</li>
-    </ul>
+    <h2 style="margin-top:0;">Don’t know where to start?</h2>
+    <p style="margin:0 0 8px; color:var(--muted);">Paste a product page link directly — Amazon, Alibaba, 1688, Shopee, supplier site, etc. We’ll extract keywords, match the best HTS code, and tell you what paperwork to prepare.</p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <input id="starterQ" type="text" placeholder="https://... or e.g. 8518.30.0000 or bluetooth headphones" style="flex:1; min-width:220px;">
+      <button class="cta" onclick="runLookupFrom('starterQ')">Look up</button>
+    </div>
+    <button id="starterSampleBtn" class="cta secondary" type="button" style="margin-top:10px;">Try sample</button>
   </div>
 </main>
+    <section style="display:none; margin-top: 22px;">
+      <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:16px;">
+        <strong>Missing something?</strong>
+        <p style="margin:8px 0 0; color:var(--muted); font-size:14px;">While you're here, try <a href="/tools/hts-lookup.html">HTS Lookup</a>, <a href="/tools/duty-calculator.html">Duty Calculator</a>, or <a href="/tools/cbp-hold-decoder.html">CBP Hold Decoder</a>.</p>
+      </div>
+    </section>
 
 <script>
 const DATA = [
@@ -98,7 +115,7 @@ const DATA = [
   { code: "9403.10.0000", desc: "Metal office furniture", duty: "Free", adcvd: "none" },
   { code: "7318.15.0085", desc: "Iron/steel screws/bolts", duty: "Free", adcvd: "none" },
   { code: "9503.00.0073", desc: "Toys, plastic, <= 50 cents", duty: "Free", adcvd: "low" },
-  { code: "6402.99.05000", desc: "Footwear, rubber/plastic", duty: "Free", adcvd: "none" },
+  { code: "6402.99.0500", desc: "Footwear, rubber/plastic", duty: "Free", adcvd: "none" },
   { code: "8517.12.0095", desc: "Smartphones and base stations", duty: "Free", adcvd: "low" },
   { code: "9013.80.0010", desc: "LED devices, other optical", duty: "Free", adcvd: "none" },
   { code: "3304.99.5000", desc: "Beauty/makeup preparations", duty: "Free", adcvd: "none" }
@@ -109,91 +126,163 @@ const ADCVD_NOTES = {
   low: "This category is sometimes flagged for AD/CVD checks. Confirm before booking."
 };
 
-function runLookup() {
-  var qEl = document.getElementById("q");
-  var descEl = document.getElementById("q_desc");
-  var materialEl = document.getElementById("q_material");
-  var enduseEl = document.getElementById("q_enduse");
-  var out = document.getElementById("result");
-  var status = document.getElementById("status");
+function logEvent(payload){
+  if (window.CIQ && typeof window.CIQ.logEvent === "function") {
+    window.CIQ.logEvent(payload);
+    return;
+  }
+  if (!navigator.sendBeacon) return;
+  try {
+    var base = typeof payload === "object" && payload !== null ? Object.assign({}, payload) : {};
+    base.ts = Date.now();
+    base.path = base.path || location.pathname;
+    navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
+  } catch(e){}
+}
 
-  var q = (qEl && qEl.value || "").trim();
-  var desc = (descEl && descEl.value || "").trim();
-  var material = (materialEl && materialEl.value || "").trim();
-  var enduse = (enduseEl && enduseEl.value || "").trim();
-
-  if (!q && !desc) { if (status) status.textContent = "Enter a code, keyword, or product description."; return; }
-
-  if (status) status.textContent = "Looking up…";
-  if (out) out.style.display = "none";
-
-  var params = new URLSearchParams();
-  if (q) params.set("q", q);
-  if (desc) params.set("desc", desc);
-  if (material) params.set("material", material);
-  if (enduse) params.set("enduse", enduse);
-  var ciqKey = '';
-  try { ciqKey = localStorage.getItem('ciq_api_key') || ''; } catch (e) {}
-  var headers = { accept: 'application/json' };
-  if (ciqKey) headers['x-api-key'] = ciqKey;
-  fetch('/api/v1/hts?' + params.toString(), { headers: headers })
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      if (window.CIQ.isRateLimit(data)) { if (out) out.style.display = "none"; window.CIQ.handleRateLimit(status, data); return; }
-      if (!data || !data.ok) {
-        if (out) out.style.display = "none";
-        var suggest = data && data.suggest ? ' ' + data.suggest : '';
-        status.textContent = "No match." + suggest + " For official rates, use USITC HTS Search or a licensed broker.";
-        window.CIQ.logEvent({ type: 'hts_no_match', q: q || desc });
-        if (window.CIQ && typeof window.CIQ.logTraining === 'function') window.CIQ.logTraining({ tool: 'hts-lookup', type: 'hts_no_match', input: { q: q || desc, desc, material, enduse }, result: {} });
-        try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
-        return;
-      }
-      document.getElementById("result_title").textContent = (data.code || '') + ' — ' + (data.description || '');
-      var dutyLine;
-      if (data.dutyPct !== null && typeof data.dutyPct === 'number') {
-        dutyLine = '<p><b>Indicative general duty:</b> ' + data.dutyPct.toFixed(1) + '% <span style="opacity:.7;">(Column 1, from USITC 2026 Rev 11)</span></p>';
-      } else if (data.dutyRate && typeof data.dutyRate === 'string' && data.dutyRate.trim() !== '') {
-        dutyLine = '<p><b>Indicative general duty:</b> ' + data.dutyRate + ' <span style="opacity:.7;">(Column 1, from USITC 2026 Rev 11)</span></p>';
-      } else {
-        dutyLine = '<p><b>Duty rate:</b> not shown — this is a candidate match, not the official HTS. Confirm the general duty rate at ' +
-          '<a href="' + (data.verifyUrl || 'https://hts.usitc.gov') + '" target="_blank" rel="noopener" style="color:var(--accent);">hts.usitc.gov</a> or with a licensed broker.</p>';
-      }
-      document.getElementById("result_body").innerHTML = dutyLine +
-        (data.dutyConfidence === 'candidate' ? '<p style="color:#f59e0b;"><b>⚠ Candidate match</b> from a curated starter list — verify the exact code before filing.</p>' : '') +
-        '<p><b>AD/CVD watch:</b> ' + (data.adcvd === "none" ? "None on record" : "Flagged — review before booking") + '</p>' +
-        '<p style="margin-top:10px;">' + (data.note || "") + '</p>' +
-        '<p style="margin-top:10px; font-size:12px; color:var(--muted);">Planning reference only. Not a ruling. Verify with CBP or a licensed broker.</p>';
-      if (out) out.style.display = "block";
-      status.textContent = "";
-      try { if (window.CIQ && window.CIQ.saveHistory) window.CIQ.saveHistory('hts-lookup', q || desc, (data.code || '') + ' ' + (data.description || ''), (typeof data.dutyRate === 'number' ? (data.dutyRate * 100).toFixed(1) : '—') + '% duty'); } catch(e){}
-      var cta = document.getElementById('cta_nextstep'); if (cta) cta.style.display = 'block';
-
-      window.CIQ.logEvent({ type: 'hts_hit', code: data.code, q: q || desc });
-      window.CIQ.logTraining({ tool: 'hts-lookup', type: 'hts_hit', input: { q: q || desc, desc, material, enduse }, result: { code: data.code, description: data.description, dutyRate: data.dutyRate, adcvd: data.adcvd } });
-      try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
-    })
-    .catch(function(err){
-      if (out) out.style.display = 'none';
-      status.textContent = 'Lookup failed. Try again.';
-      console.error('[hts-lookup]', err);
-      window.CIQ.logEvent({ type: 'hts_error', q: q || desc, message: (err && err.message) ? err.message : 'unknown' });
-    });
+function emit(name, extra){
+  try { logEvent({ type: name, tool: 'hts-lookup', path: location.pathname, ...extra }); } catch(e){}
 }
 
 (function(){
-  var btn = document.getElementById('lookupBtn');
-  if (!btn) return;
-  function fire(){
-    runLookup();
+  var inputFired = false;
+  var input = document.getElementById('q');
+  if (input) {
+    input.addEventListener('input', function(){
+      if (!inputFired) { inputFired = true; emit('input_start'); }
+    }, { once: true });
   }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', fire);
-  } else {
-    fire();
+
+  var sampleBtn = document.getElementById('sampleBtn');
+  if (sampleBtn) {
+    sampleBtn.addEventListener('click', function(){
+      document.getElementById('q').value = '8518.30.0000';
+      emit('demo_run', { demo: true });
+      runLookup();
+    });
   }
-  btn.addEventListener('click', fire);
 })();
+
+function runLookup() {
+  let q = document.getElementById("q").value.trim();
+  const out = document.getElementById("result");
+  const status = document.getElementById("status");
+
+  if (!q) { status.textContent = "Enter a link, code, or keyword."; return; }
+
+  let keywords = q;
+  const urlMatch = /^https?:\/\//i.test(q);
+  if (urlMatch) {
+    try {
+      const u = new URL(q);
+      // Remove common shopping path segments
+      let path = u.pathname.replace(/\/+$/,'').split('/').filter(Boolean).join(' ');
+      path = path
+        .replace(/\b(dp|product|item|gp\/product|gp\/aw\/d|p|dp\/[A-Z0-9]{6,})\b/gi, ' ')
+        .replace(/[^a-z0-9\s-]/gi, ' ')
+        .replace(/\s+/g, ' ').trim();
+      const host = u.hostname.replace(/^www\./,'').split('.')[0];
+      keywords = [host, path].filter(Boolean).join(' ').trim() || q;
+    } catch (e) {
+      keywords = q.replace(/[^a-z0-9\s-]/gi,' ').replace(/\s+/g,' ').trim();
+    }
+  }
+
+  const query = keywords.toLowerCase();
+  fetch('/api/v1/hts?q=' + encodeURIComponent(query), { headers: { accept: 'application/json' } })
+    .then(r => r.json())
+    .then(data => {
+      if (!data || !data.ok) {
+        out.style.display = "none";
+        status.textContent = "No local match. For official rates, use USITC HTS Search or a licensed broker.";
+        emit('hts_no_match', { q });
+        return;
+      }
+      document.getElementById("result_title").textContent = `${data.code} — ${data.description}`;
+      document.getElementById("result_body").innerHTML = `
+        <p><b>Indicative duty:</b> ${(data.dutyRate * 100).toFixed(1)}%</p>
+        <p><b>AD/CVD watch:</b> ${data.adcvd === "none" ? "None on record" : "Flagged — review before booking"}</p>
+        <p style="margin-top:10px;">${data.note || ""}</p>
+        <p style="margin-top:10px; font-size:12px; color:var(--muted);">Planning reference only. Not a ruling. Verify with CBP or a licensed broker.</p>
+      `;
+      out.style.display = "block";
+      status.textContent = "";
+
+      // Paperwork advice
+      const code = (data.code || '').replace(/\./g, '');
+      const prefix = code.slice(0, 2);
+      const sub = code.slice(0, 4);
+      const linesArr = [];
+      const flagsArr = [];
+
+      if (['64'].includes(prefix)) {
+        linesArr.push('Footwear checklist');
+        flagsArr.push('Footwear/shoe entries often need commercial invoices, packing lists, and any prior-approval documentation for materials/soles.');
+      }
+      if (['39', '40'].includes(prefix)) {
+        linesArr.push('Plastics derivatives worksheet');
+        flagsArr.push('Record resin/formulation details if claiming a specific HTS provision for plastic articles.');
+      }
+      if (['70'].includes(prefix)) {
+        linesArr.push('Glass/container handling worksheet');
+        flagsArr.push('Confirm whether packing qualifies as articles of glass vs. packing glassware.');
+      }
+      if (['85', '90'].includes(prefix)) {
+        linesArr.push('Electronics compliance worksheet');
+        flagsArr.push('Collect product specs, FCC markings, and radio module documentation if applicable.');
+      }
+      if (['94'].includes(prefix)) {
+        linesArr.push('Furniture import worksheet');
+        flagsArr.push('Include material breakdowns: wood, metal, plastic, textile components.');
+      }
+      if (['61', '62'].includes(prefix)) {
+        linesArr.push('Textiles/apparel worksheet');
+        flagsArr.push('Gather fiber content percentages, country of origin, and quota status if applicable.');
+      }
+      if (['73', '76', '83'].includes(prefix)) {
+        linesArr.push('Metal products checklist');
+        flagsArr.push('Provide material certification if alloy composition affects classification.');
+      }
+      if (['87', '89'].includes(prefix)) {
+        linesArr.push('Vehicle/transport worksheet');
+        flagsArr.push('Collect EPA/DOT documentation and VIN/vehicle certification.');
+      }
+      if (['22', '24'].includes(prefix)) {
+        linesArr.push('Beverages/alcohol worksheet');
+        flagsArr.push('Confirm TTB certificate/label approval if applicable.');
+      }
+      if (['48', '49'].includes(prefix)) {
+        linesArr.push('Paper/printed matter checklist');
+        flagsArr.push('Include samples and any government-use documentation.');
+      }
+      if (['38', '35'].includes(prefix)) {
+        linesArr.push('Miscellaneous/prepared goods worksheet');
+        flagsArr.push('List exact composition and intended use for miscellaneous classifications.');
+      }
+
+      if (linesArr.length) {
+        const section = document.createElement("div");
+        section.style.marginTop = "14px";
+        section.innerHTML = `
+          <p style="font-size:12px; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; color:var(--muted);">Likely paperwork</p>
+          <ul style="margin-top:6px; font-size:14px; line-height:1.6;">
+            ${linesArr.map(f => `<li>✓ ${f}</li>`).join("")}
+          </ul>
+          ${flagsArr.map(f => `<p style="margin-top:6px; font-size:13px; color:#334155;">ℹ ${f}</p>`).join("")}
+          <p style="margin-top:8px; font-size:12px; color:var(--muted);">Use the Compliance Checklist tool for a full filing pack.</p>
+        `;
+        const body = document.getElementById("result_body");
+        body.appendChild(section);
+        body.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      emit('hts_hit', { code: data.code, q });
+    })
+    .catch(err => {
+      out.style.display = "none";
+      console.error('[hts-lookup]', err);
+    });
+}
 </script>
 </body>
 </html>

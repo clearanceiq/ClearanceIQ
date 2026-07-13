@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telemetry Health — ClearanceIQ</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="container">
+    <h1>Telemetry Health</h1>
+    <p id="status">Checking bindings…</p>
+    <pre id="raw" style="background:#0f172a;color:#e2e8f0;padding:16px;border-radius:12px;overflow:auto;"></pre>
+  </main>
+
+  <script>
+    const key = (() => {
+      try { return localStorage.getItem('ciq_api_key') || ''; } catch { return ''; }
+    })();
+
+    async function check(){
+      const status = document.getElementById('status');
+      const raw = document.getElementById('raw');
+      try {
+        const r = await fetch('/api/telemetry?' + new URLSearchParams({ limit: '5' }), { headers: { 'X-API-Key': key }});
+        const json = await r.json();
+        status.textContent = json.ok ? 'Endpoint reachable; recent events returned.' : 'Reachable, but endpoint returned a non-ok payload.';
+        raw.textContent = JSON.stringify(json, null, 2);
+      } catch (e) {
+        status.textContent = 'Endpoint check failed.';
+        raw.textContent = String(e);
+      }
+    }
+
+    check();
+  </script>
+</body>
+</html>

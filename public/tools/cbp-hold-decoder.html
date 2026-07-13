@@ -5,16 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ClearanceIQ — CBP Hold Decoder</title>
 <meta name="description" content="CBP hold types explained in plain English. Understand exams, pagó means, and next steps for your shipment.">
-<link rel="canonical" href="https://clearance-iq.com/tools/cbp-hold-decoder">
-
+<link rel="canonical" href="https://clearance-iq.com/tools/cbp-hold-decoder.html">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
+  "@context": "https://schema.org/",
   "@type": "WebApplication",
   "name": "ClearanceIQ CBP Hold Decoder",
   "url": "https://clearance-iq.com/tools/cbp-hold-decoder.html",
-  "description": "Understand CBP hold types and next steps."
+  "description": "CBP hold types explained in plain English with next steps."
 }
 </script>
 
@@ -22,6 +21,33 @@
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f595fc18f8864d93829ac6cd51832679"}'></script>
 <!-- End Cloudflare Web Analytics -->
 <script defer src="/site-inject.js"></script>
+  <script>
+    if (window.CIQ && typeof window.CIQ.resumeSession === "function") window.CIQ.resumeSession();
+    window.addEventListener("pageshow", function(){ if (window.CIQ && typeof window.CIQ.resumeSession === "function") window.CIQ.resumeSession(); });
+    window.addEventListener("load", function(){
+      try { if (window.CIQ && typeof window.CIQ.logEvent === "function") window.CIQ.logEvent({ type: "pageview" }); } catch(e){}
+    });
+  </script>
+  <div id="telemetry-retry" style="position:fixed;bottom:16px;right:16px;display:none;">
+    <button id="telemetry-retry-btn" style="border-radius:999px;background:#0f172a;color:#fff;border:1px solid #334155;padding:8px 12px;font-weight:600;">Retry telemetry</button>
+  </div>
+  <script>
+    (function(){
+      function setup(){
+        var btn = document.getElementById("telemetry-retry-btn");
+        var el = document.getElementById("telemetry-retry-retry");
+        if (btn && window.CIQ && typeof window.CIQ.logEvent === "function") {
+          btn.style.display = "inline-flex";
+          btn.addEventListener("click", function(){
+            window.CIQ.logEvent({ type: "retry", path: location.pathname });
+            el = document.getElementById("telemetry-retry");
+            if (el) el.style.display = "none";
+          });
+        }
+      }
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup); else setup();
+    })();
+  </script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -37,6 +63,7 @@
       <button class="cta" onclick="decode()">Decode</button>
     </div>
     <p id="status" style="margin:10px 0 0; font-size:13px; color:var(--muted);"></p>
+    <button id="sampleBtn" class="cta secondary" type="button" style="margin-top:10px;">Try sample</button>
   </div>
 
   <div id="result" class="box" style="display:none; margin-top:22px;">
@@ -55,79 +82,62 @@
     </ul>
   </div>
 </main>
+    <section style="display:none; margin-top: 22px;">
+      <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:16px;">
+        <strong>Missing something?</strong>
+        <p style="margin:8px 0 0; color:var(--muted); font-size:14px;">While you're here, try <a href="/tools/hts-lookup.html">HTS Lookup</a>, <a href="/tools/duty-calculator.html">Duty Calculator</a>, or <a href="/tools/cbp-hold-decoder.html">CBP Hold Decoder</a>.</p>
+      </div>
+    </section>
 
 <script>
-const HOLDS = [
-  {
-    keywords: ["commercial exam","manifest","documentation","manifest review"],
-    title: "Commercial exam / manifest review",
-    body: `<p><b>What it means:</b> CBP is reviewing entry documents, manifest, and possibly invoice consistency.</p>
-    <p><b>Typical timeline:</b> 1–5 days; longer if Partner Government Agency review is needed.</p>
-    <p><b>What to do:</b> Confirm all invoices, packing lists, and HTS codes match the entry summary. If CBP requests additional documents, respond via your broker within the stated deadline.</p>`
-  },
-  {
-    keywords: ["pga","fda","usda","aphi","prior notice","sample","pga hold"],
-    title: "Partner Government Agency (PGA) hold",
-    body: `<p><b>What it means:</b> FDA, CPSC, USDA, APHIS, EPA, or another agency is clearing your product before release.</p>
-    <p><b>Typical timeline:</b> 3–14+ days depending on agency, product type, and completeness of submitted data.</p>
-    <p><b>What to do:</b> Ask your broker which PGA is involved and what they need. Prior notices, certificates of origin, lab reports, and labels are common requirements.</p>`
-  },
-  {
-    keywords: ["bond","security","ior","importer","entry security"],
-    title: "Bond / IOR hold",
-    body: `<p><b>What it means:</b> CBP found an issue with your bond, importer of record, or entry security data.</p>
-    <p><b>Typical timeline:</b> Can be days if paperwork is corrected quickly.</p>
-    <p><b>What to do:</b> Contact your broker or surety provider immediately. Common fixes: update IOR address, post additional bond, or clarify entity mismatch.</p>`
-  },
-  {
-    keywords: ["ipr","intellectual","trademark","counterfeit","brand","seizure"],
-    title: "Intellectual property rights (IPR) hold",
-    body: `<p><b>What it means:</b> CBP suspects trademark, copyright, design-right conflict, or counterfeit goods.</p>
-    <p><b>Typical timeline:</b> Can stretch to weeks while rights-holder responds. Seizure possible if egregious.</p>
-    <p><b>What to do:</b> Do not move, sell, or destroy the goods without CBP written direction. Gather proof of authenticity (invoice with OEM, authorization letter).</p>`
-  },
-  {
-    keywords: ["quota","textile","visa","government","defense","export license"],
-    title: "Quota / special program hold",
-    body: `<p><b>What it means:</b> The shipment is tied to a quota system, visa requirement, license denial, or restricted-party rule.</p>
-    <p><b>Typical timeline:</b> Varies; quota-based shipments may need rebooking or license application.</p>
-    <p><b>What to do:</b> Confirm quota availability and visa status before arrival. If missed, expect rebooking fees. Verify seller is not on BIS Entity List.</p>`
-  },
-  {
-    keywords: ["manual liquidation","liquidation","further information","inquiry","cf 28","cf 29"],
-    title: "Manual liquidation / CF 28 inquiry",
-    body: `<p><b>What it means:</b> CBP is conducting a manual liquidation review or has mailed a CBP Form 28 (Request for Information) or Form 29 (Notice of Action).</p>
-    <p><b>Typical timeline:</b> 30–180 days for response. Do not miss the deadline printed on the form.</p>
-    <p><b>What to do:</b> Reply with supporting documents (invoices, prior rulings, country of origin evidence). Request extension if needed. A broker can help draft the response.</p>`
-  },
-  {
-    keywords: ["anti-dumping","countervailing","ad cvd","ad/cvd","circumvention","evasion"],
-    title: "Anti-Dumping / Countervailing (AD/CVD) hold",
-    body: `<p><b>What it means:</b> CBP suspects the shipment is subject to AD/CVD orders and needs deposit/cash deposit verification.</p>
-    <p><b>Typical timeline:</b> Can be days to weeks depending on deposit posting and ITC/CBP review.</p>
-    <p><b>What to do:</b> Confirm the AD/CVD case number, estimated duty deposit rate, and product scope. Post bond or cash deposit per instructions. Check Federal Register for scope changes.</p>`
-  },
-  {
-    keywords: ["outstanding deposit","deposit","liquidation","bill","assessment","increased tax"],
-    title: "Outstanding duties / assessment hold",
-    body: `<p><b>What it means:</b> CBP found a discrepancy in duty assessment and is holding the shipment or bond.</p>
-    <p><b>Typical timeline:</b> Typically resolved within 10–30 days if payment is posted promptly.</p>
-    <p><b>What to do:</b> Check the CBP assessment letter for amount and deadline. Post the additional duty via your broker. Request a payment plan if needed.</p>`
-  },
-  {
-    keywords: ["fda","food","drug","cosmetic","medical device","fd&c","prior notice food"],
-    title: "FDA hold (food / drug / cosmetic)",
-    body: `<p><b>What it means:</b> FDA refused admission or is holding the product under FD&C Act section 801(a).</p>
-    <p><b>Typical timeline:</b> Immediate notice to owner/consignee. Goods must be exported, destroyed, or brought into compliance within a short window.</p>
-    <p><b>What to do:</b> Review the FDA notice for the specific violation. Options: reexport, destroy, or re-label/re-condition. Check the product registration and Prior Notice filing.</p>`
-  },
-  {
-    keywords: ["capa","corrective","detention","destruction","re-export","refused"],
-    title: "Refused admission / CAPTA re-export",
-    body: `<p><b>What it means:</b> The shipment failed to meet a regulatory requirement (PGA, labeling, safety) and has been marked for refusal.</p>
-    <p><b>Typical timeline:</b> Immediate export or destruction required. Storage accrues quickly.</p>
-    <p><b>What to do:</b> File a CAPTA request if applicable. Otherwise arrange re-export within the deadline. Keep all records for CBP audit.</p>`
+function logEvent(payload){
+  if (window.CIQ && typeof window.CIQ.logEvent === "function") {
+    window.CIQ.logEvent(payload);
+    return;
   }
+  if (!navigator.sendBeacon) return;
+  try {
+    var base = typeof payload === "object" && payload !== null ? Object.assign({}, payload) : {};
+    base.ts = Date.now();
+    base.path = base.path || location.pathname;
+    navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
+  } catch(e){}
+}
+
+function emit(name, extra){
+  try { logEvent({ type: name, tool: 'cbp-hold-decoder', path: location.pathname, ...extra }); } catch(e){}
+}
+
+(function(){
+  var inputFired = false;
+  var input = document.getElementById('q');
+  if (input) {
+    input.addEventListener('input', function(){
+      if (!inputFired) { inputFired = true; emit('input_start'); }
+    }, { once: true });
+  }
+
+  var sampleBtn = document.getElementById('sampleBtn');
+  if (sampleBtn) {
+    sampleBtn.addEventListener('click', function(){
+      document.getElementById('q').value = 'commercial exam';
+      emit('demo_run', { demo: true });
+      decode();
+    });
+  }
+})();
+
+const HOLDS = [
+  { keywords: ["commercial exam","manifest","documentation","manifest review"], title: "Commercial exam / manifest review", body: `<p><b>What it means:</b> CBP is reviewing entry documents, manifest, and possibly invoice consistency.</p><p><b>Typical timeline:</b> 1–5 days; longer if Partner Government Agency review is needed.</p><p><b>What to do:</b> Confirm all invoices, packing lists, and HTS codes match the entry summary. If CBP requests additional documents, respond via your broker within the stated deadline.</p>` },
+  { keywords: ["pga","fda","cpsc","usda","aphi","prior notice","sample","pga hold"], title: "Partner Government Agency (PGA) hold", body: `<p><b>What it means:</b> FDA, CPSC, USDA, APHIS, EPA, or another agency is clearing your product before release.</p><p><b>Typical timeline:</b> 3–14+ days depending on agency, product type, and completeness of submitted data.</p><p><b>What to do:</b> Ask your broker which PGA is involved and what they need. Prior notices, certificates of origin, lab reports, and labels are common requirements.</p>` },
+  { keywords: ["bond","security","ior","importer","entry security"], title: "Bond / IOR hold", body: `<p><b>What it means:</b> CBP found an issue with your bond, importer of record, or entry security data.</p><p><b>Typical timeline:</b> Can be days if paperwork is corrected quickly.</p><p><b>What to do:</b> Contact your broker or surety provider immediately. Common fixes: update IOR address, post additional bond, or clarify entity mismatch.</p>` },
+  { keywords: ["ipr","intellectual","trademark","counterfeit","brand","seizure"], title: "Intellectual property rights (IPR) hold", body: `<p><b>What it means:</b> CBP suspects trademark, copyright, design-right conflict, or counterfeit goods.</p><p><b>Typical timeline:</b> Can stretch to weeks while rights-holder responds. Seizure possible if egregious.</p><p><b>What to do:</b> Do not move, sell, or destroy the goods without CBP written direction. Gather proof of authenticity (invoice with OEM, authorization letter).</p>` },
+  { keywords: ["quota","textile","visa","government","defense","export license"], title: "Quota / special program hold", body: `<p><b>What it means:</b> The shipment is tied to a quota system, visa requirement, license denial, or restricted-party rule.</p><p><b>Typical timeline:</b> Varies; quota-based shipments may need rebooking or license application.</p><p><b>What to do:</b> Confirm quota availability and visa status before arrival. If missed, expect rebooking fees. Verify seller is not on BIS Entity List.</p>` },
+  { keywords: ["manual liquidation","liquidation","further information","inquiry","cf 28","cf 29"], title: "Manual liquidation / CF 28 inquiry", body: `<p><b>What it means:</b> CBP is conducting a manual liquidation review or has mailed a CBP Form 28 (Request for Information) or Form 29 (Notice of Action).</p><p><b>Typical timeline:</b> 30–180 days for response. Do not miss the deadline printed on the form.</p><p><b>What to do:</b> Reply with supporting documents (invoices, prior rulings, country of origin evidence). Request extension if needed. A broker can help draft the response.</p>` },
+  { keywords: ["anti-dumping","countervailing","ad cvd","ad/cvd","circumvention","evasion"], title: "Anti-Dumping / Countervailing (AD/CVD) hold", body: `<p><b>What it means:</b> CBP suspects the shipment is subject to AD/CVD orders and needs deposit/cash deposit verification.</p><p><b>Typical timeline:</b> Can be days to weeks depending on deposit posting and ITC/CBP review.</p><p><b>What to do:</b> Confirm the AD/CVD case number, estimated duty deposit rate, and product scope. Post bond or cash deposit per instructions. Check Federal Register for scope changes.</p>` },
+  { keywords: ["outstanding deposit","deposit","liquidation","bill","assessment","increased tax"], title: "Outstanding duties / assessment hold", body: `<p><b>What it means:</b> CBP found a discrepancy in duty assessment and is holding the shipment or bond.</p><p><b>Typical timeline:</b> Typically resolved within 10–30 days if payment is posted promptly.</p><p><b>What to do:</b> Check the CBP assessment letter for amount and deadline. Post the additional duty via your broker. Request a payment plan if needed.</p>` },
+  { keywords: ["fda","food","drug","cosmetic","medical device","fd&c","prior notice food"], title: "FDA hold (food / drug / cosmetic)", body: `<p><b>What it means:</b> FDA refused admission or is holding the product under FD&C Act section 801(a).</p><p><b>Typical timeline:</b> Immediate notice to owner/consignee. Goods must be exported, destroyed, or brought into compliance within a short window.</p><p><b>What to do:</b> Review the FDA notice for the specific violation. Options: reexport, destroy, or re-label/re-condition. Check the product registration and Prior Notice filing.</p>` },
+  { keywords: ["capa","corrective","detention","destruction","re-export","refused"], title: "Refused admission / CAPTA re-export", body: `<p><b>What it means:</b> The shipment failed to meet a regulatory requirement (PGA, labeling, safety) and has been marked for refusal.</p><p><b>Typical timeline:</b> Immediate export or destruction required. Storage accrues quickly.</p><p><b>What to do:</b> File a CAPTA request if applicable. Otherwise arrange re-export within the deadline. Keep all records for CBP audit.</p>` }
 ];
 
 function decode() {
@@ -139,17 +149,14 @@ function decode() {
   if (!match) {
     out.style.display = 'none';
     status.textContent = 'No direct local match. Ask your broker which PGA or program is blocking release.';
-    if (window.CIQ && typeof window.CIQ.logEvent === 'function') window.CIQ.logEvent({ type: 'cbp_no_match', q });
-    if (window.CIQ && typeof window.CIQ.logTraining === 'function') window.CIQ.logTraining({ tool: 'cbp-hold-decoder', type: 'cbp_no_match', input: { q }, result: { title: null } });
+    emit('cbp_no_match', { q });
     return;
   }
   document.getElementById('result_title').textContent = match.title;
   document.getElementById('result_body').innerHTML = match.body;
   out.style.display = 'block';
   status.textContent = '';
-  if (window.CIQ && typeof window.CIQ.logEvent === 'function') window.CIQ.logEvent({ type: 'cbp_hit', title: match.title, q });
-  if (window.CIQ && typeof window.CIQ.logTraining === 'function') window.CIQ.logTraining({ tool: 'cbp-hold-decoder', type: 'cbp_hit', input: { q }, result: { title: match.title } });
-  try { if (window.CIQ.refreshUsage) window.CIQ.refreshUsage(); } catch (e) {}
+  emit('cbp_hit', { title: match.title, q });
 }
 </script>
 </body>

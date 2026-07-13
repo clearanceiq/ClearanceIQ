@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ClearanceIQ Import Kit — $29.99 US Customs Paperwork Bundle</title>
   <meta name="description" content="Complete US import paperwork kit: customs checklist, supplier invoice template, bond estimator, reason-able care documentation, and CBP hold response letter. Instant download.">
-  <link rel="canonical" href="https://clearance-iq.com/import-kit">
+  <link rel="canonical" href="https://clearance-iq.com/import-kit.html">
 || [];
     </script>
 
@@ -77,32 +77,9 @@
     </div>
 
     <div style="text-align:center; margin-top:24px;">
-      <a href="#" class="cta" id="buyNow">Buy Now — $29.99</a>
-      <p style="margin-top:10px; font-size:13px; color:var(--muted);" id="buyNote">Secure checkout · 30-day refund guarantee · Instant download</p>
+      <a href="#" class="cta" onclick="alert('Stripe checkout integration coming soon. You will be redirected to purchase when live.')">Buy Now — $29.99</a>
+      <p style="margin-top:10px; font-size:13px; color:var(--muted);">Secure checkout · 30-day refund guarantee · Instant download</p>
     </div>
-
-    <script>
-      document.getElementById('buyNow').addEventListener('click', async function (e) {
-        e.preventDefault();
-        const note = document.getElementById('buyNote');
-        note.textContent = 'Redirecting to secure checkout…';
-        try {
-          const res = await fetch('/api/checkout', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ email: '' })
-          });
-          const data = await res.json();
-          if (data.ok && data.url) {
-            window.location.href = data.url;
-          } else {
-            note.textContent = 'Checkout not ready yet — contact clearanceiq@proton.me';
-          }
-        } catch (err) {
-          note.textContent = 'Checkout error — please try again.';
-        }
-      });
-    </script>
 
     <div style="text-align:center; margin-top: 26px;">
       <a class="cta secondary" href="/">Back to home</a>
