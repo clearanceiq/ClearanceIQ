@@ -12,6 +12,7 @@
     <h1>Telemetry Health</h1>
     <p id="status">Checking bindings…</p>
     <pre id="raw" style="background:#0f172a;color:#e2e8f0;padding:16px;border-radius:12px;overflow:auto;"></pre>
+    <section id="breakdown" style="margin-top:22px;"></section>
   </main>
 
   <script>
@@ -30,6 +31,22 @@
       } catch (e) {
         status.textContent = 'Endpoint check failed.';
         raw.textContent = String(e);
+      }
+      // breakdown
+      try {
+        const s = await fetch('/api/telemetry/stats');
+        const d = await s.json();
+        const box = document.getElementById('breakdown');
+        if (!d.ok) { box.textContent = 'Stats unavailable: ' + (d.error || 'unknown'); return; }
+        let html = '<h2>Total events: ' + d.total + '</h2>';
+        html += '<h3>By tool page</h3><ul>';
+        for (const t of d.byTool) html += '<li>' + (t.path || 'unknown') + ' — ' + t.c + '</li>';
+        html += '</ul><h3>By event type</h3><ul>';
+        for (const t of d.byType) html += '<li>' + (t.type || 'unknown') + ' — ' + t.c + '</li>';
+        html += '</ul>';
+        box.innerHTML = html;
+      } catch (e) {
+        document.getElementById('breakdown').textContent = 'Stats fetch failed: ' + e;
       }
     }
 

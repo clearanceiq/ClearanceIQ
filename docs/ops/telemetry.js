@@ -3,6 +3,29 @@ export default {
     const cors = { headers: { "content-type": "application/json", "access-control-allow-origin": "*" } };
     const url = new URL(request.url);
     if (url.pathname === "/health") return new Response("ok", { status: 200, headers: cors });
+    if (url.pathname === "/api/telemetry/stats") {
+      try {
+        const total = await env.DB.prepare("SELECT COUNT(*) AS c FROM events").first();
+        const byTool = await env.DB.prepare(
+          "SELECT path, COUNT(*) AS c FROM events WHERE path LIKE '/tools/%' GROUP BY path ORDER BY c DESC"
+        ).all();
+        const byType = await env.DB.prepare(
+          "SELECT type, COUNT(*) AS c FROM events GROUP BY type ORDER BY c DESC"
+        ).all();
+        const recent = await env.DB.prepare(
+          "SELECT ts, path, type FROM events ORDER BY ts DESC LIMIT 10"
+        ).all();
+        return Response.json({
+          ok: true,
+          total: total ? total.c : 0,
+          byTool: byTool.results || [],
+          byType: byType.results || [],
+          recent: (recent.results || []).map(r => ({ ts: r.ts, path: r.path, type: r.type }))
+        }, cors);
+      } catch (err) {
+        return Response.json({ ok: false, error: String(err) }, cors);
+      }
+    }
     if (url.pathname !== "/api/telemetry") return new Response("not found", { status: 404 });
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
     if (request.method === "GET") return Response.json({ ok: true, hint: "POST JSON" }, cors);
