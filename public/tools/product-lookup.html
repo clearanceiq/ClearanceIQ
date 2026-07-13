@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearanceIQ — Product Link Lookup</title>
+<link rel="canonical" href="https://clearance-iq.com/tools/product-lookup.html">
+<link rel="stylesheet" href="/style.css">
+<meta property="og:title" content="ClearanceIQ Product Link Lookup">
+<meta property="og:description" content="Paste a shopping/product link to get description, material composition, HTS estimate, and required import paperwork.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://clearance-iq.com/tools/product-lookup.html">
+<meta property="og:site_name" content="ClearanceIQ">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "WebApplication",
+  "name": "ClearanceIQ Product Link Lookup",
+  "url": "https://clearance-iq.com/tools/product-lookup.html",
+  "applicationCategory": "BusinessApplication",
+  "description": "Paste a shopping/product link to get description, material composition, HTS estimate, and required import paperwork."
+}
+</script>
+<script defer src="/site-inject.js"></script>
+<script>
+  if (window.CIQ && typeof window.CIQ.resumeSession === "function") window.CIQ.resumeSession();
+  window.addEventListener("pageshow", function(){ if (window.CIQ && typeof window.CIQ.resumeSession === "function") window.CIQ.resumeSession(); });
+  window.addEventListener("load", function(){
+    try { if (window.CIQ && typeof window.CIQ.logEvent === "function") window.CIQ.logEvent({ type: "pageview" }); } catch(e){}
+  });
+</script>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to main content</a>
+<main id="main" class="container" style="max-width: 860px;">
+  <a href="/"><span class="badge">ClearanceIQ</span></a>
+  <h1 style="margin-top:18px;">Product Link Lookup</h1>
+  <p class="lead" style="margin-top:8px;">Paste a shopping or product page link — Amazon, Alibaba, 1688, Shopee, supplier site — and we’ll extract the product profile and map it to an HTS estimate with paperwork needs.</p>
+
+  <div class="box" style="margin-top:22px;">
+    <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:8px;">Product page URL</label>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <input id="q" type="text" placeholder="https://... product link" style="flex:1; min-width:220px;">
+      <button class="cta" onclick="runLookup()">Look up</button>
+    </div>
+    <p id="status" style="margin:10px 0 0; font-size:13px; color:var(--muted);"></p>
+    <button id="sampleBtn" class="cta secondary" type="button" style="margin-top:10px;">Try sample</button>
+  </div>
+
+  <div id="result" class="box" style="display:none; margin-top:22px;">
+    <h2 id="result_title" style="margin-top:0;">Product profile</h2>
+    <div id="result_body" style="color:var(--text);"></div>
+  </div>
+
+  <div class="box" style="margin-top:22px;">
+    <h2 style="margin-top:0;">How it works</h2>
+    <ul class="clean">
+      <li>Paste a product/shopping page URL.</li>
+      <li>We extract likely product description and category signals from the URL path and host.</li>
+      <li>Then we suggest a best-match HTS code, indicative duty rate, AD/CVD risk, and likely required paperwork.</li>
+      <li>We don’t parse proprietary pages or private data. This is planning reference, not a customs ruling.</li>
+    </ul>
+  </div>
+</main>
+<script>
+const DATA = [
+  { code: "8518.30.0000", desc: "Loudspeakers, without enclosure", duty: "Free", adcvd: "none" },
+  { code: "8518.40.0000", desc: "Headphones, earphones, and combinations", duty: "Free", adcvd: "none" },
+  { code: "3926.90.9980", desc: "Plastic article, other", duty: "3.1%", adcvd: "low" },
+  { code: "9403.10.0000", desc: "Metal office furniture", duty: "Free", adcvd: "none" },
+  { code: "7318.15.0085", desc: "Iron/steel screws/bolts", duty: "Free", adcvd: "none" },
+  { code: "9503.00.0073", desc: "Toys, plastic, <= 50 cents", duty: "Free", adcvd: "low" },
+  { code: "6402.99.0500", desc: "Footwear, rubber/plastic", duty: "Free", adcvd: "none" },
+  { code: "8517.12.0095", desc: "Smartphones and base stations", duty: "Free", adcvd: "low" },
+  { code: "9013.80.0010", desc: "LED devices, other optical", duty: "Free", adcvd: "none" },
+  { code: "3304.99.5000", desc: "Beauty/makeup preparations", duty: "Free", adcvd: "none" }
+];
+
+const MATERIAL_HINTS = [
+  { keywords: ['shoe', 'sneaker', 'footwear', 'boot'], material: 'Likely rubber/plastic sole, textile upper; adhesive bonding common.', category: 'footwear' },
+  { keywords: ['phone', 'smartphone', 'tablet', 'laptop', 'usb', 'charger', 'cable'], material: 'Likely plastics, lithium battery (if included), metal contacts, glass/ceramic display.', category: 'electronics' },
+  { keywords: ['headphone', 'earphone', 'speaker', 'bluetooth'], material: 'Likely plastic housing, metal coil/driver, fabric/foam ear cushion.', category: 'electronics' },
+  { keywords: ['toy', 'lego', 'plastic'], material: 'Likely ABS/nylon plastics, paint/coatings, metal pins if mechanism-based.', category: 'toy-plastic' },
+  { keywords: ['furniture', 'chair', 'desk', 'table', 'cabinet'], material: 'Likely wood/MDF, metal fasteners, plastic components; finish/coating affects HTS.', category: 'furniture' },
+  { keywords: ['bag', 'luggage', 'suitcase', 'backpack'], material: 'Likely textile/nylon/polyester, plastic buckles/hardware, metal zippers.', category: 'textile-goods' }
+];
+
+function logEvent(payload){
+  if (window.CIQ && typeof window.CIQ.logEvent === "function") { window.CIQ.logEvent(payload); return; }
+  if (!navigator.sendBeacon) return;
+  try {
+    var base = typeof payload === "object" && payload !== null ? Object.assign({}, payload) : {};
+    base.ts = Date.now();
+    base.path = base.path || location.pathname;
+    navigator.sendBeacon('/api/telemetry', JSON.stringify(base));
+  } catch(e){}
+}
+
+function emit(name, extra){ try { logEvent({ type: name, tool: 'product-lookup', path: location.pathname, ...extra }); } catch(e){} }
+
+(function initTelemetry(){
+  var inputFired = false;
+  var input = document.getElementById('q');
+  if (input) {
+    input.addEventListener('input', function(){
+      if (!inputFired) { inputFired = true; emit('input_start'); }
+    }, { once: true });
+  }
+  var sampleBtn = document.getElementById('sampleBtn');
+  if (sampleBtn) {
+    sampleBtn.addEventListener('click', function(){
+      document.getElementById('q').value = 'https://www.amazon.com/dp/B09XYZ1234';
+      emit('demo_run', { demo: true });
+      runLookup();
+    });
+  }
+})();
+
+function normalizeUrl(q){
+  var out = q;
+  try {
+    var u = new URL(q);
+    var host = u.hostname.replace(/^www\./, '').split('.')[0];
+    var path = u.pathname.replace(/\/+$/,'').split('/').filter(Boolean).join(' ');
+    path = path.replace(/\b(dp|product|item|gp\/product|gp\/aw\/d|p|dp\/[A-Z0-9]{6,}|-)\b/gi, ' ').replace(/[^a-z0-9\s-]/gi, ' ').replace(/\s+/g, ' ').trim();
+    out = [host, path].filter(Boolean).join(' ').trim() || q;
+  } catch (e) {
+    out = q.replace(/[^a-z0-9\s-]/gi,' ').replace(/\s+/g,' ').trim();
+  }
+  return out.toLowerCase();
+}
+
+function guessMaterial(keywords){
+  var byKeyword = MATERIAL_HINTS.find(function(m){ return m.keywords.some(function(k){ return keywords.indexOf(k) !== -1; }); });
+  if (!byKeyword) return { material: 'Not enough signals from this link. Use the HTS Lookup tool for code-specific classification.', category: 'general' };
+  return byKeyword;
+}
+
+function paperByCategory(category){
+  if (category === 'footwear') return ['Footwear checklist'];
+  if (category === 'electronics') return ['Electronics compliance worksheet'];
+  if (category === 'toy-plastic') return ['Plastics derivatives worksheet'];
+  if (category === 'furniture') return ['Furniture import worksheet'];
+  if (category === 'textile-goods') return ['Textiles/apparel worksheet'];
+  return ['Miscellaneous/prepared goods worksheet'];
+}
+
+function runLookup() {
+  var q = document.getElementById('q').value.trim();
+  var out = document.getElementById('result');
+  var status = document.getElementById('status');
+  if (!q) { status.textContent = 'Paste a product link first.'; return; }
+
+  var keywords = normalizeUrl(q);
+  emit('input_run', { q });
+
+  var material = guessMaterial(keywords);
+
+  var match = null;
+  var best = 9999;
+  DATA.forEach(function(item){
+    var text = (item.desc + ' ' + item.code).toLowerCase();
+    var score = 0;
+    keywords.split(' ').forEach(function(term){
+      if (!term) return;
+      if (text.indexOf(term) !== -1) score += 1;
+    });
+    if (score && score < best) { best = score; match = item; }
+  });
+
+  var html = '';
+  if (material.category !== 'general') {
+    html += '<p><b>Likely description/category:</b> ' + material.category.replace(/-/g,' ') + '</p>';
+    html += '<p><b>Material signals:</b> ' + material.material + '</p>';
+  } else {
+    html += '<p><b>Product category:</b> Heuristic only — link-derived signals were insufficient for a confident category guess.</p>';
+    html += '<p><b>Suggestion:</b> Open HTS Lookup and enter your product type or exact HTS for a more accurate result.</p>';
+  }
+
+  if (match) {
+    html += '<p><b>Best-match HTS:</b> ' + match.code + ' — ' + match.desc + '</p>';
+    html += '<p><b>Indicative duty:</b> ' + match.duty + '</p>';
+    html += '<p><b>AD/CVD watch:</b> ' + (match.adcvd === 'none' ? 'None on record' : 'Flagged — review before booking') + '</p>';
+  } else {
+    html += '<p><b>HTS match:</b> No local heuristic match from current tool data.</p>';
+    html += '<p><b>Next step:</b> Try HTS Lookup with a keyword or exact code.</p>';
+  }
+
+  var papers = paperByCategory(material.category);
+  html += '<p style="margin-top:10px; font-size:12px; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; color:var(--muted);">Likely paperwork</p>';
+  html += '<ul style="margin-top:6px; font-size:14px; line-height:1.6;">';
+  papers.forEach(function(p){ html += '<li>' + p + '</li>'; });
+  html += '</ul>';
+  html += '<p style="margin-top:10px; font-size:12px; color:var(--muted);">Planning reference only. Not a ruling. Verify with CBP or a licensed broker.</p>';
+
+  document.getElementById('result_title').textContent = 'Product profile';
+  document.getElementById('result_body').innerHTML = html;
+  out.style.display = 'block';
+  status.textContent = '';
+  emit('hts_hit', { q });
+}
+</script>
+</body>
+</html>
