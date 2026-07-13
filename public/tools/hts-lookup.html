@@ -99,7 +99,9 @@
     </div>
     <button id="starterSampleBtn" class="cta secondary" type="button" style="margin-top:10px;">Try sample</button>
   </div>
-</main>
+
+  <p style="margin-top:18px; font-size:13px; color:var(--muted);">Related reading: <a href="/blog/2026-06-26-how-to-find-hts-code-for-your-product" rel="noopener">How to find the HTS code for your product</a></p>
+  </main>
     <section style="display:none; margin-top: 22px;">
       <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:16px;">
         <strong>Missing something?</strong>
@@ -204,6 +206,13 @@ function runLookup() {
         <p><b>AD/CVD watch:</b> ${data.adcvd === "none" ? "None on record" : "Flagged — review before booking"}</p>
         <p style="margin-top:10px;">${data.note || ""}</p>
         <p style="margin-top:10px; font-size:12px; color:var(--muted);">Planning reference only. Not a ruling. Verify with CBP or a licensed broker.</p>
+        <div style="margin-top:14px; padding:14px; border:1px solid #e2e8f0; border-radius:12px; background:#f8fafc;">
+          <p style="margin:0 0 8px; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted);">Next steps</p>
+          <ul style="margin:0; padding-left:18px; font-size:14px; line-height:1.7;">
+            <li><a href="https://clearance-iq.com/contact" target="_blank" rel="noopener" style="color:var(--accent); font-weight:600;">Talk to our partner broker →</a> — licensed US customs broker, referred by ClearanceIQ.</li>
+            <li><a href="https://i.helium10.com/c/7475003/3054775/37271" target="_blank" rel="noopener" style="color:var(--accent); font-weight:600;">Helium 10 for FBA research →</a> — product/keyword research the pros use (affiliate).</li>
+          </ul>
+        </div>
       `;
       out.style.display = "block";
       status.textContent = "";

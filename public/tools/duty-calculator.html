@@ -106,7 +106,9 @@
       <li>Landed cost = value + freight/insurance + duty + Section 301 + MPF + HMF, before broker/storage fees.</li>
     </ul>
   </div>
-</main>
+
+  <p style="margin-top:18px; font-size:13px; color:var(--muted);">Related reading: <a href="/blog/2026-06-26-duty-rate-calculator-for-imports-from-ch" rel="noopener">Duty rate calculator for imports from China</a></p>
+  </main>
     <section style="display:none; margin-top: 22px;">
       <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:16px;">
         <strong>Missing something?</strong>
@@ -172,7 +174,14 @@ function calculate() {
       const html = '<table style="width:100%; border-collapse:collapse;">' +
         data.table.map(([k,v]) => `<tr style="border-bottom:1px solid var(--border);"><td style="padding:8px 0; color:var(--text);">${k}</td><td style="padding:8px 0; text-align:right; font-weight:600;">${v}</td></tr>`).join('') +
         '</table>' +
-        '<p style="margin-top:12px; font-size:12px; color:#94a3b8;">Reference only. Actual rates depend on HTS special provisions, FTAs, and broker classification.</p>';
+        '<p style="margin-top:12px; font-size:12px; color:#94a3b8;">Reference only. Actual rates depend on HTS special provisions, FTAs, and broker classification.</p>' +
+        '<div style="margin-top:14px; padding:14px; border:1px solid #e2e8f0; border-radius:12px; background:#f8fafc;">' +
+          '<p style="margin:0 0 8px; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted);">Next steps</p>' +
+          '<ul style="margin:0; padding-left:18px; font-size:14px; line-height:1.7;">' +
+            '<li><a href="https://clearance-iq.com/contact" target="_blank" rel="noopener" style="color:var(--accent); font-weight:600;">Talk to our partner broker →</a> — licensed US customs broker, referred by ClearanceIQ.</li>' +
+            '<li><a href="https://i.helium10.com/c/7475003/3054775/37271" target="_blank" rel="noopener" style="color:var(--accent); font-weight:600;">Helium 10 for FBA research →</a> — product/keyword research the pros use (affiliate).</li>' +
+          '</ul>' +
+        '</div>';
       document.getElementById('result_body').innerHTML = html;
       document.getElementById('result').style.display = 'block';
       document.getElementById('result').scrollIntoView({ behavior: 'smooth' });

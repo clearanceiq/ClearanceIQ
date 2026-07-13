@@ -81,7 +81,9 @@
       <li><b>Intellectual property rights (IPR)</b> — possible trademark/copyright flag; do not move or destroy goods without CBP direction.</li>
     </ul>
   </div>
-</main>
+
+  <p style="margin-top:18px; font-size:13px; color:var(--muted);">Related reading: <a href="/blog/2026-06-26-what-is-a-cbp-hold-and-how-to-avoid-it" rel="noopener">What is a CBP hold and how to avoid it</a></p>
+  </main>
     <section style="display:none; margin-top: 22px;">
       <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:16px;">
         <strong>Missing something?</strong>
@@ -153,7 +155,14 @@ function decode() {
     return;
   }
   document.getElementById('result_title').textContent = match.title;
-  document.getElementById('result_body').innerHTML = match.body;
+  document.getElementById('result_body').innerHTML = match.body +
+    '<div style="margin-top:14px; padding:14px; border:1px solid #e2e8f0; border-radius:12px; background:#f8fafc;">' +
+      '<p style="margin:0 0 8px; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted);">Next steps</p>' +
+      '<ul style="margin:0; padding-left:18px; font-size:14px; line-height:1.7;">' +
+        '<li><a href="https://clearance-iq.com/contact" target="_blank" rel="noopener" style="color:var(--accent); font-weight:600;">Talk to our partner broker →</a> — licensed US customs broker, referred by ClearanceIQ.</li>' +
+        '<li><a href="https://i.helium10.com/c/7475003/3054775/37271" target="_blank" rel="noopener" style="color:var(--accent); font-weight:600;">Helium 10 for FBA research →</a> — product/keyword research the pros use (affiliate).</li>' +
+      '</ul>' +
+    '</div>';
   out.style.display = 'block';
   status.textContent = '';
   emit('cbp_hit', { title: match.title, q });
