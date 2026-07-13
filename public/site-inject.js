@@ -203,3 +203,53 @@
     });
   });
 })();
+
+// --- Conversion telemetry: affiliate click + kit view (added for marketing plan) ---
+(function () {
+  if (window.__CIQ_CONV_INIT__) return;
+  window.__CIQ_CONV_INIT__ = true;
+
+  var HELIUM = 'https://i.helium10.com/c/7475003/3054775/37271';
+  var log = function (p) { if (window.CIQ && window.CIQ.logEvent) window.CIQ.logEvent(p); };
+
+  // Kit view on kit page load
+  if (/kit/i.test(location.pathname)) log({ type: 'kit_view' });
+
+  // Affiliate card on tool result pages
+  var toolHits = ['hts-lookup','duty-calculator','cbp-hold-decoder','product-lookup','bond-estimator','supplier-checklist'];
+  var onTool = toolHits.some(function (t) { return location.pathname.indexOf('/tools/' + t) !== -1; });
+  function buildCard() {
+    var box = document.createElement('div');
+    box.id = 'ciq-aff-card';
+    box.style.cssText = 'margin:18px 0;padding:14px 16px;border:1px solid rgba(148,163,184,.35);border-radius:12px;background:rgba(15,23,42,.25)';
+    box.innerHTML = '<strong style="display:block;margin-bottom:6px">Sourcing from Alibaba / 1688?</strong>'
+      + '<span style="display:block;margin-bottom:10px;color:var(--muted);font-size:14px">Helium 10 helps you find winning products and verify suppliers before you order.</span>'
+      + '<a href="' + HELIUM + '" target="_blank" rel="sponsored noopener" class="ciq-aff-link" '
+      + 'style="display:inline-block;padding:9px 14px;border-radius:8px;background:#3b82f6;color:#fff;text-decoration:none;font-weight:600">Try Helium 10 free</a>';
+    var link = box.querySelector('.ciq-aff-link');
+    link.addEventListener('click', function () { log({ type: 'affiliate_click', target: 'helium10' }); });
+    return box;
+  }
+  function placeCard() {
+    if (!onTool || document.getElementById('ciq-aff-card')) return;
+    var host = document.querySelector('#result_body, #result, .result, main .container, main') || document.body;
+    if (host) { host.appendChild(buildCard()); }
+  }
+  if (onTool) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(placeCard, 500); });
+    else setTimeout(placeCard, 500);
+    var mo = new MutationObserver(placeCard);
+    if (document.body) mo.observe(document.body, { childList: true, subtree: true });
+    setTimeout(function(){ mo.disconnect(); }, 9000);
+  }
+
+  // Kit checkout click tracking
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest && e.target.closest('a,button');
+    if (!el) return;
+    var sig = ((el.getAttribute('href') || '') + ' ' + (el.textContent || '') + ' ' + (el.getAttribute('data-stripe') || '')).toLowerCase();
+    if (/checkout|stripe|import.{0,3}kit|buy.{0,3}now|\/api\/checkout/.test(sig)) {
+      log({ type: 'kit_view', action: 'checkout_click' });
+    }
+  }, true);
+})();

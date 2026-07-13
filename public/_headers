@@ -2,7 +2,7 @@
   Cache-Control: no-cache
 
 # impact.com site verification (header form — their crawler checks this)
-/
+/*
   Impact-Site-Verification: 5e2ff15f-5209-4089-9f4a-fdb998093347
 
 /api/*
