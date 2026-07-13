@@ -1,18 +1,14 @@
 /*
   Cache-Control: no-cache
 
+# impact.com site verification (header form — their crawler checks this)
+/
+  Impact-Site-Verification: 5e2ff15f-5209-4089-9f4a-fdb998093347
+
 /api/*
   Access-Control-Allow-Origin: https://clearance-iq.com
   Access-Control-Allow-Methods: GET, POST, OPTIONS
   Access-Control-Allow-Headers: content-type, x-api-key
-  Cache-Control: no-store
-  X-RateLimit-Limit: 30
-  X-RateLimit-Window: 60
-
-/api/chat
-  Cache-Control: no-store
-  X-RateLimit-Limit: 10
-  X-RateLimit-Window: 60
 
 /tools/*
   Cache-Control: no-cache
