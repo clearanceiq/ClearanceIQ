@@ -18,7 +18,7 @@ export async function onRequestPost(context) {
       if (idx > -1) acc[p.slice(0, idx)] = p.slice(idx + 1);
       return acc;
     }, {});
-    const expected = await hmacHex(whSecret, payload);
+    const expected = await hmacHex(whSecret, elements.t + '.' + payload);
     if (!elements.v1 || elements.v1 !== expected) {
       return new Response(JSON.stringify({ error: 'invalid signature' }), { status: 400, headers: { 'content-type': 'application/json' } });
     }
