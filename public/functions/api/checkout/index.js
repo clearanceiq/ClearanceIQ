@@ -59,14 +59,23 @@ export async function onRequestPost(context) {
   }
 
   const origin = new URL(context.request.url).origin;
+  // Hidden end-to-end test path: body.test === 'CIQ50TEST' creates a one-off
+  // 50-cent line item via inline price_data. Does NOT touch the live price or cache.
+  const isTest = body && body.test === 'CIQ50TEST';
   const params = new URLSearchParams({
     mode: 'payment',
-    'line_items[0][price]': priceId,
     'line_items[0][quantity]': '1',
     success_url: origin + '/thanks.html?session_id={CHECKOUT_SESSION_ID}',
     cancel_url: origin + '/import-kit.html',
-    'metadata[product]': 'import-kit',
+    'metadata[product]': isTest ? 'test-50c' : 'import-kit',
   });
+  if (isTest) {
+    params.set('line_items[0][price_data][currency]', 'usd');
+    params.set('line_items[0][price_data][unit_amount]', '50');
+    params.set('line_items[0][price_data][product_data][name]', 'ClearanceIQ Test Charge');
+  } else {
+    params.set('line_items[0][price]', priceId);
+  }
   if (body.email) params.set('customer_email', String(body.email).slice(0, 200));
 
   const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
