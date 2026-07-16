@@ -9,75 +9,47 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/whats-inside</loc>
+    <loc>https://clearance-iq.com/whats-inside.html</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/refund</loc>
+    <loc>https://clearance-iq.com/refund.html</loc>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/contact</loc>
+    <loc>https://clearance-iq.com/contact.html</loc>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/interactive-playbook</loc>
-    <priority>0.7</priority>
+    <loc>https://clearance-iq.com/blog/day-1.html</loc>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://clearance-iq.com/blog/</loc>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/blog/day-1</loc>
+    <loc>https://clearance-iq.com/interactive-playbook.html</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/blog/2026-06-26-how-to-find-hts-code-for-your-product</loc>
+    <loc>https://clearance-iq.com/tools/hts-lookup.html</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/blog/2026-06-26-what-is-a-cbp-hold-and-how-to-avoid-it</loc>
+    <loc>https://clearance-iq.com/tools/supplier-checklist.html</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/blog/2026-06-26-duty-rate-calculator-for-imports-from-ch</loc>
+    <loc>https://clearance-iq.com/tools/duty-calculator.html</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/blog/2026-06-28-ad-cvd-hold-antidumping-countervailing-imports</loc>
+    <loc>https://clearance-iq.com/tools/cbp-hold-decoder.html</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/blog/2026-06-30-when-you-need-a-customs-bond-and-how-to-</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://clearance-iq.com/blog/2026-07-01-what-is-an-isf-importer-security-filing-and-who-actually-needs-it</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://clearance-iq.com/blog/section-321-de-minimis-eliminated</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://clearance-iq.com/tools/hts-lookup</loc>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://clearance-iq.com/tools/supplier-checklist</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://clearance-iq.com/tools/duty-calculator</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://clearance-iq.com/tools/cbp-hold-decoder</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://clearance-iq.com/tools/bond-estimator</loc>
+    <loc>https://clearance-iq.com/tools/bond-estimator.html</loc>
     <priority>0.7</priority>
   </url>
 </urlset>

@@ -7,3 +7,4 @@
 /api/internal	/	302
 /api/keys	/	302
 /api/keys/list	/	302
+/api/auth/signup	/api/lead	302

@@ -121,4 +121,130 @@ build("reasonable-care-cover-sheet.pdf","Reasonable Care Cover Sheet","Clearance
  ("p","I certify the information provided for entry is true and accurate to the best of my knowledge. Signed: ____________ Date: __________ Co: __________"),
 ])
 
-print("PDFs built.")
+# 9
+build("watch-worksheet.pdf","Watch & Timepiece Valuation Worksheet","ClearanceIQ Import Kit · Luxury Goods / Chapter 91",[
+ ("p","Watches are a top undervaluation target. CBP values the full cost (movement, case, brand royalty, assists). Use this to document valuation and classification."),
+ ("h","Classification quick map"),
+ ("list",["9101 — wrist/pocket watches, case of precious metal or clad","9102 — other wrist/pocket watches (base metal/plastic case)","9105 — other watches (novelty, clock movements)","9110 cases / 9111 straps / 9113 movements (parts)"]),
+ ("h","Worksheet"),
+ ("table",[["Field","Your entry"],
+   ["Product (model + brand)",""],
+   ["Case material (steel/gold/etc)",""],
+   ["Movement (automatic/quartz)",""],
+   ["Country of origin (assembly)",""],
+   ["Declared value (USD)",""],
+   ["HTS proposed",""],
+   ["Royalty/assist in value? (Y/N)",""],
+   ["Origin marking 'xx' shown? (Y/N)",""],
+   ["Section 952 luxury applicable? (Y/N)",""],None]),
+ ("p","Confirm value includes all assists and royalties. Misvaluation on luxury goods draws heavy penalties."),
+])
+# 10
+build("metals-derivatives-worksheet.pdf","Aluminum, Steel & Copper Derivatives Worksheet","ClearanceIQ Import Kit · Section 232 Tariffs",[
+ ("p","Section 232 adds tariffs on steel (25%), aluminum (10%) and their derivative products. Confirm whether your item is on the derivative list and whether an exclusion applies."),
+ ("h","Before you file"),
+ ("list",["Identify the base metal (steel / aluminum / copper)","Find your 10-digit HTS and check the Section 232 derivative lists","Check country of melt & pour / smelt for steel & aluminum","Search for an active exclusion at exclusionapprovals.cbp.gov","Confirm the rate (base duty + 232 ad valorem)"]),
+ ("h","Worksheet"),
+ ("table",[["Field","Your entry"],
+   ["Product",""],
+   ["Base metal",""],
+   ["HTS (10-digit)",""],
+   ["Country of melt & pour",""],
+   ["Section 232 rate",""],
+   ["Exclusion # (if any)",""],
+   ["Total duty = base + 232",""],None]),
+ ("p","Rates change by proclamation — verify the current rate at cbp.gov before entry."),
+])
+# 11
+build("add-cvd-screening-worksheet.pdf","AD/CVD Screening Worksheet","ClearanceIQ Import Kit · Anti-Dumping & Countervailing Duties",[
+ ("p","If your HTS is under an anti-dumping (AD) or countervailing duty (CVD) order, you owe cash deposits on top of normal duty."),
+ ("h","Screening steps"),
+ ("list",["Search your HTS at enforcement.trade.gov (AD/CVD case list)","Note the case number and country","Find the cash deposit rate (AD + CVD)","Confirm the producer/exporter-specific rate","Add to total landed cost"]),
+ ("h","Worksheet"),
+ ("table",[["Field","Your entry"],
+   ["HTS",""],
+   ["Country of export",""],
+   ["AD/CVD case #",""],
+   ["Cash deposit rate (AD)",""],
+   ["Cash deposit rate (CVD)",""],
+   ["Producer / exporter",""],
+   ["Total ADD/CVD due",""],None]),
+ ("p","Rates are per-case and update often. Broker must report the correct order number on the entry."),
+])
+# 12
+build("section-301-china-tracker.pdf","Section 301 China Tariff Tracker","ClearanceIQ Import Kit · China Lists 1-4",[
+ ("p","Most Chinese-origin goods owe an extra Section 301 duty (25% or 7.5%) on top of base duty. Track which List applies and any exclusion."),
+ ("h","Lists at a glance"),
+ ("list",["List 1 (25%) — effective 2018","List 2 (25%)","List 3 (25%)","List 4A (now 7.5%)","List 4B (paused)","Exclusions — search at ustr.gov, many expired"]),
+ ("h","Tracker"),
+ ("table",[["Field","Your entry"],
+   ["HTS (8-digit)",""],
+   ["China List (1-4)",""],
+   ["Section 301 rate",""],
+   ["Exclusion applied? (Y/N)",""],
+   ["Exclusion ref #",""],None]),
+ ("p","Section 301 stacks with Section 232 and ADD/CVD when all apply."),
+])
+# 13
+build("textiles-apparel-worksheet.pdf","Textiles & Apparel Worksheet","ClearanceIQ Import Kit · Chapters 61/62/63",[
+ ("p","Textiles need fiber content, country of origin (yarn-forward rule), and correct labeling. Some origins need a visa/quota."),
+ ("h","Checklist"),
+ ("list",["Knit (Ch 61) vs woven (Ch 62) vs made-up (Ch 63)","Fiber content % by weight stated","Country of origin per yarn-forward rule","Care label + CPSIA for children's wear","Visa/quota if origin is a restricted country","Origin marking on garment"]),
+ ("h","Worksheet"),
+ ("table",[["Field","Your entry"],
+   ["Garment type",""],
+   ["Fiber content",""],
+   ["Chapter (61/62/63)",""],
+   ["HTS",""],
+   ["Origin (yarn-forward)",""],
+   ["Visa/quota needed? (Y/N)",""],None]),
+])
+# 14
+build("footwear-worksheet.pdf","Footwear Worksheet","ClearanceIQ Import Kit · Chapter 64",[
+ ("p","Footwear HTS turns on upper material and construction (molded vs assembled). Kids' shoes have CPSIA lead limits."),
+ ("h","Classification drivers"),
+ ("list",["Upper material (leather / textile / rubber-plastic)","Construction — molded in one piece vs assembled","Outsole material","For children — CPSIA lead/phthalate compliance"]),
+ ("h","Worksheet"),
+ ("table",[["Field","Your entry"],
+   ["Style",""],
+   ["Upper material",""],
+   ["Construction",""],
+   ["HTS",""],
+   ["CPSIA ok (if kids)? (Y/N)",""],None]),
+])
+# 15
+build("fda-products-worksheet.pdf","FDA-Regulated Products Worksheet","ClearanceIQ Import Kit · Food / Supplements / Cosmetics / Devices",[
+ ("p","Food, dietary supplements, cosmetics and medical devices need FDA before release. Missing registration or prior notice = hold."),
+ ("h","Pre-entry FDA checklist"),
+ ("list",["Domestic/foreign facility registration","Prior Notice submitted to FDA","FSVP plan if importing food","Label compliance (Nutrition Facts / ingredient list)","Device 510(k) / establishment if applicable","Cosmetics — facility registration + listing (MoCRA)"]),
+ ("h","Worksheet"),
+ ("table",[["Field","Your entry"],
+   ["Product category",""],
+   ["FDA center",""],
+   ["Facility reg #",""],
+   ["Prior Notice #",""],
+   ["FSVP ready? (Y/N)",""],None]),
+])
+# 16
+build("usda-agriculture-worksheet.pdf","USDA / APHIS Agriculture Worksheet","ClearanceIQ Import Kit · Plant & Animal Products",[
+ ("p","Plant and animal products often need a phytosanitary certificate or APHIS permit. Restricted origins can be refused entry."),
+ ("h","Checklist"),
+ ("list",["Is the product plant or animal origin?","APHIS permit required? (permits.aphis.gov)","Phytosanitary certificate from origin","Country eligibility / restrictions","Treatment (fumigation/irradiation) if required","Origin marking"]),
+ ("h","Worksheet"),
+ ("table",[["Field","Your entry"],
+   ["Product",""],
+   ["Plant / animal",""],
+   ["Origin country",""],
+   ["APHIS permit #",""],
+   ["Phytosanitary cert? (Y/N)",""],
+   ["Treatment",""],None]),
+])
+
+# Rebuild the kit ZIP from every PDF in the output folder
+import zipfile, glob, os
+PDFS = sorted(glob.glob(os.path.join(OUT, "*.pdf")))
+zip_path = os.path.join(OUT, "import-kit.zip")
+with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+    for p in PDFS:
+        z.write(p, os.path.basename(p))
+print(f"PDFs built. ZIP rebuilt with {len(PDFS)} PDFs -> {zip_path}")

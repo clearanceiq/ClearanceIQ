@@ -2,15 +2,15 @@ const inMemoryLimits = new Map();
 
 export async function consumeLimit(key, dailyCap, env) {
   let entry;
-  const hasKV = env && (env.TELEMETRY || env.telemetry);
+  const hasKV = env && env.RATE_COUNTER;
   const kvKey = `rate::${key}`;
 
   if (hasKV) {
-    const raw = await (env.TELEMETRY || env.telemetry).get(kvKey);
+    const raw = await env.RATE_COUNTER.get(kvKey);
     const count = raw ? parseInt(raw, 10) : 0;
     const newCount = count + 1;
     try {
-      await (env.TELEMETRY || env.telemetry).put(kvKey, String(newCount), {
+      await env.RATE_COUNTER.put(kvKey, String(newCount), {
         expirationTtl: 48 * 60 * 60, // Auto-cleanup after 2 days to prevent KV bloat
       });
       entry = { count: newCount };

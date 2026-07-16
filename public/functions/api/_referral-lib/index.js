@@ -28,9 +28,9 @@ export async function parseBody(request) {
 
 export async function requireAuth(context) {
   const apiKey = String(context.request.headers.get('X-API-Key') || '').trim();
-  if (!apiKey || !(context.env.LEADS || context.env.Leads)) throw json({ ok: false, error: 'unauthorized' }, 401);
+  if (!apiKey || !context.env?.API_KEYS) throw json({ ok: false, error: 'unauthorized' }, 401);
 
-  const raw = await (context.env.LEADS || context.env.Leads).get('key::' + apiKey);
+  const raw = await context.env.API_KEYS.get('key::' + apiKey);
   if (!raw) throw json({ ok: false, error: 'unauthorized' }, 401);
 
   const record = JSON.parse(raw);
@@ -39,7 +39,7 @@ export async function requireAuth(context) {
 
 export async function getProExpiry(env, userKey) {
   try {
-    const raw = await (env.LEADS || env.Leads).get('key::' + userKey);
+    const raw = await env.API_KEYS.get('key::' + userKey);
     if (!raw) return null;
     return JSON.parse(raw).proExpiresAt || null;
   } catch {
@@ -48,7 +48,7 @@ export async function getProExpiry(env, userKey) {
 }
 
 export async function applyProExtension(env, userKey, months = 1) {
-  const raw = await (env.LEADS || env.Leads).get('key::' + userKey);
+  const raw = await env.API_KEYS.get('key::' + userKey);
   if (!raw) return false;
 
   let record;
@@ -67,20 +67,20 @@ export async function applyProExtension(env, userKey, months = 1) {
   record.tier = 'pro';
   record.proExtendedAt = now.toISOString();
 
-  await (env.LEADS || env.Leads).put('key::' + userKey, JSON.stringify(record));
+  await env.API_KEYS.put('key::' + userKey, JSON.stringify(record));
   return record;
 }
 
 export async function loadCode(env, code) {
-  if (!(env.TELEMETRY || env.telemetry)) return null;
+  if (!env.RATE_COUNTER) return null;
   const key = `referral::code::${normaliseCode(code)}`;
-  return (env.TELEMETRY || env.telemetry).get(key);
+  return env.RATE_COUNTER.get(key);
 }
 
 export async function saveCode(env, code, record) {
-  if (!(env.TELEMETRY || env.telemetry)) return;
+  if (!env.RATE_COUNTER) return;
   const key = `referral::code::${normaliseCode(code)}`;
-  await (env.TELEMETRY || env.telemetry).put(key, JSON.stringify(record));
+  await env.RATE_COUNTER.put(key, JSON.stringify(record));
 }
 
 export async function markRedemption(env, code, newUserKey, redemption) {
@@ -92,12 +92,12 @@ export async function isAlreadyRedeemed(env, code, newUserKey) {
 }
 
 export async function listCodesForReferrer(env, referrerKey) {
-  if (!(env.TELEMETRY || env.telemetry)) return [];
+  if (!env.RATE_COUNTER) return [];
   const prefix = `referral::referrer::${String(referrerKey).trim()}::`;
   const out = [];
   let cursor;
   while (true) {
-    const result = await (env.TELEMETRY || env.telemetry).list({ prefix, cursor, limit: 500 });
+    const result = await env.RATE_COUNTER.list({ prefix, cursor, limit: 500 });
     for (const item of result.keys ?? []) {
       try { out.push(JSON.parse(item.value || '{}')); } catch { /* skip */ }
     }
@@ -109,12 +109,12 @@ export async function listCodesForReferrer(env, referrerKey) {
 }
 
 export async function loadRedemptionsForReferrer(env, referrerKey) {
-  if (!(env.TELEMETRY || env.telemetry)) return [];
+  if (!env.RATE_COUNTER) return [];
   const prefix = `referral::redemptions::${String(referrerKey).trim()}::`;
   const out = [];
   let cursor;
   while (true) {
-    const result = await (env.TELEMETRY || env.telemetry).list({ prefix, cursor, limit: 500 });
+    const result = await env.RATE_COUNTER.list({ prefix, cursor, limit: 500 });
     for (const item of result.keys ?? []) {
       try { out.push(JSON.parse(item.value || '{}')); } catch { /* skip */ }
     }
@@ -130,16 +130,16 @@ export async function updateRedemptionsIndex(env, referrerKey, redemption) {
 }
 
 export async function kvGet(env, key) {
-  if (!(env.TELEMETRY || env.telemetry)) return null;
-  return (env.TELEMETRY || env.telemetry).get(key);
+  if (!env?.RATE_COUNTER) return null;
+  return env.RATE_COUNTER.get(key);
 }
 
 export async function kvPut(env, key, value) {
-  if (!(env.TELEMETRY || env.telemetry)) return;
-  await (env.TELEMETRY || env.telemetry).put(key, value);
+  if (!env?.RATE_COUNTER) return;
+  await env.RATE_COUNTER.put(key, value);
 }
 
 export async function kvDelete(env, key) {
-  if (!(env.TELEMETRY || env.telemetry)) return;
-  await (env.TELEMETRY || env.telemetry).delete(key);
+  if (!env?.RATE_COUNTER) return;
+  await env.RATE_COUNTER.delete(key);
 }
