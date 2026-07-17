@@ -1,6 +1,65 @@
 export async function onRequestGet(context) {
-  return new Response(JSON.stringify({ ok: true, service: "lead", method: "GET" }), {
-    headers: { "content-type": "application/json", "access-control-allow-origin": "https://clearance-iq.com" },
+  const ALLOWED_HASH = 'a27c372ac811e56fa1c15ee55f417ee7ab072298c7a4de21b7812a5d52b5fac8';
+
+  async function unauthorized() {
+    return new Response(JSON.stringify({ ok: false, error: 'unauthorized' }), {
+      status: 401,
+      headers: { 'content-type': 'application/json', 'access-control-allow-origin': 'https://clearance-iq.com' },
+    });
+  }
+
+  const token = (context.request.headers.get('x-leads-token') || '').trim();
+  if (!token || token !== ALLOWED_HASH) return unauthorized();
+
+  const out = {
+    ok: true,
+    service: 'lead',
+    method: 'GET',
+    items: [],
+    count: 0,
+  };
+
+  const leadsEnv = context.env?.LEADS || context.env?.Leads;
+  if (!leadsEnv) {
+    return new Response(JSON.stringify({ ...out, error: 'LEADS binding not available' }), {
+      headers: { 'content-type': 'application/json', 'access-control-allow-origin': 'https://clearance-iq.com' },
+    });
+  }
+
+  const url = new URL(context.request.url);
+  const limit = Math.min(parseInt(url.searchParams.get('limit') || '200', 10) || 200, 1000);
+  const items = [];
+  let cursor;
+  // Leads are stored directly by id (no 'email_' prefix, unlike signups).
+  do {
+    const result = await leadsEnv.list({ limit: Math.max(limit, 1000), cursor });
+    if (Array.isArray(result.keys)) {
+      for (const kv of result.keys) {
+        if (kv.name.startsWith('email_')) continue; // skip signup records
+        items.push(kv);
+      }
+    }
+    cursor = result.list_complete ? undefined : result.cursor;
+  } while (cursor && items.length < limit);
+
+  const sliced = items.slice(-limit).reverse();
+  const rows = await Promise.all(
+    sliced.map(async (kv) => {
+      try {
+        const raw = await leadsEnv.get(kv.name);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    })
+  );
+
+  out.items = rows
+    .filter(Boolean)
+    .filter((r) => r && (r.email || r.name || r.topic || r.message));
+  out.count = out.items.length;
+  return new Response(JSON.stringify(out), {
+    headers: { 'content-type': 'application/json', 'access-control-allow-origin': 'https://clearance-iq.com' },
   });
 }
 
@@ -56,6 +115,7 @@ export async function onRequestPost(context) {
   const lead = {
     id: crypto.randomUUID(),
     receivedAt: new Date().toISOString(),
+    ts: Date.now(),
     source,
     email,
     name: name || null,
@@ -81,7 +141,7 @@ export const OPTIONS = async () => new Response(null, {
   headers: {
     "access-control-allow-origin": "https://clearance-iq.com",
     "access-control-allow-methods": "GET, POST, OPTIONS",
-    "access-control-allow-headers": "content-type",
+    "access-control-allow-headers": "content-type, x-leads-token",
   },
   status: 204,
 });
