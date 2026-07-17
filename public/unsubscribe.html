@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unsubscribe — ClearanceIQ</title>
+  <style>
+    body{font-family:ui-sans-serif,system-ui,Arial,sans-serif;background:#0b0f19;color:#e5e7eb;margin:0;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px;}
+    .card{background:#0f1629;border:1px solid #1f2937;border-radius:14px;padding:32px;max-width:460px;text-align:center;}
+    h1{font-size:20px;margin:0 0 12px;}
+    p{color:#9ca3af;font-size:15px;line-height:1.6;}
+    input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #1f2937;background:#0b1220;color:#e5e7eb;margin:10px 0;}
+    button{background:#2563eb;color:#fff;border:0;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:600;}
+    a{color:#60a5fa;}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Unsubscribe from ClearanceIQ</h1>
+    <p>Enter your email to stop receiving outreach from the ClearanceIQ team.</p>
+    <input id="email" type="email" placeholder="you@company.com" />
+    <button onclick="unsub()">Unsubscribe</button>
+    <p id="status" style="margin-top:14px;font-size:13px;"></p>
+    <p style="margin-top:18px;font-size:13px;"><a href="https://clearance-iq.com">ClearanceIQ</a></p>
+  </div>
+  <script>
+    function unsub(){
+      var email=document.getElementById('email').value.trim();
+      var s=document.getElementById('status');
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ s.style.color='#f87171'; s.textContent='Enter a valid email.'; return; }
+      s.style.color='#9ca3af'; s.textContent='Working…';
+      fetch('/api/unsubscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:email})})
+        .then(function(r){return r.json();})
+        .then(function(d){ if(d.ok){ s.style.color='#34d399'; s.textContent='✓ You have been unsubscribed.'; } else { s.style.color='#f87171'; s.textContent='Could not process — try the link in the email.'; } });
+    }
+  </script>
+</body>
+</html>
