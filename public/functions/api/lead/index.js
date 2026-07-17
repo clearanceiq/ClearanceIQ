@@ -56,7 +56,9 @@ export async function onRequestGet(context) {
 
   out.items = rows
     .filter(Boolean)
-    .filter((r) => r && (r.email || r.name || r.topic || r.message));
+    // Genuine contact-lead submissions have a topic/message and are NOT
+    // signup records (carry an apiKey 'key') or Stripe order records (carry 'paid'/'amount').
+    .filter((r) => (r.topic || r.message) && !r.key && r.paid === undefined && r.amount === undefined);
   out.count = out.items.length;
   return new Response(JSON.stringify(out), {
     headers: { 'content-type': 'application/json', 'access-control-allow-origin': 'https://clearance-iq.com' },
