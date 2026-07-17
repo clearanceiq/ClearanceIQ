@@ -78,6 +78,15 @@
   <div id="result" class="box" style="display:none; margin-top:22px;">
     <h2 id="result_title" style="margin-top:0;"></h2>
     <div id="result_body" style="color:var(--text);"></div>
+    <div id="capture" style="display:none; margin-top:16px; padding:14px; border:1px solid #e2e8f0; border-radius:12px; background:#f0f9ff;">
+      <p style="margin:0 0 6px; font-weight:700; font-size:14px; color:#0f172a;">📩 Get this HTS result + paperwork checklist by email</p>
+      <p style="margin:0 0 10px; font-size:13px; color:#334155;">Free. We'll send the code, duty rate, and the paperwork list so you don't lose it.</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <input id="captureEmail" type="email" placeholder="you@company.com" style="flex:1; min-width:200px; padding:9px 11px; border-radius:8px; border:1px solid #cbd5e1;">
+        <button id="captureBtn" class="cta" type="button" style="white-space:nowrap;">Email me</button>
+      </div>
+      <p id="captureStatus" style="margin:8px 0 0; font-size:12px; color:#059669;"></p>
+    </div>
   </div>
 
   <div class="box" style="margin-top:22px;">
@@ -161,6 +170,50 @@ function emit(name, extra){
       document.getElementById('q').value = '8518.30.0000';
       emit('demo_run', { demo: true });
       runLookup();
+    });
+  }
+
+  var captureBtn = document.getElementById('captureBtn');
+  if (captureBtn) {
+    captureBtn.addEventListener('click', function(){
+      var cap = document.getElementById('capture');
+      var email = (document.getElementById('captureEmail').value || '').trim();
+      var status = document.getElementById('captureStatus');
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        status.style.color = '#dc2626';
+        status.textContent = 'Enter a valid email.';
+        return;
+      }
+      captureBtn.disabled = true;
+      status.style.color = '#059669';
+      status.textContent = 'Sending…';
+      fetch('/api/email-signup', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          source: 'hts-lookup-result',
+          tier: 'free',
+          note: (cap && cap.dataset.code ? 'HTS ' + cap.dataset.code : 'HTS lookup') + (cap && cap.dataset.desc ? ' — ' + cap.dataset.desc : '')
+        })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d && d.ok) {
+          status.textContent = '✓ Sent! Check your inbox.';
+          cap.style.display = 'none';
+          emit('capture_submit', { email: email });
+        } else {
+          status.style.color = '#dc2626';
+          status.textContent = 'Could not save — try the contact page.';
+          captureBtn.disabled = false;
+        }
+      })
+      .catch(function(){
+        status.style.color = '#dc2626';
+        status.textContent = 'Network error — try again.';
+        captureBtn.disabled = false;
+      });
     });
   }
 })();
@@ -286,6 +339,14 @@ function runLookup() {
       }
 
       emit('hts_hit', { code: data.code, q });
+
+      // Reveal email-capture nudge after a successful result
+      const cap = document.getElementById('capture');
+      if (cap) {
+        cap.style.display = 'block';
+        cap.dataset.code = data.code || '';
+        cap.dataset.desc = data.description || '';
+      }
     })
     .catch(err => {
       out.style.display = "none";

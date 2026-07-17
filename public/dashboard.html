@@ -80,7 +80,7 @@
       <h2>Telemetry — tool usage <span class="count" id="telCount"></span></h2>
       <div id="telStatus" style="color:#9ca3af; font-size:13px;"></div>
       <table>
-        <thead><tr><th>Tool</th><th>Events</th><th>Unique sessions</th><th>Last seen</th><th>Retention (h)</th></tr></thead>
+        <thead><tr><th>Tool page</th><th>Events</th><th>Last seen</th><th>Window start</th></tr></thead>
         <tbody id="telRows"></tbody>
       </table>
     </div>
@@ -154,33 +154,50 @@
     const tbody = document.getElementById('telRows');
     const status = document.getElementById('telStatus');
     const count = document.getElementById('telCount');
-    tbody.innerHTML = '<tr><td colspan="5" class="empty">Loading...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" class="empty">Loading...</td></tr>';
     try {
-      const data = await getJson('/api/telemetry?view=report&limit=1000');
-      if (!data || !data.ok) throw new Error(data && data.error ? data.error : 'request failed');
-      const report = data.report || [];
-      document.getElementById('kpiTelemetry').textContent = data.count || 0;
-      document.getElementById('kpiTools').textContent = report.length;
-      count.textContent = report.length + ' tools';
-      if (!report.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty">No telemetry events yet.</td></tr>';
+      // Live usage endpoint (keyed). Falls back to window.__token (dashboard password hash).
+      const key = window.__token || '';
+      const data = await getJson('/api/usage?key=' + encodeURIComponent(key) + '&limit=1000');
+      if (!data || data.error) throw new Error(data && data.error ? data.error : 'request failed');
+      const events = data.events || [];
+      document.getElementById('kpiTelemetry').textContent = data.count || events.length || 0;
+
+      // Aggregate by page/path
+      const byPath = {};
+      for (const e of events) {
+        const p = (e.path && e.path !== '') ? e.path : '(other)';
+        if (!byPath[p]) byPath[p] = { events: 0, last: 0, types: {} };
+        byPath[p].events += 1;
+        byPath[p].last = Math.max(byPath[p].last, e.ts || 0);
+        const t = e.type || 'unknown';
+        byPath[p].types[t] = (byPath[p].types[t] || 0) + 1;
+      }
+      const rows = Object.keys(byPath).map(p => ({ path: p, ...byPath[p] }))
+        .sort((a, b) => b.events - a.events);
+
+      document.getElementById('kpiTools').textContent = rows.length;
+      count.textContent = rows.length + ' pages';
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty">No telemetry events yet.</td></tr>';
         status.textContent = '';
         return;
       }
-      const maxEv = Math.max(...report.map(r => r.events || 0), 1);
-      tbody.innerHTML = report.map(r => {
-        const pct = Math.round(((r.events || 0) / maxEv) * 100);
+      const maxEv = Math.max(...rows.map(r => r.events), 1);
+      tbody.innerHTML = rows.map(r => {
+        const pct = Math.round((r.events / maxEv) * 100);
+        const topType = Object.entries(r.types).sort((a, b) => b[1] - a[1])[0];
+        const sub = topType ? topType[0] + ' ×' + topType[1] : '';
         return `<tr>
-          <td><b>${escapeHtml(r.tool)}</b></td>
-          <td>${r.events || 0}<div class="bar"><span style="width:${pct}%"></span></div></td>
-          <td>${r.unique_sessions || 0}</td>
-          <td>${fmt(r.latest_ts)}</td>
-          <td>${r.retention_hours != null ? r.retention_hours : '—'}</td>
+          <td><b>${escapeHtml(r.path)}</b><br><span style="color:#9ca3af;font-size:11px;">${escapeHtml(sub)}</span></td>
+          <td>${r.events}<div class="bar"><span style="width:${pct}%"></span></div></td>
+          <td>${fmt(r.last)}</td>
+          <td>${data.since ? fmt(data.since) : '—'}</td>
         </tr>`;
       }).join('');
       status.textContent = '';
     } catch (err) {
-      tbody.innerHTML = '<tr><td colspan="5" class="empty">Failed to load telemetry.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" class="empty">Failed to load telemetry.</td></tr>';
       status.textContent = err && err.message ? err.message : 'Load failed';
     }
   }
