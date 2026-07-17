@@ -30,9 +30,11 @@ export async function onRequestGet(context) {
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '200', 10) || 200, 1000);
   const items = [];
   let cursor;
-  const prefix = 'email_';
+  // List ALL keys (do not filter by 'email_' prefix — signup records are not
+  // reliably stored with that prefix in the live KV). We distinguish signups
+  // by record shape after fetching.
   do {
-    const result = await leadsEnv.list({ prefix, limit: Math.max(limit, 1000), cursor });
+    const result = await leadsEnv.list({ limit: Math.max(limit, 1000), cursor });
     if (Array.isArray(result.keys)) {
       for (const kv of result.keys) items.push(kv);
     }
@@ -51,7 +53,17 @@ export async function onRequestGet(context) {
     })
   );
 
-  out.items = rows.filter(Boolean).filter(function(r){ return r && typeof r.email === 'string' && r.email.indexOf('@') !== -1 && r.email.toLowerCase().indexOf('@example.com') === -1; });
+  // Signup records: have an apiKey ('key'), 'tier', and 'createdAt'; exclude
+  // Stripe orders (paid/amount) and contact leads (topic/message).
+  out.items = rows
+    .filter(Boolean)
+    .filter(function (r) {
+      if (!r || typeof r.email !== 'string' || r.email.indexOf('@') === -1) return false;
+      if (r.email.toLowerCase().indexOf('@example.com') !== -1) return false;
+      if (r.paid !== undefined || r.amount !== undefined) return false; // Stripe order
+      if (r.topic || r.message) return false; // contact lead
+      return !!r.key && !!r.tier && !!r.createdAt; // signup shape
+    });
   out.count = out.items.length;
   return new Response(JSON.stringify(out), {
     headers: { 'content-type': 'application/json', 'access-control-allow-origin': 'https://clearance-iq.com' },
