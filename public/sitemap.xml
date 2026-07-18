@@ -9,19 +9,19 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/whats-inside.html</loc>
+    <loc>https://clearance-iq.com/whats-inside</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/refund.html</loc>
+    <loc>https://clearance-iq.com/refund</loc>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/contact.html</loc>
+    <loc>https://clearance-iq.com/contact</loc>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/blog/day-1.html</loc>
+    <loc>https://clearance-iq.com/blog/day-1</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -29,27 +29,31 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/interactive-playbook.html</loc>
+    <loc>https://clearance-iq.com/interactive-playbook</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/tools/hts-lookup.html</loc>
+    <loc>https://clearance-iq.com/tools/hts-lookup</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/tools/supplier-checklist.html</loc>
+    <loc>https://clearance-iq.com/tools/supplier-checklist</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/tools/duty-calculator.html</loc>
+    <loc>https://clearance-iq.com/tools/duty-calculator</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/tools/cbp-hold-decoder.html</loc>
+    <loc>https://clearance-iq.com/tools/cbp-hold-decoder</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://clearance-iq.com/tools/bond-estimator.html</loc>
+    <loc>https://clearance-iq.com/tools/bond-estimator</loc>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://clearance-iq.com/unsubscribe</loc>
+    <priority>0.3</priority>
   </url>
 </urlset>
