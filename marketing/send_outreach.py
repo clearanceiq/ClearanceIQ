@@ -29,6 +29,21 @@ UNSUB_PATH = "marketing/leads/unsubscribed.csv"
 BREVO_URL = "https://api.brevo.com/v3/smtp/email"
 SENDER_NAME = "ClearanceIQ Team"
 SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "team@clearance-iq.com")
+SENT_LOG = os.path.join(os.path.dirname(CSV_PATH), "sent_log.csv")
+
+def load_sent():
+    s = set()
+    if os.path.exists(SENT_LOG):
+        for r in csv.DictReader(open(SENT_LOG)):
+            if r.get("email"): s.add(r["email"].strip().lower())
+    return s
+
+def mark_sent(email):
+    newfile = not os.path.exists(SENT_LOG)
+    with open(SENT_LOG, "a", newline="") as f:
+        w = csv.writer(f)
+        if newfile: w.writerow(["email", "ts"])
+        w.writerow([email, time.strftime("%Y-%m-%dT%H:%M:%S")])
 
 SUBJECT = "Shipment stuck at customs? Here's usually why"
 
@@ -82,10 +97,11 @@ def main():
 
     rows = list(csv.DictReader(open(CSV_PATH)))
     unsub = load_unsubs()
-    pending = [r for r in rows if r["email"].strip().lower() not in unsub]
+    sent_before = load_sent()
+    pending = [r for r in rows if r["email"].strip().lower() not in unsub and r["email"].strip().lower() not in sent_before]
     if limit: pending = pending[:limit]
 
-    print(f"Total leads: {len(rows)} | unsubscribed: {len(unsub)} | pending: {len(pending)}")
+    print(f"Total leads: {len(rows)} | unsubscribed: {len(unsub)} | already sent: {len(sent_before)} | pending: {len(pending)}")
     print(f"Mode: {'DRY-RUN (no emails sent)' if dry else 'LIVE'}")
 
     sent = 0
@@ -98,12 +114,13 @@ def main():
             continue
         try:
             send_one(api_key, email, first, brand)
+            mark_sent(email)
             sent += 1
             print(f"  sent -> {email}")
-            time.sleep(3)  # warm-up pace
+            time.sleep(2)  # warm-up pace
         except Exception as e:
             print(f"  FAIL {email}: {e}")
-    print(f"Done. Sent: {sent}")
+    print(f"Done. Sent this run: {sent} | Total sent: {len(load_sent())}")
 
 if __name__ == "__main__":
     main()
