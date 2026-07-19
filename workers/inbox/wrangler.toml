@@ -1,0 +1,7 @@
+name = "clearanceiq-inbox"
+main = "index.js"
+compatibility_date = "2024-09-23"
+
+kv_namespaces = [
+  { binding = "INBOX", id = "54b91204a5874a9fbb06a4b38afbb39e" }
+]
