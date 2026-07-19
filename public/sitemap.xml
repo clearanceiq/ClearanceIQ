@@ -56,4 +56,8 @@
     <loc>https://clearance-iq.com/unsubscribe</loc>
     <priority>0.3</priority>
   </url>
+  <url>
+    <loc>https://clearance-iq.com/blog/2026-07-20-i-imported-without-a-customs-bond-what-it-cost-me</loc>
+    <priority>0.8</priority>
+  </url>
 </urlset>
