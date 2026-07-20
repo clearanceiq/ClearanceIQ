@@ -4,17 +4,18 @@ import sys
 import subprocess
 from pathlib import Path
 
+# Blog cluster pivot (2026-07-20): "Shipment Stuck at Customs"
 TOPICS = [
-    "Section 321 de minimis update for importers",
-    "How to avoid CBP holds on your first shipment",
-    "ISF filing mistakes that cost $5000 fines",
-    "When you need a customs bond and how to buy one",
-    "AD CVD duties explained for Amazon sellers",
-    "How to read a CBP hold notice and respond fast",
-    "HTS code lookup best practices for new importers",
-    "Recordkeeping requirements after CBP entry",
-    "FDA prior notice requirements for food imports",
-    "Country of origin marking rules and penalties",
+    "My shipment is stuck at customs - a step-by-step recovery checklist",
+    "CBP hold types explained: EXAM, MAP, FDA, USDA, PGA and what each means",
+    "Why your Amazon FBA shipment is stuck and how to get it released fast",
+    "5 documents that clear a customs hold - and the one most people forget",
+    "How long can customs hold my shipment legally (and what to do if it's over)",
+    "Customs bond missing? Why your container is stuck and the fix",
+    "HTS misclassification - the silent cause of stuck shipments",
+    "Section 232 / 301 / ADD-CVD stacking and why your entry is frozen",
+    "What to do when your broker goes silent on a held shipment",
+    "Real importer stories: how stuck shipments got released (timelines + costs)",
 ]
 
 SCRIPT = Path(__file__).resolve().parent / "generate-blog-post.py"

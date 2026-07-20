@@ -33,6 +33,22 @@ def footer(c, d=None):
     c.drawString(0.75*inch, 0.5*inch, "ClearanceIQ - educational toolkit. Not legal advice. Verify with a licensed broker / CBP before filing.")
     c.drawRightString(LETTER[0]-0.75*inch, 0.5*inch, "clearance-iq.com")
 
+# Fill-in worksheet: a 3-col table (Field | Your entry | Notes) with tall blank rows.
+ROW_H = 26  # px per fill row -> plenty of writing space
+def fill(headers, n_rows, widths=None):
+    data = [headers] + [["", "", ""] for _ in range(n_rows)]
+    t = Table(data, colWidths=widths, rowHeights=[18] + [ROW_H]*n_rows)
+    t.setStyle(TableStyle([
+        ("GRID",(0,0),(-1,-1),0.5,LINE),
+        ("BACKGROUND",(0,0),(-1,0),colors.HexColor("#e2e8f0")),
+        ("FONTSIZE",(0,0),(-1,-1),9),
+        ("VALIGN",(0,0),(-1,-1),"TOP"),
+        ("LEFTPADDING",(0,0),(-1,-1),5),
+        ("TOPPADDING",(0,0),(-1,-1),4),
+        ("BOTTOMPADDING",(0,0),(-1,-1),4),
+    ]))
+    return t
+
 def build(name, title, sub, blocks):
     doc = SimpleDocTemplate(os.path.join(OUT, name), pagesize=LETTER,
                             leftMargin=0.75*inch, rightMargin=0.75*inch, topMargin=0.8*inch, bottomMargin=0.7*inch,
@@ -45,9 +61,17 @@ def build(name, title, sub, blocks):
         elif isinstance(b, tuple) and b[0] == "table":
             data = b[1]
             col_widths = b[2] if len(b) > 2 else None
-            t = Table(data, colWidths=col_widths); t.setStyle(TableStyle([
+            nrows = len(data)
+            # taller rows + extra blank fill rows so users have room to write
+            row_heights = [16] + [ROW_H]*(nrows-1) + [ROW_H]*3
+            blank = [["", ""] + ([""]*(len(data[0])-2)) for _ in range(3)]
+            data = data + blank
+            t = Table(data, colWidths=col_widths, rowHeights=row_heights)
+            t.setStyle(TableStyle([
                 ("GRID",(0,0),(-1,-1),0.5,LINE),("BACKGROUND",(0,0),(-1,0),colors.HexColor("#e2e8f0")),
                 ("FONTSIZE",(0,0),(-1,-1),8),("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),4),("TOPPADDING",(0,0),(-1,-1),3)])); flow.append(t)
+        elif isinstance(b, tuple) and b[0] == "fill":
+            flow.append(fill(b[1], b[2], b[3] if len(b) > 3 else None))
         flow.append(Spacer(1,6))
     flow.append(Paragraph("ClearanceIQ is an independent educational platform. Not affiliated with CBP, FDA, USDA, or any government agency.", DISC))
     doc.build(flow, onFirstPage=footer, onLaterPages=footer)
@@ -58,7 +82,7 @@ build("supplier-verification-worksheet.pdf","Supplier Verification Worksheet","C
  ("h","Red flags (stop and get answers first)"),
  ("list",["No business license / import-export code provided","Refuses video call or factory tour","Only accepts irreversible payment (T/T to personal account)","Prices far below market with no explanation","No HTS or country-of-origin documentation"]),
  ("h","Verification checklist"),
- ("table",[["Check","Pass?","Notes"],["Business registration verified","",""],["Product matches description/spec","",""],["Sample shipment inspected","",""],["HTS code provided by supplier","",""],["Country of origin declared","",""]],None),
+ ("fill",["Check","Result / Pass?","Notes"],6,[2.6*inch,1.4*inch,2.6*inch]),
 ])
 # 2
 build("commercial-invoice-checklist.pdf","Commercial Invoice Checklist","ClearanceIQ Import Kit · CBP Entry Accuracy",[
