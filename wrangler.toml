@@ -4,5 +4,6 @@ compatibility_date = "2024-09-23"
 
 # Bind the inbound-email KV namespace to the INBOX variable used by /api/inbox
 kv_namespaces = [
-  { binding = "INBOX", id = "54b91204a5874a9fbb06a4b38afbb39e" }
+  { binding = "INBOX", id = "54b91204a5874a9fbb06a4b38afbb39e" },
+  { binding = "TELEMETRY", id = "7b8feb3d5d9d4302b4d9f6d09d852fd6" }
 ]
