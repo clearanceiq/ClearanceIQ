@@ -1,3 +1,5 @@
+Done: Homepage + /api/v1/hts healthy (200 OK). 22 tasks closed. Action required: 17 open items — CPSC tool past-due, Buy Now not wired, admin paths broken.
+
 # ClearanceIQ Daily Ops Brief — 2026-07-23
 
 | Task | Age | Status |
@@ -9,24 +11,24 @@
 | Customer acquisition: first Reddit/LinkedIn post | [Pending 30d 0h] | open |
 | Stripe/payment gateway wiring deferred post-beta | [Pending 28d 0h] | open |
 | Live hardening: /api/admin + /internal still redirect 302 | [Pending 22d 0h] | open |
-| PHASE 1: first acquisition post (Reddit/FBA) 3 posts | [Pending 15d 0h] | open |
+| PHASE 1: first acquisition posts (Reddit/FBA) 3 posts | [Pending 15d 0h] | open |
 | PHASE 1: reach 200 signed users, measure 7-day return | [Pending 15d 0h] | open |
 | PHASE 2: 10 forwarder/3PL white-label conversations | [Pending 15d 0h] | open |
-| PHASE 2: wire Stripe + real Pro IF return-rate justifies | [Pending 15d 0h] | open |
-| PHASE 3: retention dashboard (signup->return->Pro) | [Pending 15d 0h] | open |
-| Stripe keys added but NOT consumed — Buy Now still placeholder alert | [Pending 14d 0h] | open |
-| Wire Buy Now (Import Kit $29.99) to Gumroad/Stripe — ONLY revenue blocker | [Pending 14d 0h] | open |
+| PHASE 2: wire Stripe + Pro IF return-rate justifies | [Pending 15d 0h] | open |
+| PHASE 3: retention dashboard (signup->Pro) | [Pending 15d 0h] | open |
+| Stripe keys added but NOT consumed — Buy Now still placeholder | [Pending 14d 0h] | open |
+| Wire Buy Now to Gumroad/Stripe — ONLY revenue blocker | [Pending 14d 0h] | open |
 | Ollama + anythingLLM infra (Hetzner VPS) — PAUSED | [Pending 14d 0h] | open |
 | Hetzner VPS bootstrap — needs SSH from PC, cannot run from mobile | [Pending 14d 0h] | open |
-| Build `tools/cpsc-certificate.html` — mandatory CPSC eFiling generator | [Pending 0h] | open |
+| Build `tools/cpsc-certificate.html` — mandatory CPSC eFiling tool | [Pending 0h] | open |
 
 22 tasks Done — full list in `ops/daily-tasks.md`
 
 ## Health Status
 - Homepage: 200 OK
-- `/api/v1/hts`: 200 OK
-- `/api/admin`: 302 (still broken per task list)
-- `/api/usage`: 400 without key (expected)
+- /api/v1/hts: 200 OK
+- /api/admin: 302 (still broken per task list)
+- /api/usage: 400 without key (expected)
 
 ## PENDING SUMMARY
 - <24h: 1

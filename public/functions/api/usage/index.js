@@ -145,7 +145,7 @@ export async function onRequestGet(context) {
       keyPresent: !!reqKey,
       tier,
       count: rows.length,
-      since: rows.length ? rows[rows.length - 1]?.ts : null,
+      since: rows.length ? Math.min(...rows.map(r => r.ts || 0)) : null,
       byType,
       byTool,
       events: rows,
