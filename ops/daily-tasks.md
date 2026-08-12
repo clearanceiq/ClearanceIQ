@@ -1,19 +1,19 @@
 # ClearanceIQ Ops Task List
 # Age format: [Pending Xd Xh] for >=24h, [Pending Xh] for <24h, [Done] for completed.
-# Last briefing: 2026-08-12 (cron daily advance +1d from 2026-08-11)
+# Last briefing: 2026-08-13 (cron daily advance +1d from 2026-08-12)
 
 2026-06-30|Verify CORS/lockdown is live on all API routes|[Done]|closed
-2026-06-30|HTS lookup functional tests still failing (0/20)|[Pending 43d]|open
+2026-06-30|HTS lookup functional tests still failing (0/20)|[Pending 44d]|open
 2026-06-30|API key signup returning 405|[Done]|closed
 2026-06-30|Usage tracking/auth coverage gaps|[Done]|closed
-2026-06-30|Integration tests for CBP Decoder + Supplier Checklist|[Pending 43d]|open
-2026-06-25|Admin paths redirect to 404 on live|[Pending 48d]|open
+2026-06-30|Integration tests for CBP Decoder + Supplier Checklist|[Pending 44d]|open
+2026-06-25|Admin paths redirect to 404 on live|[Pending 49d]|open
 2026-06-25|Deploy root/public sync + cache purge checks|[Done]|closed
 2026-06-22|IB/telemetry persistence to D1 when binding available|[Done]|closed
-2026-06-23|Rename stray chat/referrals routes per Pages routing quirk|[Pending 50d]|open
-2026-06-23|Customer acquisition execution: first Reddit/LinkedIn post|[Pending 50d]|open
-2026-06-25|Stripe/payment gateway wiring deferred post-beta audit|[Pending 48d]|open
-2026-07-01|Live hardening: /api/admin and /internal still redirect 302|[Pending 42d]|open
+2026-06-23|Rename stray chat/referrals routes per Pages routing quirk|[Pending 51d]|open
+2026-06-23|Customer acquisition execution: first Reddit/LinkedIn post|[Pending 51d]|open
+2026-06-25|Stripe/payment gateway wiring deferred post-beta audit|[Pending 49d]|open
+2026-07-01|Live hardening: /api/admin and /internal still redirect 302|[Pending 43d]|open
 2026-07-01|Several tool routes returning 308 instead of 200|[Done]|closed
 2026-07-08|Rate-limit cap not enforced (tools uncapped)|[Done]|closed
 2026-07-08|No sign-up prompt on rate-limit; client tools ungated|[Done]|closed
@@ -21,16 +21,16 @@
 2026-07-08|Homepage nav links to /about.html|[Done]|closed
 2026-07-08|90-DAY-PLAN.md created (consultant review forward plan)|[Done]|closed
 2026-07-08|PHASE 1: saved history for signed users (flywheel gear 1)|[Done]|closed
-2026-07-08|PHASE 1: first acquisition post (Reddit/FBA) 3 posts|[Pending 35d]|open
-2026-07-08|PHASE 1: reach 200 signed users, measure 7-day return|[Pending 35d]|open
-2026-07-08|PHASE 2: 10 forwarder/3PL white-label conversations|[Pending 35d]|open
-2026-07-08|PHASE 2: wire Stripe + real Pro IF return-rate justifies|[Pending 35d]|open
-2026-07-08|PHASE 3: retention dashboard (signup->return->Pro)|[Pending 35d]|open
+2026-07-08|PHASE 1: first acquisition post (Reddit/FBA) 3 posts|[Pending 36d]|open
+2026-07-08|PHASE 1: reach 200 signed users, measure 7-day return|[Pending 36d]|open
+2026-07-08|PHASE 2: 10 forwarder/3PL white-label conversations|[Pending 36d]|open
+2026-07-08|PHASE 2: wire Stripe + real Pro IF return-rate justifies|[Pending 36d]|open
+2026-07-08|PHASE 3: retention dashboard (signup->return->Pro)|[Pending 36d]|open
 2026-07-09|KasiSetel project removed (content deleted; empty bot/ dir locked by bg shell — delete on PC)|[Done]|closed
-2026-07-09|Stripe keys added to CF Secrets but NOT consumed by any function — Buy Now still placeholder alert|[Pending 34d]|open
-2026-07-09|Wire Buy Now (Import Kit $29.99) to Gumroad or internal Stripe Checkout — ONLY revenue blocker|[Pending 34d]|open
-2026-07-09|Ollama + anythingLLM infra (Hetzner VPS) — PAUSED to tomorrow|[Pending 34d]|open
-2026-07-09|Hetzner VPS bootstrap — needs SSH from PC, cannot run from mobile|[Pending 34d]|open
+2026-07-09|Stripe keys added to CF Secrets but NOT consumed by any function — Buy Now still placeholder alert|[Pending 35d]|open
+2026-07-09|Wire Buy Now (Import Kit $29.99) to Gumroad or internal Stripe Checkout — ONLY revenue blocker|[Pending 35d]|open
+2026-07-09|Ollama + anythingLLM infra (Hetzner VPS) — PAUSED to tomorrow|[Pending 35d]|open
+2026-07-09|Hetzner VPS bootstrap — needs SSH from PC, cannot run from mobile|[Pending 35d]|open
 2026-07-09|7AM Empire Brief repurposed: now pulls pending tasks + MD findings + dept updates (KasiSetel MD + dup Pending brief paused)|[Done]|closed
 2026-07-09|Orphaned OneDrive content files found (Day_1 legacy security-clearance posts, off-topic, never published) — only Feature_Prioritization.md kept|[Done]|closed
-2026-07-23|Build `tools/cpsc-certificate.html` — mandatory CPSC eFiling certificate generator (deadline 2026-07-08 passed)|[Pending 9d]|open
+2026-07-23|Build `tools/cpsc-certificate.html` — mandatory CPSC eFiling certificate generator (deadline 2026-07-08 passed)|[Pending 10d]|open
