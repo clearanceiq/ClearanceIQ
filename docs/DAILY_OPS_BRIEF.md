@@ -24,7 +24,7 @@
 | 16 | Hetzner VPS bootstrap — needs SSH from PC | [Pending 36d] | open |
 | 17 | Build `tools/cpsc-certificate.html` (CPSC eFiling deadline passed) | [Pending 11d] | open |
 
-18 open — 14 Done — full list in `ops/daily-tasks.md`
+18 open — 15 Done — full list in `ops/daily-tasks.md`
 
 ## Health Status
 - No uncommitted changes. Live endpoint probes blocked by bot-challenge 403.
