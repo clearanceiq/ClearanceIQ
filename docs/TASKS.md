@@ -1,5 +1,5 @@
 # ClearanceIQ — Daily Ops Task State
-**Last updated:** 2026-08-14
+# Last briefing: 2026-08-30 (cron daily advance +1d from 2026-08-29)
 
 ## Completed
 - [x] Remove bot/ from site repo
@@ -14,12 +14,12 @@
 - [x] Publish Day 2 blog post (When You Need A Customs Bond And How To Buy One)
 
 ## Pending Tasks
-- [Pending 47d] Add TELEMETRY KV binding + associate to Pages Functions, then verify /api/telemetry GET
-- [Pending 47d] Add D1 binding / run schema + redeploy telemetry path if switching to docs/ops/wrangler.toml
-- [Pending 47d] Update _redirects or docs/ops/README redirect step if using standalone Worker
-- [Pending 47d] Re-verify client-side tools (cbp hold decoder, supplier checklist) in browser
-- [Pending 47d] Confirm telemetry tracking on tool pages after KV bind
-- [Pending 47d] Add rate limiting headers to API responses
-- [Pending 47d] Add Stripe keys
-- [Pending 47d] Launch first Reddit post
-- [Pending 45d] Resolve chat endpoint POST body parsing — returns "Error: Missing message" despite correct client payload
+- [Pending 63d] Add TELEMETRY KV binding + associate to Pages Functions, then verify /api/telemetry GET
+- [Pending 63d] Add D1 binding / run schema + redeploy telemetry path if switching to docs/ops/wrangler.toml
+- [Pending 63d] Update _redirects or docs/ops/README redirect step if using standalone Worker
+- [Pending 63d] Re-verify client-side tools (cbp hold decoder, supplier checklist) in browser
+- [Pending 63d] Confirm telemetry tracking on tool pages after KV bind
+- [Pending 63d] Add rate limiting headers to API responses
+- [Pending 63d] Add Stripe keys
+- [Pending 63d] Launch first Reddit post
+- [Pending 61d] Resolve chat endpoint POST body parsing — returns "Error: Missing message" despite correct client payload
