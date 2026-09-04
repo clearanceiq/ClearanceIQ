@@ -14,12 +14,12 @@
 - [x] Publish Day 2 blog post (When You Need A Customs Bond And How To Buy One)
 
 ## Pending Tasks
-- [Pending 63d] Add TELEMETRY KV binding + associate to Pages Functions, then verify /api/telemetry GET
-- [Pending 63d] Add D1 binding / run schema + redeploy telemetry path if switching to docs/ops/wrangler.toml
-- [Pending 63d] Update _redirects or docs/ops/README redirect step if using standalone Worker
-- [Pending 63d] Re-verify client-side tools (cbp hold decoder, supplier checklist) in browser
-- [Pending 63d] Confirm telemetry tracking on tool pages after KV bind
-- [Pending 63d] Add rate limiting headers to API responses
-- [Pending 63d] Add Stripe keys
-- [Pending 63d] Launch first Reddit post
-- [Pending 61d] Resolve chat endpoint POST body parsing — returns "Error: Missing message" despite correct client payload
+- [Pending 65d]Add TELEMETRY KV binding + associate to Pages Functions, then verify /api/telemetry GET
+- [Pending 65d]Add D1 binding / run schema + redeploy telemetry path if switching to docs/ops/wrangler.toml
+- [Pending 65d]Update _redirects or docs/ops/README redirect step if using standalone Worker
+- [Pending 65d]Re-verify client-side tools (cbp hold decoder, supplier checklist) in browser
+- [Pending 65d]Confirm telemetry tracking on tool pages after KV bind
+- [Pending 65d]Add rate limiting headers to API responses
+- [Pending 65d]Add Stripe keys
+- [Pending 65d]Launch first Reddit post
+- [Pending 63d]Resolve chat endpoint POST body parsing — returns "Error: Missing message" despite correct client payload

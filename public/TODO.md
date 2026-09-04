@@ -2,7 +2,7 @@
 
 # Age format: [Pending Xh] for <24h, [Pending Xd Xh] for >=24h, [Done] for completed.
 
-# Last briefing: 2026-08-29 (cron daily advance +1d from 2026-08-28)
+# Last briefing: 2026-09-02 (cron daily advance +1d from 2026-09-01)
 
 
 
@@ -16,14 +16,14 @@
 
 | 3 | Commit and push pending site changes: `index.html`, `public/index.html`, `public/scripts/.blog-topic-index` | [Done] | closed |
 
-| 4 | Review/safe-stage `package.json`, `package-lock.json`, `public/tests/setdata.json` | [Pending 60d 1h] | open |
+| 4 | Review/safe-stage `package.json`, `package-lock.json`, `public/tests/setdata.json` | [Pending 61d 1] | open |
 
-| 5 | Confirm `/api/admin`, `/api/internal`, `/admin` live hardening (404/302) | [Pending 65d 1h] | open |
+| 5 | Confirm `/api/admin`, `/api/internal`, `/admin` live hardening (404/302) | [Pending 66d 1] | open |
 
-| 6 | Rotate exposed credentials + complete YouTube upload OAuth (blocked: credential rotation + one-time login) | [Pending 68d 1h] | blocked |
+| 6 | Rotate exposed credentials + complete YouTube upload OAuth (blocked: credential rotation + one-time login) | [Pending 69d 1] | blocked |
 
 | 7 | Persist telemetry/usage to D1; add TELEMETRY KV binding reads | [Done] | closed |
 
-| 8 | Wire Stripe checkout + activate Pro plan pricing (post-beta) | [Pending 65d 1h] | open |
+| 8 | Wire Stripe checkout + activate Pro plan pricing (post-beta) | [Pending 66d 1] | open |
 
-| 9 | Build `tools/cpsc-certificate.html` — mandatory CPSC eFiling certificate generator (deadline 2026-07-08 passed) | [Pending 19d] | open |
+| 9 | Build `tools/cpsc-certificate.html` — mandatory CPSC eFiling certificate generator (deadline 2026-07-08 passed) | [Pending 20d] | open |
