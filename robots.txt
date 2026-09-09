@@ -1,4 +1,8 @@
 User-Agent: *
 Allow: /
 
+Disallow: /admin/
+Disallow: /admin/login/
+Disallow: /private/
+
 Sitemap: https://clearance-iq.com/sitemap.xml
