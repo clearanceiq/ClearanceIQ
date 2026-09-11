@@ -2,7 +2,7 @@
 
 # Age format: [Pending Xh] for <24h, [Pending Xd Xh] for >=24h, [Done] for completed.
 
-# Last briefing: 2026-09-02 (cron daily advance +1d from 2026-09-01)
+# Last briefing: 2026-09-11 (cron daily advance +6d from 2026-09-05)
 
 
 
@@ -26,4 +26,4 @@
 
 | 8 | Wire Stripe checkout + activate Pro plan pricing (post-beta) | [Pending 66d 1] | open |
 
-| 9 | Build `tools/cpsc-certificate.html` — mandatory CPSC eFiling certificate generator (deadline 2026-07-08 passed) | [Pending 20d] | open |
+| 9 | Build `tools/cpsc-certificate.html` — mandatory CPSC eFiling certificate generator (deadline 2026-07-08 passed) | [Pending 26d] | open |
