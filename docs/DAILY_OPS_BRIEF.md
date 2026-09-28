@@ -1,60 +1,62 @@
-# ClearanceIQ Ops Daily Brief — 2026-09-17
-# Last briefing: 2026-09-17 (cron daily advance +1d from 2026-09-16)
-Source: `ops/daily-tasks.md` (canonical). Cron-run ages; may mask completions.
+# ClearanceIQ Daily Ops Brief — 2026-09-25
 
-## Task Table
+Ages from last cron advance (2026-09-24 +1d); may mask completed work.
+
+## Task Table — OPEN (19)
 
 | # | Task | Age | Status |
 |---|------|-----|--------|
-| 1 | Rename stray chat/referrals routes | [Pending 87d] | open |
-| 2 | First acquisition post (Reddit/LinkedIn) | [Pending 87d] | open |
-| 3 | Admin paths → 404 live | [Pending 85d] | open |
-| 4 | Stripe wiring deferred post-beta | [Pending 85d] | open |
-| 5 | HTS lookup functional tests failing (0/20) | [Pending 80d] | open |
-| 6 | Integration tests: CBP Decoder + Supplier | [Pending 80d] | open |
-| 7 | Live hardening: /api/admin + /internal 302 | [Pending 79d] | open |
-| 8 | PHASE 1: 3 acquisition posts (Reddit/FBA) | [Pending 72d] | open |
-| 9 | PHASE 1: 200 users + 7-day return | [Pending 72d] | open |
-| 10 | PHASE 2: 10 forwarder/3PL convos | [Pending 72d] | open |
-| 11 | PHASE 2: wire Stripe + Pro if justified | [Pending 72d] | open |
-| 12 | PHASE 3: retention dashboard | [Pending 72d] | open |
-| 13 | Stripe keys idle in CF Secrets | [Pending 71d] | open |
-| 14 | Wire Buy Now to Gumroad/Stripe | [Pending 71d] | open |
-| 15 | Ollama + anythingLLM infra (Hetzner) PAUSED | [Pending 71d] | open |
-| 16 | Hetzner VPS bootstrap — needs PC SSH | [Pending 71d] | open |
-| 17 | Build cpsc-certificate.html — CPSC eFiling | [Pending 46d] | open |
+| 1 | HTS lookup functional tests failing (0/20) | [Pending 87d] | open |
+| 2 | Integration tests CBP Decoder + Supplier Checklist | [Pending 87d] | open |
+| 3 | Admin paths redirect to 404 on live | [Pending 92d] | open |
+| 4 | Rename stray chat/referrals routes per Pages quirk | [Pending 94d] | open |
+| 5 | First Reddit/LinkedIn acquisition post | [Pending 94d] | open |
+| 6 | Stripe/payment gateway wiring deferred post-beta | [Pending 92d] | open |
+| 7 | Live hardening: /api/admin + /internal 302 | [Pending 86d] | open |
+| 8 | PHASE 1: first acquisition post (Reddit/FBA) | [Pending 79d] | open |
+| 9 | PHASE 1: reach 200 signed users, 7-day return | [Pending 79d] | open |
+| 10 | PHASE 2: 10 forwarder/3PL white-label talks | [Pending 79d] | open |
+| 11 | PHASE 2: wire Stripe + real Pro if justified | [Pending 79d] | open |
+| 12 | PHASE 3: retention dashboard (signup→return→Pro) | [Pending 79d] | open |
+| 13 | Stripe keys in CF Secrets, unused — Buy Now placeholder | [Pending 78d] | open |
+| 14 | Wire Buy Now $29.99 — ONLY revenue blocker | [Pending 78d] | open |
+| 15 | Ollama + anythingLLM infra PAUSED | [Pending 78d] | open |
+| 16 | Hetzner VPS bootstrap — needs SSH from PC | [Pending 78d] | open |
+| 17 | Build tools/cpsc-certificate.html — deadline passed | [Pending 53d] | open |
+| 18 | Review/safe-stage package.json + setdata.json | [Pending 78d 1h] | open |
+| 19 | Confirm /api/admin, /api/internal, /admin live hardening | [Pending 83d 1h] | open |
 
-15 Done (full list: `ops/daily-tasks.md`).
+15 tasks Done — full list in ops/daily-tasks.md
 
 ## Health Status
 
-- Homepage: 200 (0.21s). /api/v1/hts: 200. /api/telemetry: 200.
-- /api/admin, /api/internal, /admin: 302 → `/` — hardening INCOMPLETE.
-- /api/usage/status: 404 — function NOT mounted.
-- /api/v1/hts OPTIONS: 405 — CORS preflight fails; POST works.
-- TELEMETRY KV unbound. Stripe keys idle. Buy Now placeholder. CPSC 46d overdue.
+No uncommitted changes. Live probes blocked by bot-challenge 403 — runtime NOT re-verified. UTC+8.
 
 ## PENDING SUMMARY
 
-| Bucket | Count |
-|--------|-------|
-| <24h | 0 |
-| 24-48h | 0 |
-| 48-72h | 0 |
-| >72h | 17 |
+- <24h: 0
+- 24-48h: 0
+- 48-72h: 0
+- >72h: 19
 
 ## OLDEST PENDING TASKS
 
-All equal [Pending 87d], no spread:
-- Rename stray chat/referrals routes (87d)
-- First acquisition post (Reddit/LinkedIn) (87d)
+All equal [Pending 94d] — no spread. Top 3 by creation date:
+1. Rename stray chat/referrals routes (2026-06-23)
+2. Customer acquisition execution: first Reddit/LinkedIn post (2026-06-23)
+3. Admin paths redirect to 404 on live (2026-06-25)
 
-## TIME SENSITIVE
+## TIME SENSITIVE (>48h)
 
-All 17 pending >48h. Escalate: routes rename (87d), first post (87d), admin 404 (85d, LIVE: 302), Stripe deferred (85d), HTS tests (80d), integration tests (80d), /api/admin hardening (79d, LIVE: 302), PHASE 1 posts (72d, zero), PHASE 1 users (72d, none), PHASE 2 convos (72d), PHASE 2 Stripe (72d), Phase 3 dashboard (72d), Stripe keys idle (71d), Buy Now placeholder (71d, only revenue blocker), Ollama PAUSED (71d), Hetzner VPS (71d), cpsc-certificate (46d, overdue).
+All 19 pending items exceed 48h. Top escalations:
+- Rename chat/referrals routes [Pending 94d]
+- First Reddit/LinkedIn post [Pending 94d]
+- Admin paths 404 on live [Pending 92d]
+- Stripe wiring deferred [Pending 92d]
+- HTS lookup tests failing 0/20 [Pending 87d]
 
 ## RECOMMENDED ACTIONS
 
-1. **[Execute]** Wire Buy Now to Gumroad — first-dollar; user supplies URL.
-2. **[Execute]** Fix /api/admin + /api/internal → 404 (still 302 live).
-3. **[Execute]** Build + deploy cpsc-certificate.html — mandatory, 46d overdue.
+1. [Execute] Wire Buy Now to Gumroad checkout URL — only revenue path. Needs PC.
+2. [Execute] Publish first Reddit/FBA acquisition post.
+3. [Execute] Build cpsc-certificate.html (deadline passed 2026-07-08).
