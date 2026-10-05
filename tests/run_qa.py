@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 
-BASE = 'https://clearanceiq.pages.dev'
+BASE = 'https://clearance-iq.com'
 LOCAL_REPO = r'C:\Users\Najmi\Documents\Tycoon\site'
 TEST_DIR = os.path.join(LOCAL_REPO, 'tests')
 REPORT_PATH = os.path.join(TEST_DIR, 'TEST_REPORT.md')
@@ -239,7 +239,7 @@ hts_pass = 0
 hts_fail = 0
 hts_details = []
 for term in hts_terms:
-    code, data = curl_get(f"{BASE}/api/v1/hts", {'q': term})
+    code, data = curl_get(f"{BASE}/api/v1/hts?q={term}")
     ok = isinstance(data, dict) and data.get('ok') and data.get('code')
     if ok:
         hts_pass += 1
