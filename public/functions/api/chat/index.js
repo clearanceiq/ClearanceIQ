@@ -61,6 +61,20 @@ export async function onRequestPost(context) {
 
   const systemPrompt = await loadSystemPrompt(context);
 
+  // TEMP DEBUG: raw OpenRouter response
+  if (new URL(context.request.url).searchParams.get('debug') === 'or') {
+    try {
+      const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+        body: JSON.stringify({ model: MODEL, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: 'say OK' }], max_tokens: 50 }),
+      });
+      return json({ status: r.status, body: (await r.text()).slice(0, 400) }, 200);
+    } catch (e) {
+      return json({ err: String(e) }, 200);
+    }
+  }
+
   let reply = 'No response from expert.';
   try {
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
