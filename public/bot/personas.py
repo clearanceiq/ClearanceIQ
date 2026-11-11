@@ -1,6 +1,25 @@
+import os
+
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
+_PROMPT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts")
+
+
+def _load_prompt(filename):
+    """Load a shared system prompt so the bot and the web widget stay in sync."""
+    try:
+        with open(os.path.join(_PROMPT_DIR, filename), encoding="utf-8") as fh:
+            return fh.read().strip()
+    except OSError:
+        return ""
+
+
 PERSONAS = {
+    "us_customs": {
+        "name": "US Customs",
+        "description": "U.S. import compliance: CBP holds, entry summary, duty, HTS, bonds, ISF, PGA.",
+        "system_prompt": _load_prompt("us_customs.md"),
+    },
     "operator": {
         "name": "Operator",
         "description": "General assistant — handles daily tasks, questions, and chat. (BM + EN)",
@@ -34,7 +53,7 @@ PERSONAS = {
         ),
     },
     "customs": {
-        "name": "Customs",
+        "name": "MY/ID Customs",
         "description": "Malaysia / Indonesia customs declarations, HS codes, duties guidance.",
         "system_prompt": (
             "You are a customs procedures assistant for Malaysia and Indonesia. "

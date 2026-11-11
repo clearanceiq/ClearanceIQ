@@ -42,3 +42,4 @@ tmp/
 temp/
 
 marketing/.brevo_key
+__pycache__/

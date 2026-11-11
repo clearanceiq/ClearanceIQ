@@ -10,16 +10,32 @@ export async function onRequestOptions() {
   });
 }
 
-const SYSTEM_PROMPT = [
+// Fallback only — the live prompt is shared with the Telegram bot so both
+// answer from the same knowledge base. Edit public/bot/prompts/us_customs.md.
+const FALLBACK_PROMPT = [
   'You are the ClearanceIQ assistant for U.S. import compliance.',
   'Help with CBP holds, entry summaries, duty calculation, HTS classification,',
-  'supplier paperwork, single-entry and continuous bonds, and ISF filings.',
+  'single-entry and continuous bonds, ISF filings, and PGA requirements.',
   'Be precise, name the specific form or bond type where relevant, and keep answers under 200 words.',
   'You are not a lawyer and this is not legal advice.',
   'If a question is outside U.S. import compliance, say so briefly and offer what you can help with.',
 ].join(' ');
 
+const PROMPT_URL = '/bot/prompts/us_customs.md';
 const MODEL = 'anthropic/claude-haiku-5.5';
+
+async function loadSystemPrompt() {
+  try {
+    const res = await fetch(PROMPT_URL);
+    if (res.ok) {
+      const text = (await res.text()).trim();
+      if (text) return text;
+    }
+  } catch {
+    /* fall through to the embedded copy */
+  }
+  return FALLBACK_PROMPT;
+}
 
 export async function onRequestPost(context) {
   const json = (obj, status) =>
@@ -41,6 +57,8 @@ export async function onRequestPost(context) {
   const apiKey = context.env && context.env.OPENROUTER_API_KEY;
   if (!apiKey) return json({ error: 'API key not configured' }, 500);
 
+  const systemPrompt = await loadSystemPrompt();
+
   let reply = 'No response from expert.';
   try {
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -54,7 +72,7 @@ export async function onRequestPost(context) {
       body: JSON.stringify({
         model: MODEL,
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'system', content: systemPrompt },
           { role: 'user', content: message },
         ],
         max_tokens: 300,

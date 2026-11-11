@@ -183,7 +183,7 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         increment_usage(user_id)
 
         # Build conversation history
-        persona_key = user.get("persona", "operator")
+        persona_key = user.get("persona", "us_customs")
         persona = PERSONAS.get(persona_key, PERSONAS["operator"])
 
         messages = [
