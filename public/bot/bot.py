@@ -51,7 +51,7 @@ async def call_openrouter(
     payload = {
         "model": model,
         "messages": messages,
-        "max_tokens": 1024,
+        "max_tokens": 2048,
     }
 
     try:
