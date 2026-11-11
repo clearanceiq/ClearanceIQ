@@ -61,11 +61,6 @@ export async function onRequestPost(context) {
 
   const systemPrompt = await loadSystemPrompt(context);
 
-  // TEMP DEBUG: confirm which prompt is live
-  if (new URL(context.request.url).searchParams.get('debug') === 'prompt') {
-    return json({ len: systemPrompt.length, head: systemPrompt.slice(0, 70) }, 200);
-  }
-
   let reply = 'No response from expert.';
   try {
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
