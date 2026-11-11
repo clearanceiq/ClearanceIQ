@@ -24,9 +24,11 @@ const FALLBACK_PROMPT = [
 const PROMPT_URL = '/bot/prompts/us_customs.md';
 const MODEL = 'anthropic/claude-haiku-5.5';
 
-async function loadSystemPrompt() {
+async function loadSystemPrompt(context) {
   try {
-    const res = await fetch(PROMPT_URL);
+    // fetch() needs an absolute URL in a Worker — resolve it against the request.
+    const url = new URL(PROMPT_URL, context.request.url).href;
+    const res = await fetch(url);
     if (res.ok) {
       const text = (await res.text()).trim();
       if (text) return text;
@@ -57,7 +59,12 @@ export async function onRequestPost(context) {
   const apiKey = context.env && context.env.OPENROUTER_API_KEY;
   if (!apiKey) return json({ error: 'API key not configured' }, 500);
 
-  const systemPrompt = await loadSystemPrompt();
+  const systemPrompt = await loadSystemPrompt(context);
+
+  // TEMP DEBUG: confirm which prompt is live
+  if (new URL(context.request.url).searchParams.get('debug') === 'prompt') {
+    return json({ len: systemPrompt.length, head: systemPrompt.slice(0, 70) }, 200);
+  }
 
   let reply = 'No response from expert.';
   try {
