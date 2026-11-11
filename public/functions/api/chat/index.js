@@ -66,10 +66,27 @@ export async function onRequestPost(context) {
     try {
       const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
-        body: JSON.stringify({ model: MODEL, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: 'say OK' }], max_tokens: 50 }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + apiKey,
+          'HTTP-Referer': 'https://clearance-iq.com',
+          'X-Title': 'ClearanceIQ Expert Chat',
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: message }],
+          max_tokens: 300,
+        }),
       });
-      return json({ status: r.status, body: (await r.text()).slice(0, 400) }, 200);
+      const raw = await r.text();
+      let parsed = null;
+      try { parsed = JSON.parse(raw); } catch (e) { return json({ status: r.status, parseErr: String(e), rawHead: raw.slice(0, 200) }, 200); }
+      return json({
+        status: r.status,
+        hasChoices: !!(parsed.choices && parsed.choices[0]),
+        content: parsed.choices && parsed.choices[0] && parsed.choices[0].message ? String(parsed.choices[0].message.content).slice(0, 120) : null,
+        err: parsed.error || null,
+      }, 200);
     } catch (e) {
       return json({ err: String(e) }, 200);
     }
