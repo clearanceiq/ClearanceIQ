@@ -28,12 +28,6 @@ export async function onRequestPost(context) {
       headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },
     });
 
-  // TEMP DEBUG: remove once the key binding is confirmed
-  if (new URL(context.request.url).searchParams.get('debug') === '1') {
-    const e = context.env || {};
-    return json({ envKeys: Object.keys(e), hasKey: !!e.OPENROUTER_API_KEY, keyLen: e.OPENROUTER_API_KEY ? String(e.OPENROUTER_API_KEY).length : 0 }, 200);
-  }
-
   // request.json() is reliable here; request.text() returns an empty body on Pages.
   let body = {};
   try {
