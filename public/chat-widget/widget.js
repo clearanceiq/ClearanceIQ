@@ -53,9 +53,14 @@
   }
 
   function renderTurnstile() {
-    const host = document.querySelector('#' + WIDGET_ID + ' .turnstile');
-    if (!host || !window.turnstile) return;
+    const widgetEl = document.getElementById(WIDGET_ID);
+    const host = widgetEl && widgetEl.querySelector('.turnstile');
+    const win = widgetEl && widgetEl.querySelector('.window');
+    // Turnstile cannot execute inside a hidden container — only render when open.
+    if (!host || !win || !win.classList.contains('open')) return;
+    if (!window.turnstile) return;
     try {
+      host.innerHTML = '';
       window.turnstile.render(host, {
         sitekey: TURNSTILE_SITEKEY,
         callback: function(t) { turnstileToken = t; },
