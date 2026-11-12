@@ -1,14 +1,68 @@
-/* ClearanceIQ — Customs Compliance Expert Chat Widget */
-
+/* ClearanceIQ — Customs Compliance Expert Chat Widget
+ *
+ * Guardrails:
+ *  - Cloudflare Turnstile token required per message (non-interactive)
+ *  - session cookie for per-session rate limiting
+ *  - client-side max input length
+ *  - never logs message content
+ *  - error text is generic; no internals are surfaced
+ */
 (function() {
+  'use strict';
+
   const WIDGET_ID = 'ciq-chat-widget';
   const API_URL = '/api/chat';
+  const TURNSTILE_SITEKEY = '0x4AAAAAAF9fbna-3kJBdQhE';
+  const MAX_LEN = 600;
+  const NOTICE = 'General information only — not customs-broker or legal advice.';
 
-  function init() {
-    if (document.getElementById(WIDGET_ID)) return;
-    injectStyles();
-    injectHTML();
-    bindEvents();
+  let turnstileToken = null;
+
+  function getCookie(name) {
+    const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+
+  function setCookie(name, value, days) {
+    const d = new Date();
+    d.setTime(d.getTime() + days * 864e5);
+    document.cookie = name + '=' + encodeURIComponent(value) +
+      '; expires=' + d.toUTCString() + '; path=/; SameSite=Lax' +
+      (location.protocol === 'https:' ? '; Secure' : '');
+  }
+
+  function getSessionId() {
+    let sid = getCookie('ciq_sid');
+    if (!sid) {
+      sid = (window.crypto && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : 's' + Date.now().toString(36) + Math.random().toString(36).slice(2);
+      setCookie('ciq_sid', sid, 1);
+    }
+    return sid;
+  }
+
+  function loadTurnstile() {
+    if (window.turnstile) { renderTurnstile(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    s.async = true;
+    s.defer = true;
+    s.onload = renderTurnstile;
+    document.head.appendChild(s);
+  }
+
+  function renderTurnstile() {
+    const host = document.querySelector('#' + WIDGET_ID + ' .turnstile');
+    if (!host || !window.turnstile) return;
+    try {
+      window.turnstile.render(host, {
+        sitekey: TURNSTILE_SITEKEY,
+        callback: function(t) { turnstileToken = t; },
+        'expired-callback': function() { turnstileToken = null; renderTurnstile(); },
+        'error-callback': function() { turnstileToken = null; }
+      });
+    } catch (e) { turnstileToken = null; }
   }
 
   function injectStyles() {
@@ -89,6 +143,16 @@
         background: #f1f5f9;
         color: #0f172a;
       }
+      #${WIDGET_ID} .notice {
+        font-size: 11px;
+        color: #64748b;
+        padding: 6px 12px;
+        border-top: 1px solid #e2e8f0;
+        background: #f8fafc;
+      }
+      #${WIDGET_ID} .turnstile {
+        padding: 0 12px 8px;
+      }
       #${WIDGET_ID} .composer {
         display: flex;
         padding: 12px;
@@ -133,10 +197,12 @@
           <button class="close">✕</button>
         </div>
         <div class="messages">
-          <div class="msg bot">Ask about CBP holds, duty calculation, HTS classification, supplier paperwork, or bonds. This assistant is trained on U.S. import compliance guidance, not legal advice.</div>
+          <div class="msg bot">Ask about CBP holds, duty calculation, HTS classification, bonds, or ISF. ${NOTICE}</div>
         </div>
+        <div class="turnstile"></div>
+        <div class="notice">${NOTICE}</div>
         <div class="composer">
-          <input type="text" placeholder="Type your import question…" autocomplete="off">
+          <input type="text" maxlength="${MAX_LEN}" placeholder="Type your import question…" autocomplete="off">
           <button class="send">Send</button>
         </div>
       </div>
@@ -153,12 +219,19 @@
     const send = widget.querySelector('.send');
     const messages = widget.querySelector('.messages');
 
-    launcher.addEventListener('click', () => win.classList.toggle('open'));
+    launcher.addEventListener('click', () => {
+      win.classList.toggle('open');
+      if (win.classList.contains('open')) renderTurnstile();
+    });
     close.addEventListener('click', () => win.classList.remove('open'));
 
     async function sendMessage() {
       const text = input.value.trim();
       if (!text) return;
+      if (text.length > MAX_LEN) {
+        appendMsg('bot', 'That question is too long. Please keep it under ' + MAX_LEN + ' characters.');
+        return;
+      }
       input.value = '';
       appendMsg('user', text);
       const typing = document.createElement('div');
@@ -169,17 +242,25 @@
       try {
         const res = await fetch(API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text })
+          headers: {
+            'Content-Type': 'application/json',
+            'x-ciq-sid': getSessionId()
+          },
+          body: JSON.stringify({ message: text, turnstile: turnstileToken || '' })
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         typing.remove();
+
         if (data.reply) {
           appendMsg('bot', data.reply);
-        } else if (data.error === 'API key not configured') {
-          appendMsg('bot', 'The compliance assistant is currently being upgraded on our servers. For urgent questions, email support@clearance-iq.com.');
+        } else if (data.error === 'rate_limited') {
+          appendMsg('bot', 'You have sent quite a few messages. Please wait a minute and try again.');
+        } else if (data.error === 'captcha_failed') {
+          turnstileToken = null;
+          renderTurnstile();
+          appendMsg('bot', 'The security check did not complete. Please try again in a moment.');
         } else {
-          appendMsg('bot', 'Sorry, I couldn’t process that. Try again.');
+          appendMsg('bot', 'Sorry, I couldn’t process that. Please try again.');
         }
       } catch (e) {
         typing.remove();
@@ -197,6 +278,15 @@
 
     send.addEventListener('click', sendMessage);
     input.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+  }
+
+  function init() {
+    if (document.getElementById(WIDGET_ID)) return;
+    getSessionId();
+    injectStyles();
+    injectHTML();
+    bindEvents();
+    loadTurnstile();
   }
 
   if (document.readyState === 'loading') {
