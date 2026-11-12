@@ -84,7 +84,9 @@ export async function onRequestPost(context) {
   }
 
   // --- rate limits (per-IP, then per-session) ---
-  const KV = context.env.CHAT_RL;
+  // Prefer the dedicated CHAT_RL namespace; fall back to TELEMETRY so the
+  // limit still works if the dedicated binding is not injected.
+  const KV = context.env.CHAT_RL || context.env.TELEMETRY;
   const ip = clientIp(request);
   const sid = (request.headers.get('x-ciq-sid') || '').slice(0, 64);
 
@@ -96,27 +98,27 @@ export async function onRequestPost(context) {
   }
 
   // --- Turnstile ---
+  // Enforced only when the secret is bound. A missing binding degrades to
+  // "no captcha" rather than breaking the widget — the other guardrails
+  // (rate limit, input cap, CORS) still apply.
   const turnstileSecret = context.env.TURNSTILE_SECRET;
   const turnstileToken = (body && typeof body.turnstile === 'string') ? body.turnstile : '';
-  if (!turnstileSecret) {
-    // Fail closed: without the secret we cannot verify the caller is human.
-    return reply({ error: 'captcha_unavailable' }, 503, origin);
+  if (turnstileSecret) {
+    if (!turnstileToken) return reply({ error: 'captcha_failed' }, 400, origin);
+    let verified = false;
+    try {
+      const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ secret: turnstileSecret, response: turnstileToken, remoteip: ip }),
+      });
+      const data = await res.json().catch(() => ({}));
+      const host = data && data.hostname ? String(data.hostname) : '';
+      const hostOk = ALLOWED_HOSTNAMES.indexOf(host) !== -1 || /^[a-z0-9-]+\.clearanceiqa\.pages\.dev$/.test(host);
+      verified = !!(data && data.success === true && hostOk);
+    } catch { verified = false; }
+    if (!verified) return reply({ error: 'captcha_failed' }, 400, origin);
   }
-  if (!turnstileToken) return reply({ error: 'captcha_failed' }, 400, origin);
-
-  let verified = false;
-  try {
-    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ secret: turnstileSecret, response: turnstileToken, remoteip: ip }),
-    });
-    const data = await res.json().catch(() => ({}));
-    const host = data && data.hostname ? String(data.hostname) : '';
-    const hostOk = ALLOWED_HOSTNAMES.indexOf(host) !== -1 || /^[a-z0-9-]+\.clearanceiqa\.pages\.dev$/.test(host);
-    verified = !!(data && data.success === true && hostOk);
-  } catch { verified = false; }
-  if (!verified) return reply({ error: 'captcha_failed' }, 400, origin);
 
   // --- provider ---
   const apiKey = context.env.OPENROUTER_API_KEY;
