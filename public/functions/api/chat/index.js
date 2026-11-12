@@ -62,12 +62,15 @@ export async function onRequestPost(context) {
 
   // TEMP DEBUG: confirm runtime bindings
   if (new URL(request.url).searchParams.get('debug') === 'env') {
+    const env = context.env || {};
     return reply({
-      hasTsSecret: !!(context.env.TURNSTILE_SECRET && context.env.TURNSTILE_SECRET.length),
-      tsSecretLen: context.env.TURNSTILE_SECRET ? context.env.TURNSTILE_SECRET.length : 0,
-      hasSitekey: !!context.env.TURNSTILE_SITEKEY,
-      hasKv: !!context.env.CHAT_RL,
-      hasKey: !!(context.env.OPENROUTER_API_KEY && context.env.OPENROUTER_API_KEY.length),
+      envType: typeof context.env,
+      envKeys: Object.keys(env),
+      hasTsSecret: !!(env.TURNSTILE_SECRET && env.TURNSTILE_SECRET.length),
+      tsSecretLen: env.TURNSTILE_SECRET ? env.TURNSTILE_SECRET.length : 0,
+      hasSitekey: !!env.TURNSTILE_SITEKEY,
+      hasKv: !!env.CHAT_RL,
+      hasKey: !!(env.OPENROUTER_API_KEY && env.OPENROUTER_API_KEY.length),
     }, 200, origin);
   }
 
