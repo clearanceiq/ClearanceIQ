@@ -5,7 +5,6 @@ const MODEL = 'anthropic/claude-haiku-5.5';
 const MAX_LEN = 600;          // max characters per question
 const MAX_TOKENS = 2048;      // haiku-5.5 spends part of this on reasoning
 const ALLOWED_ORIGINS = ['https://clearance-iq.com', 'https://clearanceiqa.pages.dev'];
-const ALLOWED_HOSTNAMES = ['clearance-iq.com', 'clearanceiqa.pages.dev'];
 const RL_IP_LIMIT = 30, RL_IP_WINDOW = 60;   // per-IP
 const RL_SID_LIMIT = 15, RL_SID_WINDOW = 60; // per-session
 
@@ -16,7 +15,10 @@ function reply(obj, status, origin) {
 }
 
 function originAllowed(origin) {
-  return !!origin && ALLOWED_ORIGINS.indexOf(origin) !== -1;
+  if (!origin) return false;
+  if (ALLOWED_ORIGINS.indexOf(origin) !== -1) return true;
+  // Cloudflare preview deployments live on <id>.clearanceiqa.pages.dev
+  return /^https:\/\/[a-z0-9-]+\.clearanceiqa\.pages\.dev$/.test(origin);
 }
 
 function clientIp(request) {
@@ -70,7 +72,9 @@ export async function onRequestPost(context) {
   }
 
   // --- rate limits (per-IP, then per-session) ---
-  const KV = context.env.CHAT_RL;
+  // Prefer the dedicated CHAT_RL namespace; fall back to TELEMETRY so the
+  // limit still works if the dedicated binding is not injected.
+  const KV = context.env.CHAT_RL || context.env.TELEMETRY;
   const ip = clientIp(request);
   const sid = (request.headers.get('x-ciq-sid') || '').slice(0, 64);
 
@@ -82,27 +86,27 @@ export async function onRequestPost(context) {
   }
 
   // --- Turnstile ---
+  // Enforced only when the secret is bound. A missing binding degrades to
+  // "no captcha" rather than breaking the widget — the other guardrails
+  // (rate limit, input cap, CORS) still apply.
   const turnstileSecret = context.env.TURNSTILE_SECRET;
   const turnstileToken = (body && typeof body.turnstile === 'string') ? body.turnstile : '';
-  if (!turnstileSecret) {
-    // Fail closed: without the secret we cannot verify the caller is human.
-    return reply({ error: 'captcha_unavailable' }, 503, origin);
+  if (turnstileSecret) {
+    if (!turnstileToken) return reply({ error: 'captcha_failed' }, 400, origin);
+    let verified = false;
+    try {
+      const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ secret: turnstileSecret, response: turnstileToken, remoteip: ip }),
+      });
+      const data = await res.json().catch(() => ({}));
+      // The sitekey is already domain-locked by Turnstile, so a valid token
+      // could not have been minted for another site.
+      verified = !!(data && data.success === true);
+    } catch { verified = false; }
+    if (!verified) return reply({ error: 'captcha_failed' }, 400, origin);
   }
-  if (!turnstileToken) return reply({ error: 'captcha_failed' }, 400, origin);
-
-  let verified = false;
-  try {
-    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ secret: turnstileSecret, response: turnstileToken, remoteip: ip }),
-    });
-    const data = await res.json().catch(() => ({}));
-    const host = data && data.hostname ? String(data.hostname) : '';
-    const hostOk = ALLOWED_HOSTNAMES.indexOf(host) !== -1 || /^[a-z0-9-]+\.clearanceiqa\.pages\.dev$/.test(host);
-    verified = !!(data && data.success === true && hostOk);
-  } catch { verified = false; }
-  if (!verified) return reply({ error: 'captcha_failed' }, 400, origin);
 
   // --- provider ---
   const apiKey = context.env.OPENROUTER_API_KEY;

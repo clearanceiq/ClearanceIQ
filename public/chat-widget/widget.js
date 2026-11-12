@@ -220,7 +220,7 @@
     const launcher = widget.querySelector('.launcher');
     const close = widget.querySelector('.close');
     const win = widget.querySelector('.window');
-    const input = widget.querySelector('input');
+    const input = widget.querySelector('.composer input');
     const send = widget.querySelector('.send');
     const messages = widget.querySelector('.messages');
 

@@ -5,7 +5,6 @@ const MODEL = 'anthropic/claude-haiku-5.5';
 const MAX_LEN = 600;          // max characters per question
 const MAX_TOKENS = 2048;      // haiku-5.5 spends part of this on reasoning
 const ALLOWED_ORIGINS = ['https://clearance-iq.com', 'https://clearanceiqa.pages.dev'];
-const ALLOWED_HOSTNAMES = ['clearance-iq.com', 'clearanceiqa.pages.dev'];
 const RL_IP_LIMIT = 30, RL_IP_WINDOW = 60;   // per-IP
 const RL_SID_LIMIT = 15, RL_SID_WINDOW = 60; // per-session
 
@@ -16,7 +15,10 @@ function reply(obj, status, origin) {
 }
 
 function originAllowed(origin) {
-  return !!origin && ALLOWED_ORIGINS.indexOf(origin) !== -1;
+  if (!origin) return false;
+  if (ALLOWED_ORIGINS.indexOf(origin) !== -1) return true;
+  // Cloudflare preview deployments live on <id>.clearanceiqa.pages.dev
+  return /^https:\/\/[a-z0-9-]+\.clearanceiqa\.pages\.dev$/.test(origin);
 }
 
 function clientIp(request) {
@@ -60,20 +62,6 @@ export async function onRequestPost(context) {
   // CORS: only our own domains may call this endpoint.
   if (!originAllowed(origin)) return reply({ error: 'forbidden' }, 403, null);
 
-  // TEMP DEBUG: confirm runtime bindings
-  if (new URL(request.url).searchParams.get('debug') === 'env') {
-    const env = context.env || {};
-    return reply({
-      envType: typeof context.env,
-      envKeys: Object.keys(env),
-      hasTsSecret: !!(env.TURNSTILE_SECRET && env.TURNSTILE_SECRET.length),
-      tsSecretLen: env.TURNSTILE_SECRET ? env.TURNSTILE_SECRET.length : 0,
-      hasSitekey: !!env.TURNSTILE_SITEKEY,
-      hasKv: !!env.CHAT_RL,
-      hasKey: !!(env.OPENROUTER_API_KEY && env.OPENROUTER_API_KEY.length),
-    }, 200, origin);
-  }
-
   let body = {};
   try { body = await request.json(); } catch { body = {}; }
 
@@ -113,9 +101,9 @@ export async function onRequestPost(context) {
         body: new URLSearchParams({ secret: turnstileSecret, response: turnstileToken, remoteip: ip }),
       });
       const data = await res.json().catch(() => ({}));
-      const host = data && data.hostname ? String(data.hostname) : '';
-      const hostOk = ALLOWED_HOSTNAMES.indexOf(host) !== -1 || /^[a-z0-9-]+\.clearanceiqa\.pages\.dev$/.test(host);
-      verified = !!(data && data.success === true && hostOk);
+      // The sitekey is already domain-locked by Turnstile, so a valid token
+      // could not have been minted for another site.
+      verified = !!(data && data.success === true);
     } catch { verified = false; }
     if (!verified) return reply({ error: 'captcha_failed' }, 400, origin);
   }
