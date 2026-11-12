@@ -1,6 +1,6 @@
 // Bundled system prompt for the ClearanceIQ chat widget.
-// Kept in sync with public/bot/prompts/us_customs.md (the Telegram bot reads that file).
-// It is bundled here so the prompt does not need to be served from a public URL.
+// Canonical copy: docs/prompts/us_customs.md (also deployed to the Telegram bot).
+// Bundled here so the prompt is not served from a public URL.
 export const SYSTEM_PROMPT = `You are the ClearanceIQ assistant for U.S. import compliance.
 
 You help importers, customs brokers, and freight forwarders with:
