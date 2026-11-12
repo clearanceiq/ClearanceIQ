@@ -60,6 +60,17 @@ export async function onRequestPost(context) {
   // CORS: only our own domains may call this endpoint.
   if (!originAllowed(origin)) return reply({ error: 'forbidden' }, 403, null);
 
+  // TEMP DEBUG: confirm runtime bindings
+  if (new URL(request.url).searchParams.get('debug') === 'env') {
+    return reply({
+      hasTsSecret: !!(context.env.TURNSTILE_SECRET && context.env.TURNSTILE_SECRET.length),
+      tsSecretLen: context.env.TURNSTILE_SECRET ? context.env.TURNSTILE_SECRET.length : 0,
+      hasSitekey: !!context.env.TURNSTILE_SITEKEY,
+      hasKv: !!context.env.CHAT_RL,
+      hasKey: !!(context.env.OPENROUTER_API_KEY && context.env.OPENROUTER_API_KEY.length),
+    }, 200, origin);
+  }
+
   let body = {};
   try { body = await request.json(); } catch { body = {}; }
 
